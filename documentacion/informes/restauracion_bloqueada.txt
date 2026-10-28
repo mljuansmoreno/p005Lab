@@ -1,0 +1,3 @@
+  Determining projects to restore...
+  Restored RAIZ_REPOSITORIO\codigo\RutaEstadistica.ServidorMcp\RutaEstadistica.ServidorMcp.csproj (in 2.44 sec).
+  7 of 8 projects are up-to-date for restore.

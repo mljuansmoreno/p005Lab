@@ -23,3 +23,5 @@ MCP latest resuelve a [2026-07-28](https://modelcontextprotocol.io/specification
 Decisión XLSX: parser de XML restringido propio en .NET, no readxl; se consultó [readxl](https://readxl.tidyverse.org/) para comportamiento, pero no se redistribuye ni figura como dependencia instalada. Las fórmulas y fechas seriales complejas se rechazan o requieren conversión textual explícita.
 
 Adquisición: [instalación](instalacion_desarrollo.md). Inventario/licencias: [dependencias](licencias_y_dependencias.md). Estado real: [entrega](estado_entrega.md).
+
+Entorno observado de esta sesión: Windows 10.0.26300 x64, SDK aislado y R global presente. No equivale a máquina limpia. CPU/RAM y tiempos de referencia no se midieron; no se publican requisitos de memoria o rendimiento inferidos.

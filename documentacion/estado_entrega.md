@@ -4,7 +4,7 @@ Versión de desarrollo, sesión del 27/10/2026. **Todavía no satisface todos lo
 
 ## Abrir
 
-Ejecute `salidas/aplicacion/RutaEstadistica.Escritorio.exe`. Inicio → Probar ejemplo → Calcular. La carpeta incluye R y bibliotecas; el análisis no depende del R global. Se dejó abierta la versión de desarrollo.
+Ejecute `salidas/aplicacion/RutaEstadistica.Escritorio.exe`. Inicio → Probar ejemplo → Calcular. La carpeta incluye R y bibliotecas; el análisis no depende del R global. La última prueba de arranque mantuvo el proceso activo durante cinco segundos, con título «Ruta Estadística» y estado de respuesta positivo; véase [arranque](informes/arranque.json).
 
 La ventana principal fue identificada por el sistema tras corregir los recursos de publicación. No se automatizó el recorrido gráfico: la autorización de acceso de Computer Use expiró. No se inventan capturas ni aceptación visual.
 
@@ -30,7 +30,7 @@ La ventana principal fue identificada por el sistema tras corregir los recursos 
 - El sistema tenía runtime .NET 8.0.13 sin SDK. Se adquirió SDK 10.0.403 dentro del repositorio.
 - R CMD INSTALL de rutaanalitica: correcto con jsonlite 2.0.0 en biblioteca aislada.
 - `Rscript --vanilla motor_r/rutaanalitica/tests/verificar.R`: correcto para todas las familias, exclusiones y errores cubiertos.
-- Ejecutable de RutaEstadistica.PruebasUnitarias con salidas/recursos: **26 comprobaciones correctas**, incluidas XLSX, reapertura, trabajador real, reproducción exportada y controles MCP.
+- Ejecutable de RutaEstadistica.PruebasUnitarias con salidas/recursos: **28 comprobaciones correctas**, incluidas XLSX, reapertura, trabajador real, reproducción exportada, análisis MCP autorizado y controles de permisos.
 - Compilación de ServidorLocal Release: correcta, cero advertencias/errores en la ejecución registrada.
 - Publicación autocontenida de Escritorio y ServidorMcp: correcta. Publish omitía PRI/XBF y causaba XamlParseException; se corrigió con `CopiarRecursosInterfaz`. Se añadió recurso es-CO para resolver PRI257 de localización.
 - `python guiones/probar_api.py`: **cinco controles HTTP correctos**: sin credencial, credencial incorrecta, salud autorizada, Origin y Host. No demuestra ejecución Docker.
@@ -39,13 +39,13 @@ La ventana principal fue identificada por el sistema tras corregir los recursos 
 - Consulta NuGet `--vulnerable --include-transitive`: sin paquetes vulnerables devueltos para escritorio en la consulta registrada. Se actualizó SQLite tras una advertencia inicial. No cubre R, todas las capas Linux o cumplimiento de licencias.
 - `empaquetar_tienda.ps1`: **Package creation succeeded**, MakeAppx Windows SDK 10.0.26100.0. Se necesitó ejecución fuera del aislamiento de herramientas tras acceso denegado; no se desactivó seguridad de Windows.
 
-Informes: [integración](informes/pruebas_integracion.txt), [R](informes/pruebas_r.txt), [HTTP](informes/api_seguridad.json), [MCP](informes/mcp_stdio.json), [NuGet](informes/vulnerabilidades.json). Los logs completos locales están en salidas/informes. La restauración bloqueada y CI se registran separadamente; no se afirma una ejecución remota de GitHub.
+Informes: [integración](informes/pruebas_integracion.txt), [R](informes/pruebas_r.txt), [HTTP](informes/api_seguridad.json), [MCP](informes/mcp_stdio.json), [NuGet](informes/vulnerabilidades.json). Los logs completos locales están en salidas/informes. La restauración bloqueada de toda la solución se verificó tras fijar win-x64 en el host MCP. No se ha ejecutado el workflow remoto de GitHub.
 
 ## Artefacto de prueba
 
-`salidas/paquetes/RutaEstadistica_0.1.0.0_x64_sin_firma.msix`: **249.756.810 bytes**.
+`salidas/paquetes/RutaEstadistica_0.1.0.0_x64_sin_firma.msix`: **249.757.837 bytes**.
 
-SHA-256: `fc006d0314f339e9949c32d4c6f5786b173468185a1ddf36c8d1e7eadde28524`.
+SHA-256: `7aa09d80229de1b4bc3446e3d229cb2c328d6f3785d85b50a0b4b8b693b25ccd`.
 
 Identidad de prueba RutaEstadistica.Pruebas, editor CN=DesarrolloLocal. **Sin firma, instalación limpia ni certificación**. No se publicó, no se usaron certificados y no se transmitieron proyectos a proveedores de modelos.
 

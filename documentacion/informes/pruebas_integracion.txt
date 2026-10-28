@@ -18,10 +18,12 @@ VERIFICADO: MCP deshabilitado inicialmente
 VERIFICADO: MCP permite resumen autorizado
 VERIFICADO: MCP aísla proyectos
 VERIFICADO: MCP exige permiso independiente de ejecución
+VERIFICADO: MCP ejecuta análisis R real con hash descubierto y permiso vigente
+VERIFICADO: MCP devuelve resultado limitado sin rutas ni registros
 VERIFICADO: Revocación MCP es inmediata
 VERIFICADO: Trabajador R real devuelve media conocida con exclusión
 VERIFICADO: Exportación HTML incrusta PNG e incluye reproducción
 VERIFICADO: Guion exportado se ejecuta sobre su propia entrada
 VERIFICADO: Reproducción exportada conserva resultado conocido
 VERIFICADO: Cancelación termina trabajador propio
-TOTAL: 26 comprobaciones correctas.
+TOTAL: 28 comprobaciones correctas.
