@@ -30,7 +30,7 @@ public sealed partial class VentanaPrincipal : Window
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1280, 900));
         repositorio = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RutaEstadistica", "proyectos"));
         intermediario = new(repositorio, new MotorRLocal(recursos));
-        _ = intermediario.EscucharAsync();
+        _ = Task.Run(intermediario.EscucharAsync);
         ActualizarProyectos(); inicializando = false; Navegacion.SelectedItem = Navegacion.MenuItems[0];
         Closed += (_, _) => { cancelacion?.Cancel(); intermediario.Dispose(); };
     }

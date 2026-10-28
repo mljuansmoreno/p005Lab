@@ -2,6 +2,8 @@
 
 Los códigos son estables. No se muestran trazas sin filtrar al usuario. Para diagnóstico conserve código e identificador de solicitud; nunca copie datos ni credenciales.
 
+`INICIO_FALLIDO`: no se pudo construir ventana o almacenamiento; revise recursos y permisos. `INTERFAZ_RECURSOS_AUSENTES`: falta índice PRI en build; no distribuya esa carpeta. Si `XamlParseException` aparece solo en publish, compruebe `App.xbf`, `VentanaPrincipal.xbf` y `RutaEstadistica.Escritorio.pri`: `CopiarRecursosInterfaz` debe conservarlos. El diagnóstico optativo `RUTA_ESTADISTICA_DIAGNOSTICO_DESARROLLO=1` conserva `inicio_desarrollo.txt` en el perfil; contiene rutas y requiere revisión antes de compartir.
+
 | Código | Síntoma/causa | Reparación segura |
 |---|---|---|
 | `ANALISIS_GRUPOS_INVALIDOS` | Validación o disponibilidad rechazada en la capa indicada por el prefijo | Revisar opciones, límites y permisos; localizar el código en el mapa y reproducir con datos sintéticos |

@@ -11,6 +11,7 @@ Excepciones concretas de interoperabilidad:
 | `App`, `OnLaunched`, `InitializeComponent`, `Main` implícito, `PropertyChanged` | Ciclo de vida y miembros de WinUI/.NET. `App` conserva convención del tipo generado por XAML; el resto de tipos propios tiene nombres españoles. |
 | `CancellationToken`, `Task`, `HttpClient`, `JsonElement`, `PipeOptions`, `SqliteConnection` | Tipos externos; no son vocabulario de dominio. |
 | `x:Class`, `Grid.Row`, `TargetFramework`, `UseWinUI`, `EntryPoint`, `runFullTrust` | Esquemas XAML/MSBuild/manifiesto. |
+| `Strings/es-CO/Resources.resw`, `Text`, `resheader`, `resmimetype` | Convenciones de recursos WinUI; `Resources.resw` sirve al enlace automático `x:Uid`. |
 | `args` | Variable implícita de las instrucciones C# de nivel superior; no se introduce un dominio inglés. |
 | `res`, `width`, `height`, `na.action`, `paired`, `var.equal`, `conf.level`, `auto_unbox` | Parámetros de APIs R, no nombres propios. |
 | `Package`, `Version`, `Imports`, `License`, `DESCRIPTION`, `NAMESPACE`, `tests` | Archivos/metadatos exigidos por ecosistema R. |

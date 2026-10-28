@@ -1,0 +1,7 @@
+{
+  "sin_credencial": true,
+  "credencial_incorrecta": true,
+  "salud_autorizada": true,
+  "origen_navegador_rechazado": true,
+  "host_externo_rechazado": true
+}

@@ -1,0 +1,27 @@
+VERIFICADO: CSV conserva Unicode, comillas y saltos internos
+VERIFICADO: DATOS_CSV_INVALIDO
+VERIFICADO: Importación no convierte identificadores ni etiquetas
+VERIFICADO: Conversión decimal explícita y faltantes
+VERIFICADO: DATOS_NUMERO_INVALIDO
+VERIFICADO: CSV seguro neutraliza fórmula de hoja de cálculo
+VERIFICADO: XLSX enumera hojas sin ejecutar contenido
+VERIFICADO: XLSX conserva texto y valores originales
+VERIFICADO: XLSX exige elección explícita de hoja
+VERIFICADO: XLSX rechaza fórmulas
+VERIFICADO: SQLite y datos se reabren sin pérdida
+VERIFICADO: Archivo portátil valida hashes y crea identidad nueva
+VERIFICADO: PROYECTO_ARCHIVO_INSEGURO
+VERIFICADO: PROYECTO_ID_INVALIDO
+VERIFICADO: Eliminar conserva respaldo recuperable
+VERIFICADO: Reemplazo atómico conserva último contenido completo
+VERIFICADO: MCP deshabilitado inicialmente
+VERIFICADO: MCP permite resumen autorizado
+VERIFICADO: MCP aísla proyectos
+VERIFICADO: MCP exige permiso independiente de ejecución
+VERIFICADO: Revocación MCP es inmediata
+VERIFICADO: Trabajador R real devuelve media conocida con exclusión
+VERIFICADO: Exportación HTML incrusta PNG e incluye reproducción
+VERIFICADO: Guion exportado se ejecuta sobre su propia entrada
+VERIFICADO: Reproducción exportada conserva resultado conocido
+VERIFICADO: Cancelación termina trabajador propio
+TOTAL: 26 comprobaciones correctas.

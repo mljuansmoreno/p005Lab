@@ -65,6 +65,22 @@ try
         catch (ErrorAplicacion error) { Verificar(error.Codigo == "MCP_PERMISO_DENEGADO", "MCP aísla proyectos"); }
         try { await intermediario.AtenderAsync(new("ejecutar_analisis", proyecto.Id)); throw new Exception("Se permitió cálculo sin permiso"); }
         catch (ErrorAplicacion error) { Verificar(error.Codigo == "MCP_PERMISO_DENEGADO", "MCP exige permiso independiente de ejecución"); }
+        if (args.Length > 0)
+        {
+            intermediario.Conceder(new(proyecto.Id, true, true, false, false));
+            var metadatos = System.Text.Json.JsonSerializer.SerializeToElement(await intermediario.AtenderAsync(new("obtener_resumen_datos", proyecto.Id)));
+            var hash = metadatos.GetProperty("hash_datos").GetString()!;
+            var solicitud = new SolicitudAnalisis(1, Guid.NewGuid().ToString("N"), proyecto.Id, hash, hash, "descriptivo", ["c002"], PoliticaFaltantes: "excluir_confirmados");
+            var encolado = System.Text.Json.JsonSerializer.SerializeToElement(await intermediario.AtenderAsync(new("ejecutar_analisis", proyecto.Id, Solicitud: solicitud)));
+            var id = encolado.GetProperty("trabajo_id").GetString()!;
+            TrabajoAnalisis trabajo;
+            var limite = DateTimeOffset.UtcNow.AddSeconds(30);
+            do { await Task.Delay(100); trabajo = (TrabajoAnalisis)await intermediario.AtenderAsync(new("consultar_trabajo", proyecto.Id, id)); }
+            while (trabajo.Estado is EstadoTrabajo.Pendiente or EstadoTrabajo.Ejecutando && DateTimeOffset.UtcNow < limite);
+            Verificar(trabajo.Estado == EstadoTrabajo.Completado, "MCP ejecuta análisis R real con hash descubierto y permiso vigente");
+            var resultado = System.Text.Json.JsonSerializer.Serialize(await intermediario.AtenderAsync(new("obtener_resultado", proyecto.Id, id)));
+            Verificar(resultado.Contains("interpretacion") && !resultado.Contains("residuos") && !resultado.Contains(temporal), "MCP devuelve resultado limitado sin rutas ni registros");
+        }
         intermediario.Revocar();
         try { await intermediario.AtenderAsync(new("obtener_resumen_datos", proyecto.Id)); throw new Exception("Revocación ignorada"); }
         catch (ErrorAplicacion error) { Verificar(error.Codigo == "MCP_DESHABILITADO", "Revocación MCP es inmediata"); }

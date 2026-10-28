@@ -1,0 +1,240 @@
+{
+  "inicializacion": {
+    "result": {
+      "protocolVersion": "2025-11-25",
+      "capabilities": {
+        "logging": {},
+        "tools": {
+          "listChanged": true
+        }
+      },
+      "serverInfo": {
+        "name": "RutaEstadistica.ServidorMcp",
+        "version": "1.0.0.0"
+      }
+    },
+    "id": 1,
+    "jsonrpc": "2.0"
+  },
+  "herramientas": {
+    "result": {
+      "tools": [
+        {
+          "name": "listar_proyectos_autorizados",
+          "description": "Lista solamente los proyectos autorizados por el usuario en la aplicación abierta.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        {
+          "name": "obtener_esquema_datos",
+          "description": "Devuelve columnas y roles del proyecto autorizado, sin registros originales.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "proyecto_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "proyecto_id"
+            ]
+          }
+        },
+        {
+          "name": "obtener_resumen_datos",
+          "description": "Devuelve recuentos acotados del proyecto autorizado.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "proyecto_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "proyecto_id"
+            ]
+          }
+        },
+        {
+          "name": "proponer_ruta_analisis",
+          "description": "Sugiere una ruta descriptiva y sus condiciones sin decidir supuestos por el usuario.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "proyecto_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "proyecto_id"
+            ]
+          }
+        },
+        {
+          "name": "ejecutar_analisis",
+          "description": "Encola un cálculo tipado con permiso explícito de ejecución y devuelve un identificador.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "proyecto_id": {
+                "type": "string"
+              },
+              "solicitud": {
+                "type": "object",
+                "properties": {
+                  "version_contrato": {
+                    "type": "integer"
+                  },
+                  "solicitud_id": {
+                    "type": "string"
+                  },
+                  "proyecto_id": {
+                    "type": "string"
+                  },
+                  "hash_datos": {
+                    "type": "string"
+                  },
+                  "hash_preparacion": {
+                    "type": "string"
+                  },
+                  "tipo": {
+                    "type": "string"
+                  },
+                  "columnas": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "confianza": {
+                    "type": "number",
+                    "default": 0.95
+                  },
+                  "politica_faltantes": {
+                    "type": "string",
+                    "default": "rechazar"
+                  },
+                  "inferencia_confirmada": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "pareamiento_confirmado": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": [
+                  "version_contrato",
+                  "solicitud_id",
+                  "proyecto_id",
+                  "hash_datos",
+                  "hash_preparacion",
+                  "tipo",
+                  "columnas"
+                ]
+              }
+            },
+            "required": [
+              "proyecto_id",
+              "solicitud"
+            ]
+          }
+        },
+        {
+          "name": "consultar_trabajo",
+          "description": "Consulta únicamente un trabajo del proyecto autorizado.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "proyecto_id": {
+                "type": "string"
+              },
+              "trabajo_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "proyecto_id",
+              "trabajo_id"
+            ]
+          }
+        },
+        {
+          "name": "cancelar_trabajo",
+          "description": "Solicita cancelar un trabajo con permiso de ejecución vigente.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "proyecto_id": {
+                "type": "string"
+              },
+              "trabajo_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "proyecto_id",
+              "trabajo_id"
+            ]
+          }
+        },
+        {
+          "name": "obtener_resultado",
+          "description": "Devuelve interpretación y recuentos autorizados; omite valores por registro y rutas absolutas.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "proyecto_id": {
+                "type": "string"
+              },
+              "trabajo_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "proyecto_id",
+              "trabajo_id"
+            ]
+          }
+        },
+        {
+          "name": "exportar_informe",
+          "description": "Escribe un informe dentro del proyecto con permiso independiente de exportación.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "proyecto_id": {
+                "type": "string"
+              },
+              "trabajo_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "proyecto_id",
+              "trabajo_id"
+            ]
+          }
+        }
+      ]
+    },
+    "id": 2,
+    "jsonrpc": "2.0"
+  },
+  "consulta_sin_autorizacion": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"correcto\":false,\"codigo\":\"MCP_APLICACION_NO_DISPONIBLE\"}"
+        }
+      ]
+    },
+    "id": 3,
+    "jsonrpc": "2.0"
+  },
+  "estado": "VERIFICADO: revisión 2025-11-25, nueve herramientas y acceso cerrado sin concesión",
+  "diagnosticos": []
+}

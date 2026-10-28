@@ -29,4 +29,4 @@ sequenceDiagram
 
 Sin permiso: `MCP_PERMISO_DENEGADO`. Deshabilitado: `MCP_DESHABILITADO`. Aplicación cerrada: `MCP_APLICACION_NO_DISPONIBLE`. No se confía en una afirmación del modelo de que ya existe consentimiento.
 
-No se declara probado ningún cliente externo ni el alias en una cuenta limpia. La prueba de negociación y las pruebas de aislamiento/revocación aparecen en [calidad](pruebas_y_calidad.md); inspeccione [estado](estado_entrega.md). El broker tiene límite de dos trabajos activos y cien trabajos por sesión. La cancelación no devuelve datos tras una revocación.
+Se verificaron negociación `2025-11-25`, nueve herramientas y rechazo sin aplicación disponible mediante [cliente sintético propio](../guiones/probar_mcp.py), versión 0.1.0. Los logs se limitan a advertencias/errores en stderr. No se declara probado ningún cliente externo ni el alias en cuenta limpia. Las pruebas de aislamiento/revocación aparecen en [calidad](pruebas_y_calidad.md); inspeccione [estado](estado_entrega.md). El broker admite dos trabajos activos y cien por sesión.

@@ -64,15 +64,17 @@ public sealed class IntermediarioMcp(RepositorioProyectos repositorio, IMotorAna
         switch (peticion.Herramienta)
         {
             case "obtener_esquema_datos": respuesta = datos.Columnas; break;
-            case "obtener_resumen_datos": respuesta = new { filas = datos.Filas.Count, columnas = datos.Columnas.Count, faltantes = datos.Filas.Sum(fila => fila.Count(valor => valor == "")) }; break;
+            case "obtener_resumen_datos":
+                var hash = ImportadorDatos.Hash(Encoding.UTF8.GetBytes(ImportadorDatos.CsvNormalizado(datos)));
+                respuesta = new { version_contrato = 1, hash_datos = hash, hash_preparacion = hash, filas = datos.Filas.Count, columnas = datos.Columnas.Count, faltantes = datos.Filas.Sum(fila => fila.Count(valor => valor == "")) }; break;
             case "proponer_ruta_analisis": respuesta = Validacion.ProponerRuta("resumir", "sin_declarar"); break;
             case "ejecutar_analisis":
                 if (!permiso.Ejecutar || peticion.Solicitud is null || peticion.Solicitud.ProyectoId != peticion.ProyectoId) throw new ErrorAplicacion("MCP_PERMISO_DENEGADO");
                 if (trabajos.Values.Count(trabajo => trabajo.Trabajo.Estado is EstadoTrabajo.Ejecutando or EstadoTrabajo.Pendiente) >= 2 || trabajos.Count >= 100) throw new ErrorAplicacion("TRABAJO_COLA_LLENA");
                 var solicitud = peticion.Solicitud;
                 Validacion.Validar(solicitud, datos);
-                var hash = ImportadorDatos.Hash(Encoding.UTF8.GetBytes(ImportadorDatos.CsvNormalizado(datos)));
-                if (solicitud.HashDatos != hash || solicitud.HashPreparacion != hash) throw new ErrorAplicacion("DATOS_HASH_INVALIDO");
+                var hashSolicitud = ImportadorDatos.Hash(Encoding.UTF8.GetBytes(ImportadorDatos.CsvNormalizado(datos)));
+                if (solicitud.HashDatos != hashSolicitud || solicitud.HashPreparacion != hashSolicitud) throw new ErrorAplicacion("DATOS_HASH_INVALIDO");
                 var id = Guid.NewGuid().ToString("N"); var cancelacion = CancellationTokenSource.CreateLinkedTokenSource(cierre.Token);
                 var directorio = Path.Combine(repositorio.Directorio(peticion.ProyectoId), "trabajo_" + id);
                 trabajos[id] = (peticion.ProyectoId, cancelacion, new(id, EstadoTrabajo.Pendiente), null, directorio);
