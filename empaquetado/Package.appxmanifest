@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5" xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities" IgnorableNamespaces="uap uap5 rescap">
+<Identity Name="RutaEstadistica.Pruebas" Publisher="CN=DesarrolloLocal" Version="0.1.0.0" ProcessorArchitecture="x64" />
+<Properties><DisplayName>Ruta Estadística</DisplayName><PublisherDisplayName>Desarrollo local</PublisherDisplayName><Logo>recursos\icono50.png</Logo><Description>Análisis estadístico local guiado</Description></Properties>
+<Resources><Resource Language="es-CO"/></Resources>
+<Dependencies><TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.22621.0" MaxVersionTested="10.0.26100.0"/></Dependencies>
+<Applications><Application Id="Aplicacion" Executable="RutaEstadistica.Escritorio.exe" EntryPoint="Windows.FullTrustApplication">
+<uap:VisualElements DisplayName="Ruta Estadística" Description="Análisis estadístico local guiado" Square150x150Logo="recursos\icono150.png" Square44x44Logo="recursos\icono44.png" BackgroundColor="transparent"/>
+<Extensions><uap5:Extension Category="windows.appExecutionAlias" Executable="integracion\RutaEstadistica.ServidorMcp.exe" EntryPoint="Windows.FullTrustApplication"><uap5:AppExecutionAlias><uap5:ExecutionAlias Alias="ruta-estadistica-mcp.exe"/></uap5:AppExecutionAlias></uap5:Extension></Extensions>
+</Application></Applications><Capabilities><rescap:Capability Name="runFullTrust"/></Capabilities>
+</Package>

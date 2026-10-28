@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Manifiesto de archivo portátil",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version_esquema",
+    "archivos"
+  ],
+  "properties": {
+    "version_esquema": {
+      "const": 1
+    },
+    "archivos": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      }
+    }
+  }
+}

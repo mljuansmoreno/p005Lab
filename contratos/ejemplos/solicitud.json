@@ -1,0 +1,15 @@
+{
+  "version_contrato": 1,
+  "solicitud_id": "ejemplo-documental",
+  "proyecto_id": "00000000000000000000000000000000",
+  "hash_datos": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "hash_preparacion": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "tipo": "descriptivo",
+  "columnas": [
+    "c001"
+  ],
+  "confianza": 0.95,
+  "politica_faltantes": "rechazar",
+  "inferencia_confirmada": false,
+  "pareamiento_confirmado": false
+}

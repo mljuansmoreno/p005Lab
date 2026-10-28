@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Resultado de análisis",
+  "type": "object",
+  "required": [
+    "version_contrato",
+    "solicitud_id",
+    "proyecto_id",
+    "hash_datos",
+    "hash_preparacion",
+    "tipo",
+    "filas_brutas",
+    "filas_preparadas",
+    "filas_analizadas",
+    "filas_excluidas",
+    "cifras",
+    "tablas",
+    "interpretacion",
+    "advertencias",
+    "figuras",
+    "referencia_metodo",
+    "version_motor",
+    "version_paquete",
+    "fecha_utc",
+    "duracion_segundos"
+  ],
+  "properties": {
+    "version_contrato": {
+      "const": 1
+    },
+    "solicitud_id": {
+      "type": "string"
+    },
+    "proyecto_id": {
+      "type": "string"
+    },
+    "hash_datos": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "hash_preparacion": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "tipo": {
+      "enum": [
+        "descriptivo",
+        "cuestionario",
+        "welch",
+        "pareado",
+        "pearson",
+        "spearman",
+        "lineal"
+      ]
+    },
+    "filas_brutas": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "filas_preparadas": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "filas_analizadas": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "filas_excluidas": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      }
+    },
+    "cifras": {
+      "type": "object"
+    },
+    "tablas": {
+      "type": "array"
+    },
+    "interpretacion": {
+      "type": "string"
+    },
+    "advertencias": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "figuras": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "figura.png"
+        ]
+      }
+    },
+    "referencia_metodo": {
+      "type": "string"
+    },
+    "version_motor": {
+      "type": "string"
+    },
+    "version_paquete": {
+      "type": "string"
+    },
+    "fecha_utc": {
+      "type": "string"
+    },
+    "duracion_segundos": {
+      "type": "number",
+      "minimum": 0
+    }
+  }
+}

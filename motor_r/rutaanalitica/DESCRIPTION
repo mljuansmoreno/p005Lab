@@ -1,0 +1,10 @@
+Package: rutaanalitica
+Type: Package
+Title: Calculos Reproducibles para Ruta Estadistica
+Version: 0.1.0
+Authors@R: person("Equipo", "Ruta Estadistica", role = c("aut", "cre"), email = "desarrollo@example.invalid")
+Description: Validacion, calculos y explicaciones deterministas para cinco rutas estadisticas.
+License: GPL-3
+Encoding: UTF-8
+Depends: R (>= 4.5.2)
+Imports: jsonlite

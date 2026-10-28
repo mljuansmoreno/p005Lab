@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Solicitud de análisis",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version_contrato",
+    "solicitud_id",
+    "proyecto_id",
+    "hash_datos",
+    "hash_preparacion",
+    "tipo",
+    "columnas",
+    "confianza",
+    "politica_faltantes",
+    "inferencia_confirmada",
+    "pareamiento_confirmado"
+  ],
+  "properties": {
+    "version_contrato": {
+      "const": 1
+    },
+    "solicitud_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "proyecto_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "hash_datos": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "hash_preparacion": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "tipo": {
+      "enum": [
+        "descriptivo",
+        "cuestionario",
+        "welch",
+        "pareado",
+        "pearson",
+        "spearman",
+        "lineal"
+      ]
+    },
+    "columnas": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^c[0-9]{3}$"
+      }
+    },
+    "confianza": {
+      "type": "number",
+      "minimum": 0.8,
+      "maximum": 0.99
+    },
+    "politica_faltantes": {
+      "enum": [
+        "rechazar",
+        "excluir_confirmados"
+      ]
+    },
+    "inferencia_confirmada": {
+      "type": "boolean"
+    },
+    "pareamiento_confirmado": {
+      "type": "boolean"
+    }
+  }
+}

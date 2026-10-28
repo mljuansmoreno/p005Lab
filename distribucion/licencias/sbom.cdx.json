@@ -1,0 +1,365 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "Ruta Estadística",
+      "version": "0.1.0"
+    },
+    "properties": [
+      {
+        "name": "estado",
+        "value": "Inventario parcial de desarrollo; falta inspección del paquete final y capas Docker"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "Microsoft.Data.Sqlite.Core",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Data.Sqlite.Core@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "SQLite",
+      "version": "3.53.4",
+      "purl": "pkg:nuget/SQLite@3.53.4"
+    },
+    {
+      "type": "library",
+      "name": "SQLitePCLRaw.config.e_sqlite3",
+      "version": "3.0.5",
+      "purl": "pkg:nuget/SQLitePCLRaw.config.e_sqlite3@3.0.5"
+    },
+    {
+      "type": "library",
+      "name": "SQLitePCLRaw.core",
+      "version": "3.0.5",
+      "purl": "pkg:nuget/SQLitePCLRaw.core@3.0.5"
+    },
+    {
+      "type": "library",
+      "name": "SQLitePCLRaw.provider.e_sqlite3",
+      "version": "3.0.5",
+      "purl": "pkg:nuget/SQLitePCLRaw.provider.e_sqlite3@3.0.5"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Data.Sqlite",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Data.Sqlite@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "SQLitePCLRaw.bundle_e_sqlite3",
+      "version": "3.0.5",
+      "purl": "pkg:nuget/SQLitePCLRaw.bundle_e_sqlite3@3.0.5"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.WindowsAppSDK",
+      "version": "2.6.4",
+      "purl": "pkg:nuget/Microsoft.WindowsAppSDK@2.6.4"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Web.WebView2",
+      "version": "1.0.3719.77",
+      "purl": "pkg:nuget/Microsoft.Web.WebView2@1.0.3719.77"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Windows.AI.MachineLearning",
+      "version": "2.4.89",
+      "purl": "pkg:nuget/Microsoft.Windows.AI.MachineLearning@2.4.89"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Windows.SDK.BuildTools",
+      "version": "10.0.26100.4654",
+      "purl": "pkg:nuget/Microsoft.Windows.SDK.BuildTools@10.0.26100.4654"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Windows.SDK.BuildTools.MSIX",
+      "version": "1.7.251221100",
+      "purl": "pkg:nuget/Microsoft.Windows.SDK.BuildTools.MSIX@1.7.251221100"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.WindowsAppSDK.AI",
+      "version": "2.6.4",
+      "purl": "pkg:nuget/Microsoft.WindowsAppSDK.AI@2.6.4"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.WindowsAppSDK.Base",
+      "version": "2.6.4",
+      "purl": "pkg:nuget/Microsoft.WindowsAppSDK.Base@2.6.4"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.WindowsAppSDK.DWrite",
+      "version": "2.6.4",
+      "purl": "pkg:nuget/Microsoft.WindowsAppSDK.DWrite@2.6.4"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.WindowsAppSDK.Foundation",
+      "version": "2.6.4",
+      "purl": "pkg:nuget/Microsoft.WindowsAppSDK.Foundation@2.6.4"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.WindowsAppSDK.InteractiveExperiences",
+      "version": "2.6.4",
+      "purl": "pkg:nuget/Microsoft.WindowsAppSDK.InteractiveExperiences@2.6.4"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.WindowsAppSDK.ML",
+      "version": "2.6.4",
+      "purl": "pkg:nuget/Microsoft.WindowsAppSDK.ML@2.6.4"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.WindowsAppSDK.Runtime",
+      "version": "2.6.4",
+      "purl": "pkg:nuget/Microsoft.WindowsAppSDK.Runtime@2.6.4"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.WindowsAppSDK.Search",
+      "version": "2.6.4",
+      "purl": "pkg:nuget/Microsoft.WindowsAppSDK.Search@2.6.4"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.WindowsAppSDK.Widgets",
+      "version": "2.6.4",
+      "purl": "pkg:nuget/Microsoft.WindowsAppSDK.Widgets@2.6.4"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.WindowsAppSDK.WinUI",
+      "version": "2.6.4",
+      "purl": "pkg:nuget/Microsoft.WindowsAppSDK.WinUI@2.6.4"
+    },
+    {
+      "type": "library",
+      "name": "System.Numerics.Tensors",
+      "version": "9.0.0",
+      "purl": "pkg:nuget/System.Numerics.Tensors@9.0.0"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Hosting",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Hosting@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "ModelContextProtocol",
+      "version": "2.3.0",
+      "purl": "pkg:nuget/ModelContextProtocol@2.3.0"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.AI.Abstractions",
+      "version": "10.11.0",
+      "purl": "pkg:nuget/Microsoft.Extensions.AI.Abstractions@10.11.0"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Caching.Abstractions",
+      "version": "10.0.13",
+      "purl": "pkg:nuget/Microsoft.Extensions.Caching.Abstractions@10.0.13"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Configuration",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Configuration@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Configuration.Abstractions",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Configuration.Abstractions@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Configuration.Binder",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Configuration.Binder@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Configuration.CommandLine",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Configuration.CommandLine@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Configuration.EnvironmentVariables",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Configuration.EnvironmentVariables@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Configuration.FileExtensions",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Configuration.FileExtensions@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Configuration.Json",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Configuration.Json@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Configuration.UserSecrets",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Configuration.UserSecrets@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.DependencyInjection",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.DependencyInjection@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.DependencyInjection.Abstractions",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.DependencyInjection.Abstractions@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Diagnostics",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Diagnostics@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Diagnostics.Abstractions",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Diagnostics.Abstractions@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.FileProviders.Abstractions",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.FileProviders.Abstractions@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.FileProviders.Physical",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.FileProviders.Physical@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.FileSystemGlobbing",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.FileSystemGlobbing@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Hosting.Abstractions",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Hosting.Abstractions@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Logging",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Logging@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Logging.Abstractions",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Logging.Abstractions@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Logging.Configuration",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Logging.Configuration@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Logging.Console",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Logging.Console@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Logging.Debug",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Logging.Debug@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Logging.EventLog",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Logging.EventLog@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Logging.EventSource",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Logging.EventSource@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Options",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Options@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Options.ConfigurationExtensions",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Options.ConfigurationExtensions@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "Microsoft.Extensions.Primitives",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/Microsoft.Extensions.Primitives@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "ModelContextProtocol.Core",
+      "version": "2.3.0",
+      "purl": "pkg:nuget/ModelContextProtocol.Core@2.3.0"
+    },
+    {
+      "type": "library",
+      "name": "System.Diagnostics.EventLog",
+      "version": "10.0.14",
+      "purl": "pkg:nuget/System.Diagnostics.EventLog@10.0.14"
+    },
+    {
+      "type": "library",
+      "name": "R",
+      "version": "4.5.2"
+    },
+    {
+      "type": "library",
+      "name": "jsonlite",
+      "version": "2.0.0"
+    },
+    {
+      "type": "library",
+      "name": "rutaanalitica",
+      "version": "0.1.0"
+    }
+  ]
+}
