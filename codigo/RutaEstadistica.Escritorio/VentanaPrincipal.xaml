@@ -1,6 +1,6 @@
 <Window x:Class="RutaEstadistica.Escritorio.VentanaPrincipal" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Ruta Estadística">
 <Grid Padding="24" RowSpacing="14"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-<StackPanel><TextBlock Text="Ruta Estadística" Style="{ThemeResource TitleTextBlockStyle}"/><TextBlock Text="De tu pregunta a una evidencia que puedes explicar"/></StackPanel>
+<StackPanel><TextBlock x:Uid="NombreAplicacion" Text="Ruta Estadística" Style="{ThemeResource TitleTextBlockStyle}"/><TextBlock Text="De tu pregunta a una evidencia que puedes explicar"/></StackPanel>
 <NavigationView x:Name="Navegacion" Grid.Row="1" IsBackButtonVisible="Collapsed" IsSettingsVisible="False" PaneDisplayMode="Left" SelectionChanged="CambiarPaso">
 <NavigationView.MenuItems>
 <NavigationViewItem Content="Inicio y proyectos" Tag="0" Icon="Home"/><NavigationViewItem Content="1 · Pregunta" Tag="1" Icon="Help"/><NavigationViewItem Content="2 · Datos" Tag="2" Icon="OpenFile"/><NavigationViewItem Content="3 · Preparación" Tag="3" Icon="Edit"/><NavigationViewItem Content="4 · Ruta" Tag="4" Icon="Map"/><NavigationViewItem Content="5 · Resultados" Tag="5" Icon="View"/><NavigationViewItem Content="6 · Interpretación" Tag="6" Icon="Message"/><NavigationViewItem Content="7 · Evidencia y exportación" Tag="7" Icon="Save"/><NavigationViewItem Content="Configuración y ayuda" Tag="8" Icon="Setting"/>

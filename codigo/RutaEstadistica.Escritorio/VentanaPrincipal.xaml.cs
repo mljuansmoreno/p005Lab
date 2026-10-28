@@ -108,7 +108,10 @@ public sealed partial class VentanaPrincipal : Window
         ExigirProyecto(); if (rutaArchivo is null) throw new ErrorAplicacion("DATOS_ARCHIVO_NO_ELEGIDO");
         cancelacion?.Cancel(); cancelacion = new(); modelo.Estado = "Importando y validando datos…";
         var opciones = Opciones(); var hoja = Hojas.SelectedItem as string;
-        datos = await Task.Run(() => ImportadorDatos.ImportarAsync(rutaArchivo, opciones, hoja, cancelacion.Token)); datosImportados = datos;
+        var proyectoImportacion = proyecto!.Id; var cancelacionImportacion = cancelacion.Token;
+        var nuevosDatos = await Task.Run(() => ImportadorDatos.ImportarAsync(rutaArchivo, opciones, hoja, cancelacionImportacion));
+        if (proyecto?.Id != proyectoImportacion || cancelacionImportacion.IsCancellationRequested) return;
+        datos = nuevosDatos; datosImportados = datos;
         await Task.Run(() => repositorio.GuardarDatos(proyecto!.Id, datos, File.ReadAllBytes(rutaArchivo)));
         LimpiarResultado(); ActualizarDatos(); modelo.Estado = "Vista previa lista. Confirma los roles antes de calcular.";
     });
