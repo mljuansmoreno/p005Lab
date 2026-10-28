@@ -1,0 +1,14 @@
+.herramientas/
+.dependencias/
+**/bin/
+**/obj/
+salidas/
+*.zip
+*.msix
+*.pfx
+*.env
+!configuracion.ejemplo.env
+dotnet-install.ps1
+versiones-winui.json
+**/.Rhistory
+**/.RData
