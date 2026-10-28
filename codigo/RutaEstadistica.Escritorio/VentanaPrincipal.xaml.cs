@@ -55,6 +55,7 @@ public sealed partial class VentanaPrincipal : Window
     private void Mostrar(int paso) => Navegacion.SelectedItem = Navegacion.MenuItems[paso];
     private void CambiarPaso(NavigationView remitente, NavigationViewSelectionChangedEventArgs argumentos)
     {
+        if (inicializando) return;
         if (argumentos.SelectedItem is not NavigationViewItem elemento || !int.TryParse(elemento.Tag?.ToString(), out var paso)) return;
         var paneles = new[] { PanelInicio, PanelPregunta, PanelDatos, PanelPreparacion, PanelRuta, PanelResultados, PanelInterpretacion, PanelEvidencia, PanelConfiguracion };
         for (var indice = 0; indice < paneles.Length; indice++) paneles[indice].Visibility = indice == paso ? Visibility.Visible : Visibility.Collapsed;

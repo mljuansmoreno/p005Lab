@@ -10,7 +10,7 @@ using RutaEstadistica.Aplicacion;
 using RutaEstadistica.Contratos;
 
 var constructor = Host.CreateApplicationBuilder(args);
-constructor.Logging.ClearProviders(); constructor.Logging.AddConsole(opciones => opciones.LogToStandardErrorThreshold = LogLevel.Trace);
+constructor.Logging.ClearProviders(); constructor.Logging.SetMinimumLevel(LogLevel.Warning); constructor.Logging.AddConsole(opciones => opciones.LogToStandardErrorThreshold = LogLevel.Trace);
 constructor.Services.AddMcpServer().WithStdioServerTransport().WithToolsFromAssembly();
 await constructor.Build().RunAsync();
 

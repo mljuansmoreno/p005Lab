@@ -10,9 +10,17 @@ public sealed record ColumnaDatos(string Id, string Etiqueta, string Rol = "text
 public sealed record ConjuntoDatos(List<ColumnaDatos> Columnas, List<string[]> Filas, string HashOriginal, string NombreOriginal);
 public sealed record OpcionesImportacion(char Separador = ';', char Decimal = ',', char Miles = '\0', bool Cabecera = true, string MarcadorFaltante = "NA", string FormatoFecha = "dd/MM/yyyy");
 public sealed record SolicitudAnalisis(
-    int VersionContrato, string SolicitudId, string ProyectoId, string HashDatos,
-    string HashPreparacion, string Tipo, string[] Columnas, double Confianza = .95,
-    string PoliticaFaltantes = "rechazar", bool InferenciaConfirmada = false, bool PareamientoConfirmado = false);
+    [property: JsonPropertyName("version_contrato")] int VersionContrato,
+    [property: JsonPropertyName("solicitud_id")] string SolicitudId,
+    [property: JsonPropertyName("proyecto_id")] string ProyectoId,
+    [property: JsonPropertyName("hash_datos")] string HashDatos,
+    [property: JsonPropertyName("hash_preparacion")] string HashPreparacion,
+    [property: JsonPropertyName("tipo")] string Tipo,
+    [property: JsonPropertyName("columnas")] string[] Columnas,
+    [property: JsonPropertyName("confianza")] double Confianza = .95,
+    [property: JsonPropertyName("politica_faltantes")] string PoliticaFaltantes = "rechazar",
+    [property: JsonPropertyName("inferencia_confirmada")] bool InferenciaConfirmada = false,
+    [property: JsonPropertyName("pareamiento_confirmado")] bool PareamientoConfirmado = false);
 public sealed record AdvertenciaAnalisis(string Codigo, string Mensaje);
 public sealed record RevisionPreparacion(string Id, string Hash, string[] FilasExcluidas, string Motivo);
 public sealed record ArtefactoResultado(string Nombre, string Hash);

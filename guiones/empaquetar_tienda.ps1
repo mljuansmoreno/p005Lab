@@ -21,7 +21,10 @@ foreach ($tamano in @(44, 150, 50)) {
 $manifiesto.Package.Identity.Name = $Nombre; $manifiesto.Package.Identity.Publisher = $Editor; $manifiesto.Package.Identity.Version = $Version
 $manifiesto.Save("$aplicacion/AppxManifest.xml")
 $destino = "$raiz/salidas/paquetes/RutaEstadistica_$Version`_x64_sin_firma.msix"
-& $makeappx pack /d $aplicacion /p $destino /o
+New-Item -ItemType Directory -Force "$raiz/salidas/informes" | Out-Null
+$registro = "$raiz/salidas/informes/empaquetado.txt"
+& $makeappx pack /d $aplicacion /p $destino /o *> $registro
 if ($LASTEXITCODE) { throw 'PAQUETE_VALIDACION_FALLIDA' }
+Get-Content $registro -Tail 8
 Get-FileHash $destino -Algorithm SHA256 | Format-List
 Write-Output 'Paquete SIN FIRMA generado. No acredita instalación, certificación ni aprobación de la Tienda.'
