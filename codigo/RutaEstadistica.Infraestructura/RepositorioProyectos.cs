@@ -151,7 +151,8 @@ public sealed class RepositorioProyectos
         foreach (var nombre in new[] { "solicitud.json", "resultado.json", "entrada.csv", "figura.png" })
         {
             var archivo = new FileInfo(Path.Combine(directorio, nombre));
-            if (!archivo.Exists || archivo.Length > (nombre == "entrada.csv" ? ImportadorDatos.LimiteBytes : 8 * 1024 * 1024) || (archivo.Attributes & FileAttributes.ReparsePoint) != 0) throw new ErrorAplicacion("RESULTADO_NO_DISPONIBLE");
+            // El CSV normalizado incorpora comillas y puede superar el tamaño del archivo importado.
+            if (!archivo.Exists || archivo.Length > (nombre == "entrada.csv" ? 200 * 1024 * 1024 : 8 * 1024 * 1024) || (archivo.Attributes & FileAttributes.ReparsePoint) != 0) throw new ErrorAplicacion("RESULTADO_NO_DISPONIBLE");
         }
         var solicitud = JsonSerializer.Deserialize<SolicitudAnalisis>(File.ReadAllText(Path.Combine(directorio, "solicitud.json")), Serializacion.Opciones) ?? throw new ErrorAplicacion("MOTOR_RESPUESTA_INVALIDA");
         var contenido = JsonSerializer.Deserialize<JsonElement>(File.ReadAllText(Path.Combine(directorio, "resultado.json")));

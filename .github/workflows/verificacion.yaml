@@ -21,6 +21,9 @@ jobs:
       - name: Restaurar versiones bloqueadas
         shell: pwsh
         run: dotnet restore RutaEstadistica.sln --locked-mode
+      - name: Verificar fuentes y digests del contenedor
+        shell: pwsh
+        run: ./guiones/verificar_fuentes_contenedor.ps1
       - name: Preparar motor nativo
         shell: pwsh
         run: ./guiones/preparar_desarrollo.ps1 -RutaR $env:R_HOME -AdquirirJson

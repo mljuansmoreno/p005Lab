@@ -26,7 +26,7 @@ public static class ImportadorDatos
             filas = LeerDelimitado(texto, opciones.Separador, cancelacion);
         }
         else throw new ErrorAplicacion("DATOS_FORMATO_NO_ADMITIDO");
-        if (filas.Count == 0) throw new ErrorAplicacion("DATOS_INSUFICIENTES");
+        if (filas.Count == 0 || filas[0].Length == 0) throw new ErrorAplicacion("DATOS_INSUFICIENTES");
         var etiquetas = opciones.Cabecera ? filas[0] : Enumerable.Range(1, filas[0].Length).Select(indice => $"Columna {indice}").ToArray();
         if (opciones.Cabecera) filas.RemoveAt(0);
         if (etiquetas.Length > 200 || filas.Count > 100000 || filas.Any(fila => fila.Length != etiquetas.Length)) throw new ErrorAplicacion("DATOS_DIMENSIONES_INVALIDAS");
@@ -120,6 +120,7 @@ public static class ImportadorDatos
         var ruta = destino.StartsWith('/') ? destino.TrimStart('/') : "xl/" + destino;
         var compartidos = archivo.GetEntry("xl/sharedStrings.xml") is { } entrada ? LeerXml(entrada).Descendants(espacio + "si").Select(elemento => string.Concat(elemento.Descendants(espacio + "t").Select(texto => texto.Value))).ToList() : [];
         var filas = new List<string[]>();
+        long octetosExpandidos = 0;
         foreach (var fila in LeerXml(archivo.GetEntry(ruta) ?? throw new ErrorAplicacion("DATOS_LIBRO_INVALIDO")).Descendants(espacio + "row"))
         {
             var valores = new SortedDictionary<int, string>();
@@ -127,13 +128,17 @@ public static class ImportadorDatos
             {
                 if (celda.Element(espacio + "f") != null) throw new ErrorAplicacion("DATOS_FORMULA_NO_ADMITIDA");
                 var referencia = (string?)celda.Attribute("r") ?? throw new ErrorAplicacion("DATOS_LIBRO_INVALIDO");
+                if (!System.Text.RegularExpressions.Regex.IsMatch(referencia, "^[A-Z]{1,3}[1-9][0-9]{0,6}$")) throw new ErrorAplicacion("DATOS_LIBRO_INVALIDO");
                 var indice = 0; foreach (var letra in referencia.TakeWhile(char.IsLetter)) indice = indice * 26 + letra - 'A' + 1;
                 if (indice is < 1 or > 200) throw new ErrorAplicacion("DATOS_LIMITE_EXCEDIDO");
                 var texto = celda.Element(espacio + "v")?.Value ?? string.Concat(celda.Descendants(espacio + "t").Select(elemento => elemento.Value));
                 if ((string?)celda.Attribute("t") == "s") texto = compartidos[int.Parse(texto, CultureInfo.InvariantCulture)];
-                valores[indice - 1] = texto;
+                // Una cadena compartida puede repetirse miles de veces sin aumentar el tamaño del ZIP.
+                octetosExpandidos += Encoding.UTF8.GetByteCount(texto);
+                if (octetosExpandidos > LimiteBytes) throw new ErrorAplicacion("DATOS_LIMITE_EXCEDIDO");
+                if (!valores.TryAdd(indice - 1, texto)) throw new ErrorAplicacion("DATOS_LIBRO_INVALIDO");
             }
-            if (valores.Count > 0) filas.Add(Enumerable.Range(0, valores.Keys.Max() + 1).Select(indice => valores.GetValueOrDefault(indice, "")).ToArray());
+            filas.Add(Enumerable.Range(0, valores.Count > 0 ? valores.Keys.Max() + 1 : 0).Select(indice => valores.GetValueOrDefault(indice, "")).ToArray());
             if (filas.Count > 100001) throw new ErrorAplicacion("DATOS_LIMITE_EXCEDIDO");
         }
         var ancho = filas.Count > 0 ? filas.Max(fila => fila.Length) : 0;

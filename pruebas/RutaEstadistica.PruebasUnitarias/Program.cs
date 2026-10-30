@@ -45,6 +45,36 @@ try
     }
     try { await ImportadorDatos.ImportarAsync(libro, new(), "Mediciones"); throw new Exception("Fórmula aceptada"); }
     catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_FORMULA_NO_ADMITIDA", "XLSX rechaza fórmulas"); }
+    var libroExpandido = Path.Combine(temporal, "libro_expandido.xlsx");
+    using (var anterior = ZipFile.OpenRead(libro))
+    using (var archivo = ZipFile.Open(libroExpandido, ZipArchiveMode.Create))
+    {
+        foreach (var nombre in new[] { "xl/workbook.xml", "xl/_rels/workbook.xml.rels" })
+        {
+            using var origen = anterior.GetEntry(nombre)!.Open(); using var destino = archivo.CreateEntry(nombre).Open(); origen.CopyTo(destino);
+        }
+        using (var escritor = new StreamWriter(archivo.CreateEntry("xl/sharedStrings.xml").Open()))
+            escritor.Write("<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><si><t>" + new string('x', 2 * 1024 * 1024) + "</t></si></sst>");
+        using (var escritor = new StreamWriter(archivo.CreateEntry("xl/worksheets/sheet1.xml").Open()))
+            escritor.Write("<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetData>" + string.Join("", Enumerable.Range(1, 30).Select(indice => $"<row r=\"{indice}\"><c r=\"A{indice}\" t=\"s\"><v>0</v></c></row>")) + "</sheetData></worksheet>");
+    }
+    try { await ImportadorDatos.ImportarAsync(libroExpandido, new(), "Mediciones"); throw new Exception("Expansión de cadenas compartidas aceptada"); }
+    catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_LIMITE_EXCEDIDO", "XLSX limita el contenido expandido aunque el ZIP y la cadena compartida sean pequeños"); }
+    using (var archivo = ZipFile.Open(libroExpandido, ZipArchiveMode.Update))
+    {
+        archivo.GetEntry("xl/sharedStrings.xml")!.Delete(); archivo.GetEntry("xl/worksheets/sheet1.xml")!.Delete();
+        using var escritor = new StreamWriter(archivo.CreateEntry("xl/worksheets/sheet1.xml").Open());
+        escritor.Write("<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetData><row><c r=\"A1\" t=\"inlineStr\"><is><t>uno</t></is></c><c r=\"A1\" t=\"inlineStr\"><is><t>dos</t></is></c></row></sheetData></worksheet>");
+    }
+    try { await ImportadorDatos.ImportarAsync(libroExpandido, new(), "Mediciones"); throw new Exception("Celdas repetidas aceptadas"); }
+    catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_LIBRO_INVALIDO", "XLSX no sobrescribe silenciosamente dos celdas con la misma referencia"); }
+    using (var archivo = ZipFile.Open(libroExpandido, ZipArchiveMode.Update))
+    {
+        archivo.GetEntry("xl/worksheets/sheet1.xml")!.Delete(); using var escritor = new StreamWriter(archivo.CreateEntry("xl/worksheets/sheet1.xml").Open());
+        escritor.Write("<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetData><row r=\"1\"><c r=\"A1\" t=\"inlineStr\"><is><t>valor</t></is></c></row><row r=\"2\"/><row r=\"3\"><c r=\"A3\"><v>3</v></c></row></sheetData></worksheet>");
+    }
+    var conFilaVacia = await ImportadorDatos.ImportarAsync(libroExpandido, new(), "Mediciones");
+    Verificar(conFilaVacia.Filas.Count == 2 && conFilaVacia.Filas[0][0] == "" && conFilaVacia.Filas[1][0] == "3", "XLSX conserva filas vacías explícitas para revisar sus faltantes sin excluirlas automáticamente");
     var repositorio = new RepositorioProyectos(Path.Combine(temporal, "proyectos")); var proyecto = repositorio.Crear("Prueba con tildes á"); repositorio.GuardarDatos(proyecto.Id, preparados, original);
     Verificar(new RepositorioProyectos(repositorio.Raiz).LeerDatos(proyecto.Id)!.Filas[0][0] == "001", "SQLite y datos se reabren sin pérdida");
     var portatil = Path.Combine(temporal, "exportado.rutaestadistica"); repositorio.ExportarProyecto(proyecto.Id, portatil); var copia = repositorio.ImportarProyecto(portatil);
