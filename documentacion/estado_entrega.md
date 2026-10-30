@@ -52,3 +52,7 @@ Identidad de prueba RutaEstadistica.Pruebas, editor CN=DesarrolloLocal. **Sin fi
 ## Antes de liberar
 
 Faltan imagen Docker por digest/paridad, flujo API por trabajos, tablas/historial completos, recuperación ante interrupción, concesiones MCP persistidas/recursos, accesibilidad y recorrido gráfico, pruebas de red/rendimiento, instalación/actualización/WACK, inventario íntegro de licencias/fuentes y datos reales de editor/soporte. Véanse [limitaciones](limitaciones_y_pendientes.md) y [continuidad](continuidad.md).
+
+## Continuación del 30/10/2026
+
+Se implementaron tablas/historial, API por trabajos y protecciones XLSX adicionales. Consulte [continuidad](continuidad.md) y los informes de salidas/informes. La inspección visual fue denegada por Computer Use; Docker continúa ausente. El MSIX 0.1.0.0 y sus verificaciones anteriores no corresponden a estas modificaciones. No se afirma cierre completo ni nueva certificación. El lote se acotó después de la consulta del usuario sobre tiempo y créditos.

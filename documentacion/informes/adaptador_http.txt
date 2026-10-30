@@ -1,0 +1,52 @@
+VERIFICADO: CSV conserva Unicode, comillas y saltos internos
+VERIFICADO: DATOS_CSV_INVALIDO
+VERIFICADO: Importación no convierte identificadores ni etiquetas
+VERIFICADO: Conversión decimal explícita y faltantes
+VERIFICADO: DATOS_NUMERO_INVALIDO
+VERIFICADO: CSV seguro neutraliza fórmula de hoja de cálculo
+VERIFICADO: XLSX enumera hojas sin ejecutar contenido
+VERIFICADO: XLSX conserva texto y valores originales
+VERIFICADO: XLSX exige elección explícita de hoja
+VERIFICADO: XLSX rechaza fórmulas
+VERIFICADO: SQLite y datos se reabren sin pérdida
+VERIFICADO: Archivo portátil valida hashes y crea identidad nueva
+VERIFICADO: PROYECTO_ARCHIVO_INSEGURO
+VERIFICADO: PROYECTO_ID_INVALIDO
+VERIFICADO: Eliminar conserva respaldo recuperable
+VERIFICADO: Reemplazo atómico conserva último contenido completo
+VERIFICADO: MCP deshabilitado inicialmente
+VERIFICADO: MCP permite resumen autorizado
+VERIFICADO: MCP aísla proyectos
+VERIFICADO: MCP exige permiso independiente de ejecución
+VERIFICADO: MCP ejecuta análisis R real con hash descubierto y permiso vigente
+VERIFICADO: MCP devuelve resultado limitado sin rutas ni registros
+VERIFICADO: Revocación MCP es inmediata
+VERIFICADO: Carga de API registra revisión y recuentos sin truncar
+VERIFICADO: Recalcular sobre la misma revisión reutiliza la carga sin agotar el almacén
+VERIFICADO: CONTRATO_SOLICITUD_INVALIDA
+VERIFICADO: DATOS_HASH_INVALIDO
+VERIFICADO: ANALISIS_OPCION_INVALIDA
+VERIFICADO: TRABAJO_COLA_LLENA
+VERIFICADO: TRABAJO_NO_ENCONTRADO
+VERIFICADO: RESULTADO_NO_DISPONIBLE
+VERIFICADO: API cancela trabajo en espera sin afectar al primero
+VERIFICADO: API reconoce cancelación del trabajo activo
+VERIFICADO: DATOS_HASH_INVALIDO
+VERIFICADO: MOTOR_ALMACEN_LLENO
+VERIFICADO: Cierre de API espera cancelación y limpia solamente sus temporales
+VERIFICADO: Presentación usa decimal colombiano sin alterar el valor almacenado
+VERIFICADO: La tabla distingue una cifra ausente de cero
+VERIFICADO: Trabajador R real devuelve media conocida con exclusión
+VERIFICADO: Tabla nativa presenta la media calculada por R
+VERIFICADO: Una ruta numérica no inventa frecuencias categóricas
+VERIFICADO: Tabla de frecuencias conserva categorías con ceros y porcentajes calculados por R
+VERIFICADO: Historial descubre cálculos completos al reabrir el proyecto
+VERIFICADO: Historial portátil conserva procedencia de la solicitud original
+VERIFICADO: DATOS_HASH_INVALIDO
+VERIFICADO: Historial no ofrece como válido un cálculo con entrada alterada
+VERIFICADO: Exportación HTML incrusta PNG e incluye reproducción
+VERIFICADO: Guion exportado se ejecuta sobre su propia entrada
+VERIFICADO: Reproducción exportada conserva resultado conocido
+VERIFICADO: Cancelación termina trabajador propio
+VERIFICADO: Adaptador Docker completa carga, sondeo y descarga frente a API real de Windows
+TOTAL: 51 comprobaciones correctas.
