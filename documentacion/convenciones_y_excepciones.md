@@ -8,7 +8,7 @@ Excepciones concretas de interoperabilidad:
 
 | Apariciones | Motivo |
 |---|---|
-| `App`, `OnLaunched`, `InitializeComponent`, `Main` implícito, `PropertyChanged` | Ciclo de vida y miembros de WinUI/.NET. `App` conserva convención del tipo generado por XAML; el resto de tipos propios tiene nombres españoles. |
+| `OnLaunched`, `InitializeComponent`, `Main` implícito, `PropertyChanged` | Ciclo de vida y miembros de WinUI/.NET. La clase propia de arranque se llama `Aplicacion`; `App.xaml` conserva el nombre de archivo del ecosistema. |
 | `CancellationToken`, `Task`, `HttpClient`, `JsonElement`, `PipeOptions`, `SqliteConnection` | Tipos externos; no son vocabulario de dominio. |
 | `x:Class`, `Grid.Row`, `TargetFramework`, `UseWinUI`, `EntryPoint`, `runFullTrust` | Esquemas XAML/MSBuild/manifiesto. |
 | `Strings/es-CO/Resources.resw`, `Text`, `resheader`, `resmimetype` | Convenciones de recursos WinUI; `Resources.resw` sirve al enlace automático `x:Uid`. |

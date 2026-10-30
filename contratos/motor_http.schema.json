@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Mensajes de la API local de trabajos, revisión 2",
+  "$defs": {
+    "carga_datos": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proyecto_id",
+        "csv"
+      ],
+      "properties": {
+        "proyecto_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "csv": {
+          "type": "string",
+          "description": "CSV normalizado UTF-8 con columnas internas; límite de 50 MiB de bytes UTF-8 y 100000 registros sin encabezado."
+        }
+      }
+    },
+    "peticion_trabajo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "datos_id",
+        "solicitud"
+      ],
+      "properties": {
+        "datos_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "solicitud": {
+          "$ref": "solicitud_analisis.schema.json"
+        }
+      }
+    },
+    "estado_trabajo": {
+      "type": "object",
+      "required": [
+        "trabajo_id",
+        "proyecto_id",
+        "estado",
+        "codigo_error"
+      ],
+      "properties": {
+        "trabajo_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "proyecto_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "estado": {
+          "enum": [
+            "pendiente",
+            "ejecutando",
+            "completado",
+            "cancelado",
+            "fallido"
+          ]
+        },
+        "codigo_error": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

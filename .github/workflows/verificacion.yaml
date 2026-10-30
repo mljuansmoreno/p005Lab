@@ -30,6 +30,12 @@ jobs:
       - name: Compilar escritorio
         shell: pwsh
         run: ./guiones/compilar.ps1
+      - name: Compilar API de trabajos
+        shell: pwsh
+        run: dotnet build codigo/RutaEstadistica.ServidorLocal -c Release --no-restore
+      - name: Verificar API y adaptador con R real en Windows
+        shell: pwsh
+        run: python guiones/probar_api.py
       - name: Compilar host MCP
         shell: pwsh
         run: dotnet build codigo/RutaEstadistica.ServidorMcp -c Release --no-restore

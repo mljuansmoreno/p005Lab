@@ -1,7 +1,6 @@
 # Datos exclusivamente sintéticos; referencias independientes y tolerancias explícitas.
 library(rutaanalitica)
 directorio <- tempfile("pruebas_"); dir.create(directorio)
-on.exit <- NULL
 crear_solicitud <- function(tipo, columnas = c("c001", "c002"), inferencia = TRUE) list(
   version_contrato = 1L, solicitud_id = "prueba", proyecto_id = "sintetico", hash_datos = paste(rep("a", 64), collapse = ""),
   hash_preparacion = paste(rep("b", 64), collapse = ""), tipo = tipo, columnas = as.list(columnas), confianza = .95,

@@ -1,9 +1,9 @@
 using Microsoft.UI.Xaml;
 namespace RutaEstadistica.Escritorio;
-public partial class App : Application
+public partial class Aplicacion : Application
 {
     private Window? ventana;
-    public App() => InitializeComponent();
+    public Aplicacion() => InitializeComponent();
     protected override void OnLaunched(LaunchActivatedEventArgs argumentos)
     {
         try { ventana = new VentanaPrincipal(); ventana.Activate(); }

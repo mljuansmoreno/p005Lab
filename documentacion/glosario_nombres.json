@@ -3,6 +3,7 @@
   "identificadores": [
     "ActualizarProyectos",
     "AdvertenciaAnalisis",
+    "Aplicacion",
     "App",
     "ArtefactoResultado",
     "CargaAnalisis",
@@ -115,6 +116,7 @@
     "estilos",
     "etiquetas",
     "excluidas",
+    "existente",
     "fallar",
     "faltantes",
     "fecha_utc",

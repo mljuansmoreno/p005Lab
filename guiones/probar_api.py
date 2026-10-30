@@ -17,6 +17,10 @@ import uuid
 import zipfile
 
 raiz = pathlib.Path(__file__).resolve().parent.parent
+(raiz / 'salidas/informes').mkdir(parents=True, exist_ok=True)
+ejecutable_dotnet = str(raiz / '.herramientas/dotnet/dotnet.exe') if (raiz / '.herramientas/dotnet/dotnet.exe').exists() else shutil.which('dotnet')
+if not ejecutable_dotnet:
+    raise RuntimeError('SDK_NO_DISPONIBLE')
 with socket.socket() as escucha:
     escucha.bind(('127.0.0.1', 0))
     puerto = escucha.getsockname()[1]
@@ -56,7 +60,7 @@ with crear_temporal() as temporal:
     entorno['RUTA_ESTADISTICA_DIRECTORIO_TRABAJOS'] = str(temporal)
     entorno['ASPNETCORE_URLS'] = direccion
     proceso = subprocess.Popen([
-        str(raiz / '.herramientas/dotnet/dotnet.exe'),
+        ejecutable_dotnet,
         str(raiz / 'codigo/RutaEstadistica.ServidorLocal/bin/Release/net10.0/RutaEstadistica.ServidorLocal.dll')],
         env=entorno, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         creationflags=subprocess.CREATE_NO_WINDOW)
@@ -128,7 +132,7 @@ with crear_temporal() as temporal:
         solicitud['hash_datos'] = '0' * 64
         assert consultar('/trabajos', autorizacion, 'POST', {'datos_id': carga['datos_id'], 'solicitud': solicitud})[0] == 400
         prueba_adaptador = subprocess.run([
-            str(raiz / '.herramientas/dotnet/dotnet.exe'),
+            ejecutable_dotnet,
             str(raiz / 'pruebas/RutaEstadistica.PruebasUnitarias/bin/Release/net10.0/RutaEstadistica.PruebasUnitarias.dll'),
             str(raiz / 'salidas/recursos'), direccion + '/', str(archivo)],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8',

@@ -20,11 +20,13 @@ Para descriptivos o cuestionario seleccione una columna. Para Welch: primera num
 
 Confianza admite 0,80–0,99. Las cifras inferenciales solo se calculan al confirmar sus condiciones. Una muestra de conveniencia no justifica por sí misma extrapolar a una población. Un valor p grande no demuestra igualdad; correlación no es causalidad.
 
-Calcular muestra cifras, gráfico y procedencia. Interpretación explica el resultado real. Cancelar termina el trabajador propio. Modificar parámetros invalida el resultado anterior. El panel técnico presenta actualmente JSON; una tabla nativa más legible está pendiente.
+Calcular muestra cifras, gráfico y procedencia. Interpretación explica el resultado real. Cancelar termina el trabajador propio. Modificar parámetros invalida el resultado anterior. Las cifras se presentan en una tabla nativa de indicador/valor; el cuestionario añade categoría, frecuencia y porcentaje. Los nulos muestran «No disponible». Los valores originales, residuos y exclusiones siguen disponibles en el desplegable Evidencia técnica completa. La presentación redondeada no modifica los números guardados.
 
 ## Evidencia y configuración
 
 Exportar informe crea una carpeta nueva con HTML autónomo, PNG, CSV, solicitud, entrada normalizada, resultado y `reproducir.R`. La opción CSV seguro antepone apóstrofo a textos semejantes a fórmulas. El archivo de entrada de reproducción conserva los valores originales normalizados.
+
+En Evidencia seleccione un cálculo completado y pulse **Ver cálculo guardado**. Se comprueban la identidad de solicitud y el hash del CSV antes de mostrarlo. El resultado histórico muestra sus propios parámetros y puede volver a exportarse. No modifica la preparación actual. Entrar en Ruta descarta la visualización histórica antes de comenzar un cálculo nuevo. Los trabajos incompletos o con datos alterados no aparecen como válidos.
 
 Exportar proyecto genera `.rutaestadistica`, con manifiesto y hashes. Importar siempre crea otro proyecto. Eliminar requiere confirmación y deja respaldo en `respaldos`. Copie también sus respaldos a un medio propio si necesita recuperación ante pérdida del disco.
 

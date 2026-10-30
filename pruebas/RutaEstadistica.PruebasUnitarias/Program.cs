@@ -91,20 +91,25 @@ try
         var csv = ImportadorDatos.CsvNormalizado(preparados); var hash = ImportadorDatos.Hash(Encoding.UTF8.GetBytes(csv));
         var carga = gestor.Cargar(new(proyecto.Id, csv));
         Verificar(carga.HashDatos == hash && carga.Filas == 3, "Carga de API registra revisión y recuentos sin truncar");
+        Verificar(gestor.Cargar(new(proyecto.Id, csv)).DatosId == carga.DatosId, "Recalcular sobre la misma revisión reutiliza la carga sin agotar el almacén");
         var solicitud = new SolicitudAnalisis(1, Guid.NewGuid().ToString("N"), proyecto.Id, hash, hash, "descriptivo", ["c002"], PoliticaFaltantes: "excluir_confirmados");
         var primero = gestor.Encolar(new(carga.DatosId, solicitud));
+        var plazoInicio = DateTimeOffset.UtcNow.AddSeconds(10);
+        while (gestor.Consultar(primero.TrabajoId, proyecto.Id).Estado == "pendiente" && DateTimeOffset.UtcNow < plazoInicio) await Task.Delay(10);
+        Verificar(gestor.Consultar(primero.TrabajoId, proyecto.Id).Estado == "ejecutando", "La API inicia el primer trabajo antes de admitir su espera controlada");
         Rechazar(() => Validacion.Validar(solicitud with { Columnas = null! }, preparados), "CONTRATO_SOLICITUD_INVALIDA");
         Rechazar(() => Validacion.Validar(solicitud with { HashDatos = null! }, preparados), "DATOS_HASH_INVALIDO");
         Rechazar(() => Validacion.Validar(solicitud with { PoliticaFaltantes = "eliminar_sin_confirmar" }, preparados), "ANALISIS_OPCION_INVALIDA");
         var segundo = gestor.Encolar(new(carga.DatosId, solicitud with { SolicitudId = Guid.NewGuid().ToString("N") }));
+        Verificar(segundo.Estado == "pendiente", "El segundo trabajo permanece en cola mientras el primero ocupa el motor");
         Rechazar(() => gestor.Encolar(new(carga.DatosId, solicitud)), "TRABAJO_COLA_LLENA");
         Rechazar(() => gestor.Consultar(primero.TrabajoId, Guid.NewGuid().ToString("N")), "TRABAJO_NO_ENCONTRADO");
         Rechazar(() => gestor.ObtenerResultado(primero.TrabajoId, proyecto.Id), "RESULTADO_NO_DISPONIBLE");
         Verificar(gestor.Cancelar(segundo.TrabajoId, proyecto.Id).Estado == "cancelado", "API cancela trabajo en espera sin afectar al primero");
         Verificar(gestor.Cancelar(primero.TrabajoId, proyecto.Id).Estado == "cancelado", "API reconoce cancelación del trabajo activo");
         Rechazar(() => gestor.Encolar(new(carga.DatosId, solicitud with { HashDatos = new string('0', 64) })), "DATOS_HASH_INVALIDO");
-        for (var indice = 0; indice < 3; indice++) gestor.Cargar(new(proyecto.Id, csv));
-        Rechazar(() => gestor.Cargar(new(proyecto.Id, csv)), "MOTOR_ALMACEN_LLENO");
+        for (var indice = 0; indice < 3; indice++) gestor.Cargar(new(proyecto.Id, csv + "\"004\",\"" + indice + "\"\n"));
+        Rechazar(() => gestor.Cargar(new(proyecto.Id, csv + "\"004\",\"99\"\n")), "MOTOR_ALMACEN_LLENO");
     }
     Verificar(Directory.GetDirectories(temporal, "ruta_motor_*").Length == 0, "Cierre de API espera cancelación y limpia solamente sus temporales");
     Verificar(PresentacionResultados.Formatear(System.Text.Json.JsonSerializer.SerializeToElement(1.5)) == "1,5", "Presentación usa decimal colombiano sin alterar el valor almacenado");
@@ -118,6 +123,10 @@ try
         var resultado = await new MotorRLocal(Path.GetFullPath(args[0])).EjecutarAsync(solicitud, csv, trabajo, CancellationToken.None);
         Verificar(resultado.Contenido.GetProperty("cifras").GetProperty("media").GetDouble() == 2, "Trabajador R real devuelve media conocida con exclusión");
         Verificar(PresentacionResultados.Cifras(resultado).Any(fila => fila.Indicador == "Media" && fila.Valor == "2"), "Tabla nativa presenta la media calculada por R");
+        Verificar(PresentacionResultados.Frecuencias(resultado).Count == 0, "Una ruta numérica no inventa frecuencias categóricas");
+        var categorico = await new MotorRLocal(Path.GetFullPath(args[0])).EjecutarAsync(solicitud with { SolicitudId = Guid.NewGuid().ToString("N"), Tipo = "cuestionario", Columnas = ["c001"] }, csv, Path.Combine(temporal, "frecuencias"), CancellationToken.None);
+        var frecuencias = PresentacionResultados.Frecuencias(categorico);
+        Verificar(frecuencias.Count == 3 && frecuencias.Any(fila => fila.Categoria == "001" && fila.Frecuencia == "1" && fila.Porcentaje.EndsWith(" %")), "Tabla de frecuencias conserva categorías con ceros y porcentajes calculados por R");
         Verificar(repositorio.ListarHistorial(proyecto.Id).Any(entrada => entrada.Id == idHistorial), "Historial descubre cálculos completos al reabrir el proyecto");
         var archivoHistorico = Path.Combine(temporal, "historico.rutaestadistica"); repositorio.ExportarProyecto(proyecto.Id, archivoHistorico);
         var copiaHistorica = repositorio.ImportarProyecto(archivoHistorico);
@@ -134,7 +143,7 @@ try
             Verificar(reproducido.RootElement.GetProperty("cifras").GetProperty("media").GetDouble() == 2, "Reproducción exportada conserva resultado conocido");
         using var cancelacion = new CancellationTokenSource(); cancelacion.Cancel();
         try { await new MotorRLocal(Path.GetFullPath(args[0])).EjecutarAsync(solicitud, csv, Path.Combine(temporal, "cancelado"), cancelacion.Token); throw new Exception("Cancelación ignorada"); }
-        catch (ErrorAplicacion error) { Verificar(error.Codigo == "TRABAJO_CANCELADO", "Cancelación termina trabajador propio"); }
+        catch (ErrorAplicacion error) { Verificar(error.Codigo == "TRABAJO_CANCELADO", "Cancelación previa impide lanzar el trabajador"); }
         if (args.Length >= 3)
         {
             using var cliente = new System.Net.Http.HttpClient { BaseAddress = new Uri(args[1]) };

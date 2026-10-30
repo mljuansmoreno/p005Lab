@@ -56,3 +56,14 @@ Los códigos son estables. No se muestran trazas sin filtrar al usuario. Para di
 | `TRABAJO_TIEMPO_AGOTADO` | Se alcanzó plazo de 60 segundos | Revisar método, tamaño y motor antes de reintentar |
 
 Puntos de interrupción y regresiones específicas: [depuración](depuracion.md). Pruebas registradas: [calidad](pruebas_y_calidad.md). Algunos códigos aún no tienen prueba individual; la comprobación documental de cobertura no equivale a prueba de comportamiento.
+
+## API de trabajos e historial (30/10/2026)
+
+| Código | Causa y reparación | Regresión |
+|---|---|---|
+| `CONTRATO_SOLICITUD_INVALIDA` | Faltan IDs, columnas o cuerpo tipado. Enviar contrato 1 con campos completos; no sustituir nulos por valores supuestos. | Validacion y probar_api.py |
+| `TRABAJO_NO_ENCONTRADO` | ID inexistente o proyecto distinto. Consultar solo el ID y proyecto devueltos al admitir el trabajo. | Aislamiento de API e historial |
+| `TRABAJO_COLA_LLENA` | Dos trabajos activos o cien registros retenidos. Esperar, cancelar el trabajo propio o permitir caducidad; no iniciar procesos externos ilimitados. | MotorEsperaControlada |
+| `MOTOR_ALMACEN_LLENO` | Cuatro revisiones distintas o 100 MiB acumulados. Reutilizar la revisión, esperar caducidad o reiniciar voluntariamente el servicio. | Límite y reutilización de cargas |
+
+Un historial con CSV modificado produce `DATOS_HASH_INVALIDO`; no se abre como evidencia válida. Un resultado pendiente produce `RESULTADO_NO_DISPONIBLE` (HTTP 409). La ruta síncrona anterior devuelve `DOCKER_VERSION_INCOMPATIBLE` (HTTP 410); actualizar imagen y escritorio conjuntamente.

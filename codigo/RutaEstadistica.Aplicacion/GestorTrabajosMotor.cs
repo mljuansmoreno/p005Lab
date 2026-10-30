@@ -47,6 +47,12 @@ public sealed class GestorTrabajosMotor : IAsyncDisposable
         lock (cerrojo)
         {
             ExigirAbierto(); Depurar();
+            var existente = conjuntos.FirstOrDefault(par => par.Value.ProyectoId == carga.ProyectoId && par.Value.Hash == hash);
+            if (existente.Value is { } anterior)
+            {
+                conjuntos[existente.Key] = anterior with { Fecha = DateTimeOffset.UtcNow };
+                return new(existente.Key, hash, datos.Filas.Count, datos.Columnas.Count);
+            }
             if (conjuntos.Count >= 4 || conjuntos.Values.Sum(conjunto => conjunto.Octetos) + octetos > 100 * 1024 * 1024) throw new ErrorAplicacion("MOTOR_ALMACEN_LLENO");
             var id = Guid.NewGuid().ToString("N");
             conjuntos[id] = new(carga.ProyectoId, carga.Csv, hash, datos, DateTimeOffset.UtcNow, octetos);

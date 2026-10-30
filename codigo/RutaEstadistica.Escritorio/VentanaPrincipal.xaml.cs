@@ -108,13 +108,15 @@ public sealed partial class VentanaPrincipal : Window
     private async void ImportarDatos(object remitente, RoutedEventArgs argumentos) => await EjecutarSeguro(async () =>
     {
         ExigirProyecto(); if (rutaArchivo is null) throw new ErrorAplicacion("DATOS_ARCHIVO_NO_ELEGIDO");
-        cancelacion?.Cancel(); cancelacion = new(); modelo.Estado = "Importando y validando datos…";
+        Invalidar(); cancelacion = new(); modelo.Estado = "Importando y validando datos…";
         var opciones = Opciones(); var hoja = Hojas.SelectedItem as string;
-        var proyectoImportacion = proyecto!.Id; var cancelacionImportacion = cancelacion.Token;
-        var nuevosDatos = await Task.Run(() => ImportadorDatos.ImportarAsync(rutaArchivo, opciones, hoja, cancelacionImportacion));
+        var proyectoImportacion = proyecto!.Id; var cancelacionImportacion = cancelacion.Token; var rutaImportacion = rutaArchivo;
+        var nuevosDatos = await Task.Run(() => ImportadorDatos.ImportarAsync(rutaImportacion, opciones, hoja, cancelacionImportacion));
+        if (proyecto?.Id != proyectoImportacion || cancelacionImportacion.IsCancellationRequested) return;
+        // No capturar campos mutables de la ventana: el usuario puede abrir otro proyecto durante la escritura.
+        await Task.Run(() => repositorio.GuardarDatos(proyectoImportacion, nuevosDatos, File.ReadAllBytes(rutaImportacion)));
         if (proyecto?.Id != proyectoImportacion || cancelacionImportacion.IsCancellationRequested) return;
         datos = nuevosDatos; datosImportados = datos;
-        await Task.Run(() => repositorio.GuardarDatos(proyecto!.Id, datos, File.ReadAllBytes(rutaArchivo)));
         LimpiarResultado(); ActualizarDatos(); modelo.Estado = "Vista previa lista. Confirma los roles antes de calcular.";
     });
     private void ActualizarDatos()
@@ -135,10 +137,19 @@ public sealed partial class VentanaPrincipal : Window
     private async void ConfirmarRoles(object remitente, RoutedEventArgs argumentos) => await EjecutarSeguro(async () =>
     {
         ExigirProyecto(); if (datosImportados is null) throw new ErrorAplicacion("DATOS_INSUFICIENTES");
+        var proyectoPreparacion = proyecto!.Id; var datosOrigen = datosImportados;
+        Invalidar(); var revisionPreparacion = Interlocked.Read(ref revisionInterfaz);
         var roles = Roles.Children.OfType<ComboBox>().ToDictionary(selector => (string)selector.Tag, selector => (string)selector.SelectedItem);
-        var opciones = Opciones(); datos = await Task.Run(() => ImportadorDatos.ConfirmarRoles(datosImportados, roles, opciones));
-        RepositorioProyectos.EscribirAtomico(Path.Combine(proyecto!.Directorio, "preparacion_" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + ".json"), JsonSerializer.Serialize(datos, Serializacion.Opciones));
-        repositorio.GuardarDatos(proyecto.Id, datos, File.ReadAllBytes(Directory.GetFiles(proyecto.Directorio, "original_*").Single(ruta => Path.GetFileName(ruta).Contains(datos.HashOriginal))));
+        var opciones = Opciones(); var preparados = await Task.Run(() => ImportadorDatos.ConfirmarRoles(datosOrigen, roles, opciones));
+        if (proyecto?.Id != proyectoPreparacion || revisionPreparacion != Interlocked.Read(ref revisionInterfaz)) return;
+        await Task.Run(() =>
+        {
+            var directorio = repositorio.Directorio(proyectoPreparacion);
+            RepositorioProyectos.EscribirAtomico(Path.Combine(directorio, "preparacion_" + Guid.NewGuid().ToString("N") + ".json"), JsonSerializer.Serialize(preparados, Serializacion.Opciones));
+            repositorio.GuardarDatos(proyectoPreparacion, preparados, File.ReadAllBytes(Directory.GetFiles(directorio, "original_*").First(ruta => Path.GetFileName(ruta).Contains(preparados.HashOriginal))));
+        });
+        if (proyecto?.Id != proyectoPreparacion || revisionPreparacion != Interlocked.Read(ref revisionInterfaz)) return;
+        datos = preparados;
         LimpiarResultado(); ActualizarDatos(); Mostrar(4); modelo.Estado = "Roles confirmados. Selecciona método, variables y condiciones.";
     });
     private void DeshacerPreparacion(object remitente, RoutedEventArgs argumentos) { if (datosImportados != null) { datos = datosImportados; LimpiarResultado(); ActualizarDatos(); modelo.Estado = "Preparación revertida en memoria. Confirma de nuevo para guardar."; } }
