@@ -8,7 +8,7 @@ namespace RutaEstadistica.Aplicacion;
 // La API conserva únicamente datos temporales propios; nunca abre la base del escritorio.
 public sealed class GestorTrabajosMotor : IAsyncDisposable
 {
-    private sealed record EntradaDatos(string ProyectoId, string Csv, string Hash, ConjuntoDatos Datos, DateTimeOffset Fecha, long Bytes);
+    private sealed record EntradaDatos(string ProyectoId, string Csv, string Hash, ConjuntoDatos Datos, DateTimeOffset Fecha, long Octetos);
     private sealed class EntradaTrabajo(string id, SolicitudAnalisis solicitud, string directorio, CancellationTokenSource cancelacion)
     {
         public string Id { get; } = id;
@@ -37,8 +37,8 @@ public sealed class GestorTrabajosMotor : IAsyncDisposable
     public DatosMotor Cargar(CargaDatosMotor carga)
     {
         if (!Guid.TryParseExact(carga.ProyectoId, "N", out _) || carga.Csv is null) throw new ErrorAplicacion("CONTRATO_SOLICITUD_INVALIDA");
-        var bytes = Encoding.UTF8.GetByteCount(carga.Csv);
-        if (bytes > ImportadorDatos.LimiteBytes) throw new ErrorAplicacion("DATOS_LIMITE_EXCEDIDO");
+        var octetos = Encoding.UTF8.GetByteCount(carga.Csv);
+        if (octetos > ImportadorDatos.LimiteBytes) throw new ErrorAplicacion("DATOS_LIMITE_EXCEDIDO");
         var filas = ImportadorDatos.LeerDelimitado(carga.Csv, ',');
         if (filas.Count < 2 || filas[0].Length > 200 || filas[0].Distinct().Count() != filas[0].Length || filas[0].Any(nombre => !System.Text.RegularExpressions.Regex.IsMatch(nombre, "^c[0-9]{3}$")) || filas.Skip(1).Any(fila => fila.Length != filas[0].Length)) throw new ErrorAplicacion("DATOS_CSV_INVALIDO");
         if (filas.Count - 1 > 100000) throw new ErrorAplicacion("DATOS_LIMITE_EXCEDIDO");
@@ -47,9 +47,9 @@ public sealed class GestorTrabajosMotor : IAsyncDisposable
         lock (cerrojo)
         {
             ExigirAbierto(); Depurar();
-            if (conjuntos.Count >= 4 || conjuntos.Values.Sum(conjunto => conjunto.Bytes) + bytes > 100 * 1024 * 1024) throw new ErrorAplicacion("MOTOR_ALMACEN_LLENO");
+            if (conjuntos.Count >= 4 || conjuntos.Values.Sum(conjunto => conjunto.Octetos) + octetos > 100 * 1024 * 1024) throw new ErrorAplicacion("MOTOR_ALMACEN_LLENO");
             var id = Guid.NewGuid().ToString("N");
-            conjuntos[id] = new(carga.ProyectoId, carga.Csv, hash, datos, DateTimeOffset.UtcNow, bytes);
+            conjuntos[id] = new(carga.ProyectoId, carga.Csv, hash, datos, DateTimeOffset.UtcNow, octetos);
             return new(id, hash, datos.Filas.Count, datos.Columnas.Count);
         }
     }

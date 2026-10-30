@@ -93,6 +93,9 @@ try
         Verificar(carga.HashDatos == hash && carga.Filas == 3, "Carga de API registra revisión y recuentos sin truncar");
         var solicitud = new SolicitudAnalisis(1, Guid.NewGuid().ToString("N"), proyecto.Id, hash, hash, "descriptivo", ["c002"], PoliticaFaltantes: "excluir_confirmados");
         var primero = gestor.Encolar(new(carga.DatosId, solicitud));
+        Rechazar(() => Validacion.Validar(solicitud with { Columnas = null! }, preparados), "CONTRATO_SOLICITUD_INVALIDA");
+        Rechazar(() => Validacion.Validar(solicitud with { HashDatos = null! }, preparados), "DATOS_HASH_INVALIDO");
+        Rechazar(() => Validacion.Validar(solicitud with { PoliticaFaltantes = "eliminar_sin_confirmar" }, preparados), "ANALISIS_OPCION_INVALIDA");
         var segundo = gestor.Encolar(new(carga.DatosId, solicitud with { SolicitudId = Guid.NewGuid().ToString("N") }));
         Rechazar(() => gestor.Encolar(new(carga.DatosId, solicitud)), "TRABAJO_COLA_LLENA");
         Rechazar(() => gestor.Consultar(primero.TrabajoId, Guid.NewGuid().ToString("N")), "TRABAJO_NO_ENCONTRADO");

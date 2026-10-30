@@ -5,12 +5,14 @@ public static class Validacion
     public static readonly string[] Tipos = ["descriptivo", "cuestionario", "welch", "pareado", "pearson", "spearman", "lineal"];
     public static void Validar(SolicitudAnalisis solicitud, ConjuntoDatos datos)
     {
+        if (solicitud is null || datos is null || datos.Columnas is null || solicitud.Columnas is null || string.IsNullOrWhiteSpace(solicitud.SolicitudId) || solicitud.SolicitudId.Length > 64 || string.IsNullOrWhiteSpace(solicitud.ProyectoId) || solicitud.ProyectoId.Length > 64) throw new ErrorAplicacion("CONTRATO_SOLICITUD_INVALIDA");
         if (solicitud.VersionContrato != 1) throw new ErrorAplicacion("CONTRATO_VERSION_NO_ADMITIDA");
         if (!Tipos.Contains(solicitud.Tipo)) throw new ErrorAplicacion("ANALISIS_NO_ADMITIDO");
         if (solicitud.Columnas.Length != (solicitud.Tipo is "descriptivo" or "cuestionario" ? 1 : 2) || solicitud.Columnas.Distinct().Count() != solicitud.Columnas.Length || solicitud.Columnas.Any(columna => !datos.Columnas.Any(definicion => definicion.Id == columna))) throw new ErrorAplicacion("DATOS_COLUMNA_INVALIDA");
         if (!double.IsFinite(solicitud.Confianza) || solicitud.Confianza is < .8 or > .99) throw new ErrorAplicacion("ANALISIS_OPCION_INVALIDA");
         if (solicitud.Tipo == "pareado" && !solicitud.PareamientoConfirmado) throw new ErrorAplicacion("ANALISIS_PAREAMIENTO_NO_CONFIRMADO");
-        if (solicitud.HashDatos.Length != 64 || solicitud.HashPreparacion.Length != 64) throw new ErrorAplicacion("DATOS_HASH_INVALIDO");
+        if (solicitud.HashDatos is null || solicitud.HashPreparacion is null || !System.Text.RegularExpressions.Regex.IsMatch(solicitud.HashDatos, "^[a-f0-9]{64}$") || !System.Text.RegularExpressions.Regex.IsMatch(solicitud.HashPreparacion, "^[a-f0-9]{64}$")) throw new ErrorAplicacion("DATOS_HASH_INVALIDO");
+        if (solicitud.PoliticaFaltantes is not ("rechazar" or "excluir_confirmados")) throw new ErrorAplicacion("ANALISIS_OPCION_INVALIDA");
     }
     public static string ProponerRuta(string objetivo, string diseno) => objetivo switch
     {
