@@ -1,0 +1,17 @@
+{
+  "fecha_consulta": "2026-10-30",
+  "arquitectura": "linux/amd64",
+  "sdk": {
+    "imagen": "mcr.microsoft.com/dotnet/sdk:10.0.403",
+    "resumen": "sha256:de4fe90a98845d75910b9769662465c84de1a934665c431279d1382b2bddc02b"
+  },
+  "motor_r": {
+    "imagen": "rocker/r-ver:4.5.2",
+    "resumen": "sha256:fd4ccdd3a4a6f7ef805e2daeee2a0fe3bf126bc231f36351223baecf5a595a4c"
+  },
+  "jsonlite": {
+    "url": "https://cran.r-project.org/src/contrib/jsonlite_2.0.0.tar.gz",
+    "sha256": "75eb910c82b350ec33f094779da0f87bff154c232e4ae39c9896a9b89f3ac82d"
+  },
+  "estado": "Metadatos verificados en registros oficiales; imagen no ejecutada"
+}

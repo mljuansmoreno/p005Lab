@@ -126,4 +126,36 @@ public sealed class RepositorioProyectos
         try { ExportarProyecto(id, temporal); return ImportarProyecto(temporal); } finally { if (File.Exists(temporal)) File.Delete(temporal); }
     }
     private sealed record ManifiestoProyecto(int VersionEsquema, Dictionary<string, string> Archivos);
+    public List<EntradaHistorial> ListarHistorial(string proyectoId)
+    {
+        var historial = new List<EntradaHistorial>();
+        foreach (var directorio in Directory.EnumerateDirectories(Directorio(proyectoId), "trabajo_*"))
+        {
+            var id = Path.GetFileName(directorio)[8..];
+            if (!Guid.TryParseExact(id, "N", out _)) continue;
+            try
+            {
+                var lectura = LeerTrabajo(proyectoId, id);
+                historial.Add(new(id, lectura.Solicitud.Tipo, File.GetLastWriteTimeUtc(Path.Combine(directorio, "resultado.json")), lectura.Solicitud.SolicitudId));
+            }
+            catch (Exception error) when (error is ErrorAplicacion or IOException or JsonException or InvalidOperationException or KeyNotFoundException) { }
+        }
+        return historial.OrderByDescending(entrada => entrada.FechaUtc).ToList();
+    }
+    public LecturaTrabajo LeerTrabajo(string proyectoId, string trabajoId)
+    {
+        if (!Guid.TryParseExact(trabajoId, "N", out _)) throw new ErrorAplicacion("TRABAJO_NO_ENCONTRADO");
+        var directorio = Path.Combine(Directorio(proyectoId), "trabajo_" + trabajoId);
+        if (!Directory.Exists(directorio)) throw new ErrorAplicacion("TRABAJO_NO_ENCONTRADO");
+        if ((File.GetAttributes(directorio) & FileAttributes.ReparsePoint) != 0) throw new ErrorAplicacion("PROYECTO_RUTA_INVALIDA");
+        foreach (var nombre in new[] { "solicitud.json", "resultado.json", "entrada.csv", "figura.png" })
+        {
+            var archivo = new FileInfo(Path.Combine(directorio, nombre));
+            if (!archivo.Exists || archivo.Length > (nombre == "entrada.csv" ? ImportadorDatos.LimiteBytes : 8 * 1024 * 1024) || (archivo.Attributes & FileAttributes.ReparsePoint) != 0) throw new ErrorAplicacion("RESULTADO_NO_DISPONIBLE");
+        }
+        var solicitud = JsonSerializer.Deserialize<SolicitudAnalisis>(File.ReadAllText(Path.Combine(directorio, "solicitud.json")), Serializacion.Opciones) ?? throw new ErrorAplicacion("MOTOR_RESPUESTA_INVALIDA");
+        var contenido = JsonSerializer.Deserialize<JsonElement>(File.ReadAllText(Path.Combine(directorio, "resultado.json")));
+        if (solicitud.VersionContrato != 1 || contenido.GetProperty("version_contrato").GetInt32() != 1 || solicitud.SolicitudId != contenido.GetProperty("solicitud_id").GetString() || solicitud.HashDatos != contenido.GetProperty("hash_datos").GetString() || solicitud.HashDatos != ImportadorDatos.Hash(File.ReadAllBytes(Path.Combine(directorio, "entrada.csv")))) throw new ErrorAplicacion("DATOS_HASH_INVALIDO");
+        return new(solicitud, new(contenido), directorio);
+    }
 }

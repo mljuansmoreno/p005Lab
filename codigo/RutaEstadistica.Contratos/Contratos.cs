@@ -30,6 +30,23 @@ public sealed record ProyectoAnalisis(string Id, string Nombre, string Pregunta,
 public sealed record PermisoIntegracion(string ProyectoId, bool Metadatos, bool Ejecutar, bool Filas, bool Exportar);
 public enum EstadoTrabajo { Pendiente, Ejecutando, Completado, Cancelado, Fallido }
 public sealed record TrabajoAnalisis(string Id, EstadoTrabajo Estado, string? CodigoError = null);
+public sealed record CargaDatosMotor(string ProyectoId, string Csv);
+public sealed record DatosMotor(string DatosId, string HashDatos, int Filas, int Columnas);
+public sealed record PeticionTrabajoMotor(string DatosId, SolicitudAnalisis Solicitud);
+public sealed record EstadoTrabajoMotor(string TrabajoId, string ProyectoId, string Estado, string? CodigoError);
+public sealed record FilaResultado(string Indicador, string Valor)
+{
+    public string DescripcionAccesible => Indicador + ": " + Valor;
+}
+public sealed record FilaFrecuencia(string Categoria, string Frecuencia, string Porcentaje)
+{
+    public string DescripcionAccesible => Categoria + ": " + Frecuencia + " respuestas; " + Porcentaje;
+}
+public sealed record EntradaHistorial(string Id, string Metodo, DateTimeOffset FechaUtc, string SolicitudId)
+{
+    public string Descripcion => FechaUtc.ToString("u") + " · " + Metodo + " · " + SolicitudId;
+}
+public sealed record LecturaTrabajo(SolicitudAnalisis Solicitud, ResultadoAnalisis Resultado, string Directorio);
 public sealed class ErrorAplicacion(string codigo) : Exception(codigo)
 {
     public string Codigo { get; } = codigo;

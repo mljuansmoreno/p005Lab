@@ -24,6 +24,7 @@ public sealed partial class VentanaPrincipal : Window
     private readonly string recursos = AppContext.BaseDirectory;
     private readonly IntermediarioMcp intermediario;
     private long revisionInterfaz;
+    private bool esResultadoHistorico;
     public VentanaPrincipal()
     {
         InitializeComponent(); ((FrameworkElement)Content).DataContext = modelo;
@@ -57,6 +58,7 @@ public sealed partial class VentanaPrincipal : Window
     {
         if (inicializando) return;
         if (argumentos.SelectedItem is not NavigationViewItem elemento || !int.TryParse(elemento.Tag?.ToString(), out var paso)) return;
+        if (paso == 4 && esResultadoHistorico) Invalidar();
         var paneles = new[] { PanelInicio, PanelPregunta, PanelDatos, PanelPreparacion, PanelRuta, PanelResultados, PanelInterpretacion, PanelEvidencia, PanelConfiguracion };
         for (var indice = 0; indice < paneles.Length; indice++) paneles[indice].Visibility = indice == paso ? Visibility.Visible : Visibility.Collapsed;
     }
@@ -67,7 +69,7 @@ public sealed partial class VentanaPrincipal : Window
         inicializando = true; Pregunta.Text = proyecto!.Pregunta; Contexto.Text = proyecto.Contexto;
         NombreProyecto.Text = proyecto.Nombre; datos = repositorio.LeerDatos(proyecto.Id); datosImportados = datos;
         LimpiarResultado(); ActualizarDatos(); inicializando = false;
-        Historial.Text = string.Join(Environment.NewLine, Directory.GetDirectories(proyecto.Directorio, "trabajo_*").Select(Path.GetFileName));
+        _ = EjecutarSeguro(ActualizarHistorialAsync);
         modelo.Estado = $"Proyecto «{proyecto.Nombre}» abierto y guardado.";
     }
     private void AbrirProyecto(object remitente, SelectionChangedEventArgs argumentos) { if (ListaProyectos.SelectedItem is ProyectoAnalisis elegido) { proyecto = elegido; CargarProyecto(); } }
@@ -144,7 +146,51 @@ public sealed partial class VentanaPrincipal : Window
     private void CambiarConfianza(NumberBox remitente, NumberBoxValueChangedEventArgs argumentos) { if (!inicializando) Invalidar(); }
     private void InvalidarResultado(object remitente, RoutedEventArgs argumentos) { if (!inicializando) Invalidar(); }
     private void Invalidar() { Interlocked.Increment(ref revisionInterfaz); coordinador?.Invalidar(); cancelacion?.Cancel(); LimpiarResultado(); }
-    private void LimpiarResultado() { ultimoTrabajo = null; if (Cifras != null) Cifras.Text = ""; if (Figura != null) Figura.Source = null; modelo.Interpretacion = "Calcula con los parámetros actuales para obtener una interpretación."; }
+    private void LimpiarResultado()
+    {
+        ultimoTrabajo = null; esResultadoHistorico = false;
+        if (Cifras != null) Cifras.Text = "";
+        if (Figura != null) Figura.Source = null;
+        if (TablaCifras != null) TablaCifras.ItemsSource = null;
+        if (TablaFrecuencias != null) TablaFrecuencias.ItemsSource = null;
+        if (PanelFrecuencias != null) PanelFrecuencias.Visibility = Visibility.Collapsed;
+        if (ResumenResultado != null) ResumenResultado.Text = "";
+        if (OrigenResultado != null) OrigenResultado.Text = "Calcula o abre un resultado guardado.";
+        if (OpcionesResultado != null) OpcionesResultado.Text = "";
+        modelo.Interpretacion = "Calcula con los parámetros actuales para obtener una interpretación.";
+    }
+    private async Task ActualizarHistorialAsync()
+    {
+        if (proyecto is null) return;
+        var proyectoId = proyecto.Id;
+        var entradas = await Task.Run(() => repositorio.ListarHistorial(proyectoId));
+        if (proyecto?.Id != proyectoId) return;
+        SelectorHistorial.ItemsSource = entradas;
+        Historial.Text = $"{entradas.Count} cálculos completados con evidencia verificable. No se incluyen trabajos interrumpidos o archivos dañados.";
+    }
+    private void MostrarResultado(ResultadoAnalisis resultado, SolicitudAnalisis solicitud, string directorio, bool historico)
+    {
+        ultimoTrabajo = directorio; esResultadoHistorico = historico;
+        OrigenResultado.Text = historico ? "Cálculo histórico · consulta de solo lectura" : "Cálculo actual";
+        ResumenResultado.Text = PresentacionResultados.Recuentos(resultado);
+        OpcionesResultado.Text = $"Solicitud: {solicitud.SolicitudId}. Variables: {string.Join(", ", solicitud.Columnas)}. Confianza: {solicitud.Confianza:P0}. Inferencia confirmada: {(solicitud.InferenciaConfirmada ? "sí" : "no")}. Política de faltantes: {solicitud.PoliticaFaltantes}. Revisión: {solicitud.HashDatos}.";
+        TablaCifras.ItemsSource = PresentacionResultados.Cifras(resultado);
+        var frecuencias = PresentacionResultados.Frecuencias(resultado);
+        TablaFrecuencias.ItemsSource = frecuencias; PanelFrecuencias.Visibility = frecuencias.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        Cifras.Text = resultado.Contenido.ToString();
+        modelo.Interpretacion = resultado.Contenido.GetProperty("interpretacion").GetString()!;
+        Figura.Source = new BitmapImage(new Uri(Path.Combine(directorio, "figura.png")));
+        Mostrar(5);
+    }
+    private async void VerCalculoGuardado(object remitente, RoutedEventArgs argumentos) => await EjecutarSeguro(async () =>
+    {
+        ExigirProyecto(); if (SelectorHistorial.SelectedItem is not EntradaHistorial entrada) throw new ErrorAplicacion("TRABAJO_NO_ENCONTRADO");
+        var proyectoId = proyecto!.Id; Invalidar(); var revisionActual = Interlocked.Read(ref revisionInterfaz);
+        var lectura = await Task.Run(() => repositorio.LeerTrabajo(proyectoId, entrada.Id));
+        if (proyecto?.Id != proyectoId || revisionActual != Interlocked.Read(ref revisionInterfaz)) return;
+        MostrarResultado(lectura.Resultado, lectura.Solicitud, lectura.Directorio, true);
+        modelo.Estado = "Cálculo guardado abierto con su solicitud y datos originales. Puedes volver a exportarlo.";
+    });
     private async void Calcular(object remitente, RoutedEventArgs argumentos) => await EjecutarSeguro(async () =>
     {
         ExigirProyecto(); if (datos is null || ColumnaPrimera.SelectedItem is not ColumnaDatos primera) throw new ErrorAplicacion("DATOS_COLUMNA_INVALIDA");
@@ -161,9 +207,9 @@ public sealed partial class VentanaPrincipal : Window
         modelo.Estado = "Calculando… puedes cancelar. Solicitud " + solicitud.SolicitudId;
         var resultado = await coordinador.EjecutarAsync(solicitud, datos, directorio, cancelacion.Token);
         if (resultado is null || revisionActual != Interlocked.Read(ref revisionInterfaz) || proyecto?.Id != solicitud.ProyectoId) return;
-        ultimoTrabajo = directorio; Cifras.Text = resultado.Contenido.ToString(); modelo.Interpretacion = resultado.Contenido.GetProperty("interpretacion").GetString()!;
-        Figura.Source = new BitmapImage(new Uri(Path.Combine(directorio, "figura.png"))); Historial.Text += "\n" + solicitud.SolicitudId + " · " + tipo;
-        modelo.Estado = "Cálculo completado y guardado. Revisa resultados e interpretación."; Mostrar(5);
+        MostrarResultado(resultado, solicitud, directorio, false);
+        await ActualizarHistorialAsync();
+        modelo.Estado = "Cálculo completado y guardado. Revisa resultados e interpretación.";
     });
     private void CancelarCalculo(object remitente, RoutedEventArgs argumentos) { cancelacion?.Cancel(); modelo.Estado = "Cancelación solicitada…"; }
     private async void ProbarEjemplo(object remitente, RoutedEventArgs argumentos) => await EjecutarSeguro(async () =>
