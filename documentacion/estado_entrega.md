@@ -1,5 +1,9 @@
 # Estado de entrega
 
+La demostración de dos servicios de la rama `entrega/ruta-estadistica-compose` se verificó en Linux. GitHub Actions construyó las imágenes, arrancó Compose y comprobó el cálculo descriptivo en R. [Check de Docker](https://github.com/mljuansmoreno/p005Lab/actions/runs/42565818761/job/128991978147) · [Artículo con evidencias](ruta-estadistica-articulo.pdf).
+
+## Registro de desarrollo de Windows
+
 Versión de desarrollo, sesión del 27/10/2026. **Todavía no satisface todos los criterios del prompt ni está lista para publicar en Store.** Hay una aplicación Windows publicada y un MSIX real sin firma.
 
 ## Abrir

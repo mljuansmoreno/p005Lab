@@ -45,12 +45,11 @@ docker compose up -d --wait
 docker ps --filter label=com.docker.compose.project=ruta-estadistica-demo
 docker network inspect ruta-estadistica-demo_analisis
 docker compose exec -T aplicacion python probar_compose.py
-docker compose down --remove-orphans
 ```
 
 Mientras los servicios estén activos, abra [127.0.0.1:8080](http://127.0.0.1:8080) y pulse **Calcular ejemplo**. Solo se publica el puerto de la aplicación en loopback. Su servidor envía la carga y el trabajo por HTTP al destino interno `motor:8787`, espera el estado final y descarga el ZIP. La prueba imprime el destino, el identificador del trabajo, la huella SHA-256, seis filas y la media que devolvió R. Su código de salida es distinto de cero si el resultado difiere de la solicitud, del hash o de `25/6` con tolerancia relativa de `1e-10`.
 
-Al terminar, borre el secreto temporal. En PowerShell use `Remove-Item -LiteralPath $archivo.FullName` y `Remove-Item Env:RUTA_ESTADISTICA_ARCHIVO_SECRETO`. En Bash use `rm -f "$RUTA_ESTADISTICA_ARCHIVO_SECRETO"`, `rmdir "$privado"` y `unset RUTA_ESTADISTICA_ARCHIVO_SECRETO`.
+Al terminar, ejecute `docker compose down --remove-orphans` y borre el secreto temporal. En PowerShell use `Remove-Item -LiteralPath $archivo.FullName` y `Remove-Item Env:RUTA_ESTADISTICA_ARCHIVO_SECRETO`. En Bash use `rm -f "$RUTA_ESTADISTICA_ARCHIVO_SECRETO"`, `rmdir "$privado"` y `unset RUTA_ESTADISTICA_ARCHIVO_SECRETO`.
 
 ### Organización y ciclo de vida
 
@@ -60,3 +59,7 @@ Al terminar, borre el secreto temporal. En PowerShell use `Remove-Item -LiteralP
 - El [modo Docker del escritorio](documentacion/docker.md) usa su propia configuración en `contenedores/compose.yaml`. El [inicio nativo de WinUI](LEEME.md#inicio-de-desarrollo) sigue usando R local.
 
 El trabajo **Docker Linux y cálculo entre contenedores** se ejecuta en `push` y `pull_request`. Conserva cinco salidas en el artefacto `docker-linux-<SHA>` cuando la ejecución y la revisión de credenciales concluyen correctamente. El trabajo de Windows conserva sus verificaciones nativas. [GitHub Actions](https://github.com/mljuansmoreno/p005Lab/actions/workflows/verificacion.yaml).
+
+La evidencia del artículo corresponde al commit `3434ff2f5c7dc836636644299a6957eafad16f57`, con Docker Linux verificado en GitHub Actions. [Check de Docker Linux](https://github.com/mljuansmoreno/p005Lab/actions/runs/42565818761/job/128991978147) · [PR en borrador](https://github.com/mljuansmoreno/p005Lab/pull/1).
+
+El artículo reúne la matriz de 150 puntos y las cinco capturas del registro. [DOCX](documentacion/ruta-estadistica-articulo.docx) · [PDF](documentacion/ruta-estadistica-articulo.pdf).
