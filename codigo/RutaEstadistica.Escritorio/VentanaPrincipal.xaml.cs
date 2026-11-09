@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
@@ -22,18 +23,65 @@ public sealed partial class VentanaPrincipal : Window
     private CancellationTokenSource? cancelacion;
     private bool inicializando = true;
     private readonly string recursos = AppContext.BaseDirectory;
+    private readonly string rutaTema = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RutaEstadistica", "tema.txt");
     private readonly IntermediarioMcp intermediario;
     private long revisionInterfaz;
     private bool esResultadoHistorico;
     public VentanaPrincipal()
     {
         InitializeComponent(); ((FrameworkElement)Content).DataContext = modelo;
+        var tema = LeerTema();
+        SelectorTema.SelectedItem = SelectorTema.Items.OfType<ComboBoxItem>()
+            .First(opcion => Equals(opcion.Tag, tema.ToString()));
+        AplicarTema(tema);
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1280, 900));
         repositorio = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RutaEstadistica", "proyectos"));
         intermediario = new(repositorio, new MotorRLocal(recursos));
         _ = Task.Run(intermediario.EscucharAsync);
         ActualizarProyectos(); inicializando = false; Navegacion.SelectedItem = Navegacion.MenuItems[0];
         Closed += (_, _) => { cancelacion?.Cancel(); intermediario.Dispose(); };
+    }
+    private ElementTheme LeerTema()
+    {
+        try
+        {
+            return File.ReadAllText(rutaTema) switch
+            {
+                nameof(ElementTheme.Dark) => ElementTheme.Dark,
+                nameof(ElementTheme.Default) => ElementTheme.Default,
+                _ => ElementTheme.Light
+            };
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+            return ElementTheme.Light;
+        }
+    }
+    private void AplicarTema(ElementTheme tema)
+    {
+        Raiz.RequestedTheme = tema;
+        AppWindow.TitleBar.PreferredTheme = tema switch
+        {
+            ElementTheme.Light => TitleBarTheme.Light,
+            ElementTheme.Dark => TitleBarTheme.Dark,
+            _ => TitleBarTheme.Legacy
+        };
+    }
+    private void CambiarTema(object remitente, SelectionChangedEventArgs argumentos)
+    {
+        if (inicializando || SelectorTema.SelectedItem is not ComboBoxItem { Tag: string opcion })
+            return;
+
+        AplicarTema(Enum.Parse<ElementTheme>(opcion));
+        try
+        {
+            File.WriteAllText(rutaTema, opcion);
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+            modelo.Estado = "El tema se aplicó, pero no se pudo guardar la preferencia.";
+        }
     }
     private void ActualizarProyectos() => ListaProyectos.ItemsSource = repositorio.Listar();
     private async Task EjecutarSeguro(Func<Task> accion)
@@ -82,7 +130,7 @@ public sealed partial class VentanaPrincipal : Window
     private void DuplicarProyecto(object remitente, RoutedEventArgs argumentos) => _ = EjecutarSeguro(() => { ExigirProyecto(); proyecto = repositorio.Duplicar(proyecto!.Id); ActualizarProyectos(); CargarProyecto(); return Task.CompletedTask; });
     private async void EliminarProyecto(object remitente, RoutedEventArgs argumentos) => await EjecutarSeguro(async () =>
     {
-        ExigirProyecto(); var dialogo = new ContentDialog { XamlRoot = Content.XamlRoot, Title = "¿Eliminar este proyecto?", Content = "Se creará un archivo recuperable en respaldos. Los informes ya exportados se conservan.", PrimaryButtonText = "Eliminar con respaldo", CloseButtonText = "Conservar", DefaultButton = ContentDialogButton.Close };
+        ExigirProyecto(); var dialogo = new ContentDialog { XamlRoot = Content.XamlRoot, RequestedTheme = Raiz.RequestedTheme, Title = "¿Eliminar este proyecto?", Content = "Se creará un archivo recuperable en respaldos. Los informes ya exportados se conservan.", PrimaryButtonText = "Eliminar con respaldo", CloseButtonText = "Conservar", DefaultButton = ContentDialogButton.Close };
         if (await dialogo.ShowAsync() != ContentDialogResult.Primary) return;
         repositorio.EliminarConRespaldo(proyecto!.Id); proyecto = null; datos = null; datosImportados = null; LimpiarResultado(); ActualizarProyectos(); modelo.Estado = "Proyecto eliminado con respaldo recuperable.";
     });
@@ -254,7 +302,7 @@ public sealed partial class VentanaPrincipal : Window
     private async void AutorizarMcp(object remitente, RoutedEventArgs argumentos) => await EjecutarSeguro(async () =>
     {
         ExigirProyecto();
-        var dialogo = new ContentDialog { XamlRoot = Content.XamlRoot, Title = "Autorizar integración para este proyecto", Content = "El cliente conectado podrá recibir nombres de columnas, recuentos y resultados autorizados. Si usa un modelo en la nube, esos contenidos pueden salir del equipo. Autoriza solo un cliente de confianza. La concesión caduca al cerrar o revocar.", PrimaryButtonText = "Autorizar este proyecto", CloseButtonText = "Cancelar", DefaultButton = ContentDialogButton.Close };
+        var dialogo = new ContentDialog { XamlRoot = Content.XamlRoot, RequestedTheme = Raiz.RequestedTheme, Title = "Autorizar integración para este proyecto", Content = "El cliente conectado podrá recibir nombres de columnas, recuentos y resultados autorizados. Si usa un modelo en la nube, esos contenidos pueden salir del equipo. Autoriza solo un cliente de confianza. La concesión caduca al cerrar o revocar.", PrimaryButtonText = "Autorizar este proyecto", CloseButtonText = "Cancelar", DefaultButton = ContentDialogButton.Close };
         if (await dialogo.ShowAsync() != ContentDialogResult.Primary) return;
         intermediario.Conceder(new(proyecto!.Id, true, PermitirCalculos.IsChecked == true, false, PermitirExportaciones.IsChecked == true)); intermediario.Activar(); EstadoIntegracion.Text = "Integración MCP ACTIVA · proyecto: " + proyecto.Nombre; modelo.Estado = "Integración activa. Puedes revocar todos los permisos en Configuración.";
     });
