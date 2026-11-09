@@ -7,7 +7,17 @@ salidas/
 *.msix
 *.pfx
 *.env
+.env.*
+!.env.example
 !configuracion.ejemplo.env
+*.secreto
+*.secret
+*.key
+*.pem
+*.p12
+**/credenciales/
+**/secrets/
+__pycache__/
 dotnet-install.ps1
 versiones-winui.json
 **/.Rhistory
