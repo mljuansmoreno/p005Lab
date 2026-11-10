@@ -1,4 +1,4 @@
-name: Verificación Windows
+name: Verificación Windows y Docker
 on:
   push:
   pull_request:
@@ -26,10 +26,14 @@ jobs:
         run: ./guiones/verificar_fuentes_contenedor.ps1
       - name: Preparar motor nativo
         shell: pwsh
-        run: ./guiones/preparar_desarrollo.ps1 -RutaR $env:R_HOME -AdquirirJson
+        run: |
+          $rutaR = (Rscript --vanilla -e 'cat(R.home())').Trim()
+          if ($LASTEXITCODE -ne 0 -or -not $rutaR) { throw 'No se pudo determinar la instalación de R' }
+          "RUTA_ESTADISTICA_R_CI=$rutaR" >> $env:GITHUB_ENV
+          ./guiones/preparar_desarrollo.ps1 -RutaR $rutaR -AdquirirJson
       - name: Verificar cifras, integración, documentación y nombres
         shell: pwsh
-        run: ./guiones/ejecutar_pruebas.ps1 -RutaR $env:R_HOME
+        run: ./guiones/ejecutar_pruebas.ps1 -RutaR $env:RUTA_ESTADISTICA_R_CI
       - name: Compilar escritorio
         shell: pwsh
         run: ./guiones/compilar.ps1
@@ -42,3 +46,55 @@ jobs:
       - name: Compilar host MCP
         shell: pwsh
         run: dotnet build codigo/RutaEstadistica.ServidorMcp -c Release --no-restore
+
+  docker:
+    name: Docker Linux y cálculo entre contenedores
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Preparar secreto temporal y carpeta de evidencias
+        run: |
+          directorio="$(mktemp -d "$RUNNER_TEMP/ruta-estadistica.XXXXXXXX")"
+          secreto="$directorio/motor.secreto"
+          openssl rand -hex 32 > "$secreto"
+          chmod 0444 "$secreto"
+          echo "RUTA_ESTADISTICA_ARCHIVO_SECRETO=$secreto" >> "$GITHUB_ENV"
+          echo "RUTA_ESTADISTICA_EVIDENCIAS=$directorio/evidencias" >> "$GITHUB_ENV"
+          mkdir "$directorio/evidencias"
+      - name: Compilar las dos imágenes
+        run: docker compose --progress plain build 2>&1 | tee "$RUTA_ESTADISTICA_EVIDENCIAS/01-compilacion.txt"
+      - name: Arrancar Compose y esperar la salud de los servicios
+        run: docker compose up -d --wait --wait-timeout 90 2>&1 | tee "$RUTA_ESTADISTICA_EVIDENCIAS/02-arranque.txt"
+      - name: Registrar el estado y la red
+        run: |
+          docker ps --filter label=com.docker.compose.project=ruta-estadistica-demo | tee "$RUTA_ESTADISTICA_EVIDENCIAS/03-docker-ps.txt"
+          docker network inspect ruta-estadistica-demo_analisis --format '{{.Name}} ({{.Driver}}){{range .Containers}}{{println}}{{.Name}} {{.IPv4Address}}{{end}}' | tee "$RUTA_ESTADISTICA_EVIDENCIAS/04-red.txt"
+      - name: Ejecutar el cálculo desde la aplicación
+        run: docker compose exec -T aplicacion python probar_compose.py | tee "$RUTA_ESTADISTICA_EVIDENCIAS/05-calculo.txt"
+      - name: Verificar que el secreto se inyecta solo en ejecución
+        run: |
+          for imagen in $(docker compose images -q | sort -u); do
+            docker run --rm --entrypoint /bin/sh "$imagen" -ec 'test ! -e /run/secrets/motor'
+          done
+          docker compose logs --no-color > "$RUNNER_TEMP/ruta-estadistica-servicios.log"
+          if grep -rFq -f "$RUTA_ESTADISTICA_ARCHIVO_SECRETO" "$RUTA_ESTADISTICA_EVIDENCIAS" "$RUNNER_TEMP/ruta-estadistica-servicios.log"; then
+            echo "::error::Se detectó la credencial en los registros"
+            exit 1
+          fi
+      - name: Publicar evidencias del cálculo
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: docker-linux-${{ github.sha }}
+          path: ${{ env.RUTA_ESTADISTICA_EVIDENCIAS }}
+          if-no-files-found: error
+      - name: Apagar servicios y retirar el secreto
+        if: always()
+        run: |
+          if [ -n "$RUTA_ESTADISTICA_ARCHIVO_SECRETO" ]; then
+            trap 'rm -f "$RUTA_ESTADISTICA_ARCHIVO_SECRETO"' EXIT
+            docker compose down --remove-orphans
+          fi

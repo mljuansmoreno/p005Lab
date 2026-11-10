@@ -23,20 +23,22 @@ public sealed partial class VentanaPrincipal : Window
     private CancellationTokenSource? cancelacion;
     private bool inicializando = true;
     private readonly string recursos = AppContext.BaseDirectory;
-    private readonly string rutaTema = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RutaEstadistica", "tema.txt");
+    private readonly string rutaTema;
     private readonly IntermediarioMcp intermediario;
     private long revisionInterfaz;
     private bool esResultadoHistorico;
     public VentanaPrincipal()
     {
-        InitializeComponent(); ((FrameworkElement)Content).DataContext = modelo;
+        var directorio = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RutaEstadistica");
+        rutaTema = Path.Combine(directorio, "tema.txt");
+        InitializeComponent();
+        Raiz.DataContext = modelo;
         var tema = LeerTema();
         SelectorTema.SelectedItem = SelectorTema.Items.OfType<ComboBoxItem>()
             .First(opcion => Equals(opcion.Tag, tema.ToString()));
         AplicarTema(tema);
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1280, 900));
-        repositorio = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RutaEstadistica", "proyectos"));
+        repositorio = new(Path.Combine(directorio, "proyectos"));
         intermediario = new(repositorio, new MotorRLocal(recursos));
         _ = Task.Run(intermediario.EscucharAsync);
         ActualizarProyectos(); inicializando = false; Navegacion.SelectedItem = Navegacion.MenuItems[0];
@@ -76,7 +78,7 @@ public sealed partial class VentanaPrincipal : Window
         AplicarTema(Enum.Parse<ElementTheme>(opcion));
         try
         {
-            File.WriteAllText(rutaTema, opcion);
+            RepositorioProyectos.EscribirAtomico(rutaTema, opcion);
         }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException)
         {

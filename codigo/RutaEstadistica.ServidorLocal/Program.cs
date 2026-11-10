@@ -16,11 +16,14 @@ var gestor = aplicacion.Services.GetRequiredService<GestorTrabajosMotor>();
 aplicacion.Lifetime.ApplicationStopping.Register(gestor.Detener);
 var secreto = File.ReadAllText(Environment.GetEnvironmentVariable("RUTA_ESTADISTICA_ARCHIVO_SECRETO") ?? "/run/secrets/motor").Trim();
 if (secreto.Length < 43) throw new InvalidOperationException("MOTOR_SECRETO_INVALIDO");
+var permitirHostMotor = Environment.GetEnvironmentVariable("RUTA_ESTADISTICA_PERMITIR_HOST_MOTOR") == "1";
 aplicacion.Use(async (contexto, siguiente) =>
 {
     var recibido = contexto.Request.Headers.Authorization.ToString();
     var permitido = recibido.StartsWith("Bearer ", StringComparison.Ordinal) && CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(recibido[7..]), Encoding.UTF8.GetBytes(secreto));
-    if (!permitido || contexto.Request.Headers.ContainsKey("Origin") || contexto.Request.Host.Host is not ("127.0.0.1" or "localhost")) { contexto.Response.StatusCode = 403; return; }
+    var host = contexto.Request.Host.Host;
+    var hostPermitido = host is "127.0.0.1" or "localhost" || (permitirHostMotor && host == "motor");
+    if (!permitido || contexto.Request.Headers.ContainsKey("Origin") || !hostPermitido) { contexto.Response.StatusCode = 403; return; }
     try { await siguiente(contexto); }
     catch (ErrorAplicacion error)
     {

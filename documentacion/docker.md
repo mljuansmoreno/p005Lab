@@ -1,5 +1,7 @@
 # Motor Docker
 
+Esta guía describe el modo Docker del escritorio con `contenedores/compose.yaml`. La demostración web de dos servicios usa el Compose de la raíz y se verificó en el ejecutor Linux de GitHub Actions. [Procedimiento de la demostración](../README.md#demostración-de-dos-servicios-con-docker).
+
 Implementación en [Dockerfile](../contenedores/Dockerfile), [Compose](../contenedores/compose.yaml), `MotorDocker` y `ServidorLocal/Program.cs`. El escritorio permanece nativo. La API usa el mismo paquete R. El contenedor no monta la base ni carpetas del usuario.
 
 ## Preparación y ciclo de vida

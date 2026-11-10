@@ -16,6 +16,8 @@ import urllib.request
 import uuid
 import zipfile
 
+from datos_sinteticos import CSV_SINTETICO
+
 raiz = pathlib.Path(__file__).resolve().parent.parent
 (raiz / 'salidas/informes').mkdir(parents=True, exist_ok=True)
 ejecutable_dotnet = str(raiz / '.herramientas/dotnet/dotnet.exe') if (raiz / '.herramientas/dotnet/dotnet.exe').exists() else shutil.which('dotnet')
@@ -84,7 +86,7 @@ with crear_temporal() as temporal:
             'host_externo_rechazado': consultar('/salud', autorizacion | {'Host': 'ejemplo.invalid'})[0] == 403}
         assert all(comprobaciones.values()), comprobaciones
         proyecto = uuid.uuid4().hex
-        csv = 'c001,c002,c003\n1,A,2\n2,A,1\n3,A,4\n5,B,3\n6,B,7\n8,B,5\n'
+        csv = CSV_SINTETICO
         codigo, contenido = consultar('/datos', autorizacion, 'POST', {'proyecto_id': proyecto, 'csv': csv})
         assert codigo == 201, (codigo, contenido)
         carga = json.loads(contenido)
