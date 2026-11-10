@@ -2,6 +2,13 @@
 
 La demostración de dos servicios de la rama `entrega/ruta-estadistica-compose` se verificó en Linux. GitHub Actions construyó las imágenes, arrancó Compose y comprobó el cálculo descriptivo en R. [Check de Docker](https://github.com/mljuansmoreno/p005Lab/actions/runs/42565818761/job/128991978147) · [Artículo con evidencias](ruta-estadistica-articulo.pdf).
 
+## Verificación de Windows y Docker en GitHub Actions
+
+- En la ejecución `42566314429`, `setup-r` recibió HTTP 504 al descargar R 4.5.2 en Windows, incluso tras dos reintentos. Las pruebas nativas quedaron sin ejecutar y el trabajo Docker Linux terminó correctamente. [Ejecución](https://github.com/mljuansmoreno/p005Lab/actions/runs/42566314429) · [Registro de Windows](https://github.com/mljuansmoreno/p005Lab/actions/runs/42566314429/job/128995277040).
+- En la ejecución `42755729490`, ambos trabajos del PR #1 pasaron para el SHA de rama `4c173dc0b1cad5d0314b278b286319e7f662238e` (fusión de prueba `b74d120bf0dd64c74a69bc74bb5371201b2103ae`). Windows instaló R 4.5.2 en `C:\R` y `guiones/probar_api.py` verificó siete rutas con R real. En Docker Linux, `probar_compose.py` completó el cálculo entre contenedores con seis filas analizadas y una media de `4,16666666666667`. [Ejecución](https://github.com/mljuansmoreno/p005Lab/actions/runs/42755729490) · [Registro de Windows](https://github.com/mljuansmoreno/p005Lab/actions/runs/42755729490/job/129629541303) · [Registro de Docker](https://github.com/mljuansmoreno/p005Lab/actions/runs/42755729490/job/129629541364).
+
+Las dos ejecuciones usaron el mismo `verificacion.yaml`, con R 4.5.2 fijado. El HTTP 504 no se repitió en la ejecución del commit actual. [Workflow verificado](https://github.com/mljuansmoreno/p005Lab/blob/4c173dc0b1cad5d0314b278b286319e7f662238e/.github/workflows/verificacion.yaml).
+
 ## Registro de desarrollo de Windows
 
 Versión de desarrollo, sesión del 27/10/2026. **Todavía no satisface todos los criterios del prompt ni está lista para publicar en Store.** Hay una aplicación Windows publicada y un MSIX real sin firma.
@@ -43,7 +50,7 @@ La ventana principal fue identificada por el sistema tras corregir los recursos 
 - Consulta NuGet `--vulnerable --include-transitive`: sin paquetes vulnerables devueltos para escritorio en la consulta registrada. Se actualizó SQLite tras una advertencia inicial. No cubre R, todas las capas Linux o cumplimiento de licencias.
 - `empaquetar_tienda.ps1`: **Package creation succeeded**, MakeAppx Windows SDK 10.0.26100.0. Se necesitó ejecución fuera del aislamiento de herramientas tras acceso denegado; no se desactivó seguridad de Windows.
 
-Informes: [integración](informes/pruebas_integracion.txt), [R](informes/pruebas_r.txt), [HTTP](informes/api_seguridad.json), [MCP](informes/mcp_stdio.json), [NuGet](informes/vulnerabilidades.json). Los logs completos locales están en salidas/informes. La restauración bloqueada de toda la solución se verificó tras fijar win-x64 en el host MCP. No se ha ejecutado el workflow remoto de GitHub.
+Informes: [integración](informes/pruebas_integracion.txt), [R](informes/pruebas_r.txt), [HTTP](informes/api_seguridad.json), [MCP](informes/mcp_stdio.json), [NuGet](informes/vulnerabilidades.json). Los logs completos locales están en salidas/informes. La restauración bloqueada de toda la solución se verificó tras fijar win-x64 en el host MCP. En esa sesión no se ejecutó el workflow remoto de GitHub.
 
 ## Artefacto de prueba
 
