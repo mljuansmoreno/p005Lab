@@ -68,9 +68,14 @@
 <ListView.ItemContainerStyle><Style TargetType="ListViewItem"><Setter Property="HorizontalContentAlignment" Value="Stretch"/></Style></ListView.ItemContainerStyle></ListView>
 <StackPanel x:Name="PanelFrecuencias" Spacing="8" Visibility="Collapsed">
 <TextBlock Text="Frecuencias de respuesta única" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
-<Grid><Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="Respuesta"/><TextBlock Grid.Column="1" Text="Frecuencia"/><TextBlock Grid.Column="2" Text="Porcentaje"/></Grid>
+<Grid ColumnSpacing="12" Padding="12,8" Background="{ThemeResource SuperficieSecundariaRutaBrush}">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="2*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+    <TextBlock Text="Respuesta" FontWeight="SemiBold" />
+    <TextBlock Grid.Column="1" Text="Frecuencia" FontWeight="SemiBold" TextWrapping="Wrap" />
+    <TextBlock Grid.Column="2" Text="Porcentaje" FontWeight="SemiBold" TextWrapping="Wrap" />
+</Grid>
 <ListView x:Name="TablaFrecuencias" MaxHeight="360" AutomationProperties.Name="Frecuencias y porcentajes de respuestas válidas">
-<ListView.ItemTemplate><DataTemplate x:DataType="contratos:FilaFrecuencia"><Grid ColumnSpacing="12" AutomationProperties.Name="{x:Bind DescripcionAccesible}"><Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="{x:Bind Categoria}" TextWrapping="Wrap"/><TextBlock Grid.Column="1" Text="{x:Bind Frecuencia}"/><TextBlock Grid.Column="2" Text="{x:Bind Porcentaje}"/></Grid></DataTemplate></ListView.ItemTemplate>
+<ListView.ItemTemplate><DataTemplate x:DataType="contratos:FilaFrecuencia"><Grid Margin="0,4" ColumnSpacing="12" AutomationProperties.Name="{x:Bind DescripcionAccesible}"><Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="{x:Bind Categoria}" TextWrapping="Wrap"/><TextBlock Grid.Column="1" Text="{x:Bind Frecuencia}"/><TextBlock Grid.Column="2" Text="{x:Bind Porcentaje}"/></Grid></DataTemplate></ListView.ItemTemplate>
 <ListView.ItemContainerStyle><Style TargetType="ListViewItem"><Setter Property="HorizontalContentAlignment" Value="Stretch"/></Style></ListView.ItemContainerStyle></ListView></StackPanel>
 <Image x:Name="Figura" MaxHeight="480" AutomationProperties.Name="Gráfico del análisis; consulte cifras, recuentos y método en las tablas"/>
 <Expander Header="Evidencia técnica completa" HorizontalAlignment="Stretch"><TextBox x:Name="Cifras" Header="Valores originales, exclusiones y procedencia" AcceptsReturn="True" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="300" ScrollViewer.VerticalScrollBarVisibility="Auto"/></Expander>
