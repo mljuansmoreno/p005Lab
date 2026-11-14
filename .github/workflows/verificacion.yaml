@@ -200,6 +200,9 @@ jobs:
             echo '- Análisis real en R antes y después de recrear el motor.'
             printf '\nArtefacto: `docker-linux-%s`\n' "$GITHUB_SHA"
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Mostrar el estado de Compose ante un fallo
+        if: failure() && env.RUTA_ESTADISTICA_ARCHIVO_SECRETO != ''
+        run: docker compose ps --all
       - name: Apagar servicios y retirar el secreto
         if: always()
         run: |
