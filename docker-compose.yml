@@ -1,0 +1,54 @@
+name: ruta-estadistica-demo
+services:
+  aplicacion:
+    build:
+      context: .
+      dockerfile: aplicacion/Dockerfile
+    environment:
+      RUTA_ESTADISTICA_MOTOR_URL: http://motor:8787
+      RUTA_ESTADISTICA_ARCHIVO_SECRETO: /run/secrets/motor
+    ports:
+      - "127.0.0.1:${RUTA_ESTADISTICA_PUERTO_WEB:-8080}:8080"
+    depends_on:
+      motor:
+        condition: service_healthy
+    networks: [analisis]
+    secrets: [motor]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/', timeout=2).close()"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+  motor:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: contenedores/Dockerfile
+    environment:
+      ASPNETCORE_URLS: http://0.0.0.0:8787
+      RUTA_ESTADISTICA_ARCHIVO_SECRETO: /run/secrets/motor
+      RUTA_ESTADISTICA_PERMITIR_HOST_MOTOR: "1"
+      RUTA_ESTADISTICA_DIRECTORIO_TRABAJOS: /tmp
+    expose: ["8787"]
+    networks: [analisis]
+    secrets: [motor]
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    cpus: 2
+    mem_limit: 1g
+    pids_limit: 64
+
+networks:
+  analisis:
+    driver: bridge
+
+secrets:
+  motor:
+    file: ${RUTA_ESTADISTICA_ARCHIVO_SECRETO:?Configure el archivo de secreto}
