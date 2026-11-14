@@ -2,7 +2,8 @@ ARG IMAGEN_SDK=mcr.microsoft.com/dotnet/sdk:10.0.403@sha256:de4fe90a98845d75910b
 ARG IMAGEN_R=rocker/r-ver:4.5.2@sha256:fd4ccdd3a4a6f7ef805e2daeee2a0fe3bf126bc231f36351223baecf5a595a4c
 FROM ${IMAGEN_SDK} AS compilacion
 WORKDIR /fuente
-COPY . .
+COPY global.json Directory.Build.props Directory.Packages.props ./
+COPY codigo ./codigo
 RUN dotnet publish codigo/RutaEstadistica.ServidorLocal -c Release -r linux-x64 --self-contained true -o /publicado
 FROM ${IMAGEN_R}
 RUN apt-get update && apt-get install -y --no-install-recommends libicu74 libssl3t64 libgssapi-krb5-2 curl && rm -rf /var/lib/apt/lists/*
