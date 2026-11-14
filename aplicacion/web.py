@@ -225,6 +225,7 @@ button {{
 button:hover {{background: #103d69}}
 button:active {{background: #0c3053}}
 button:focus-visible {{outline: 2px solid var(--acento); outline-offset: 3px}}
+.aviso {{color: #752016; background: #fff2ef; border: 1px solid currentColor; border-radius: .5rem; padding: .75rem}}
 </style>
 <main><h1>Ruta Estadística</h1>
 <p>Calcula con R la media de las seis mediciones sintéticas de la columna c001.</p>
@@ -270,7 +271,7 @@ button:focus-visible {{outline: 2px solid var(--acento); outline-offset: 3px}}
             if acepta_json:
                 self.responder(502, "application/json", json.dumps({"error": "motor_no_disponible"}))
             else:
-                self.mostrar(502, f"<p>{html.escape(mensaje)}</p>")
+                self.mostrar(502, f'<p class="aviso" role="alert">{html.escape(mensaje)}</p>')
             return
         finally:
             self.server.analisis.release()
