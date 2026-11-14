@@ -19,6 +19,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 6
+    stop_grace_period: 80s
     read_only: true
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]

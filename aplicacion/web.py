@@ -8,8 +8,9 @@ import math
 import os
 import re
 import sys
+import signal
 import time
-from threading import BoundedSemaphore
+from threading import BoundedSemaphore, Thread
 import uuid
 import zipfile
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -126,6 +127,7 @@ def motor_disponible(destino, secreto):
 
 class ServidorWeb(ThreadingHTTPServer):
     request_queue_size = 32
+    daemon_threads = False
 
     def __init__(self, direccion, destino, secreto):
         self.destino = destino
@@ -271,4 +273,9 @@ if __name__ == "__main__":
     destino = configurar_destino(os.environ["RUTA_ESTADISTICA_MOTOR_URL"])
     secreto = leer_secreto(os.environ["RUTA_ESTADISTICA_ARCHIVO_SECRETO"])
     with ServidorWeb(("0.0.0.0", 8080), destino, secreto) as servidor:
+        def detener(_senal, _marco):
+            # shutdown debe ejecutarse fuera del hilo que llama a serve_forever.
+            Thread(target=servidor.shutdown, daemon=True).start()
+
+        signal.signal(signal.SIGTERM, detener)
         servidor.serve_forever()
