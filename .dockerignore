@@ -11,7 +11,6 @@
 !distribucion/fuentes/jsonlite_2.0.0.tar.gz
 !aplicacion/
 !aplicacion/*.py
-!aplicacion/requirements.txt
 !guiones/
 !guiones/datos_sinteticos.py
 **/bin
