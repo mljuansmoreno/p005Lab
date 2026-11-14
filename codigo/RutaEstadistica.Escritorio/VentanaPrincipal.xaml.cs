@@ -77,7 +77,7 @@ public sealed partial class VentanaPrincipal : Window
         AplicarTema(Enum.Parse<ElementTheme>(opcion));
         try
         {
-            File.WriteAllText(rutaTema, opcion);
+            RepositorioProyectos.EscribirAtomico(rutaTema, opcion);
         }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException)
         {
