@@ -178,13 +178,17 @@ button {{font: inherit; padding: .5rem 1rem}}
         if self.path != "/analizar":
             self.send_error(404)
             return
+        acepta_json = self.headers.get("Accept") == "application/json"
         try:
             resultado = analizar(self.server.destino, self.server.secreto)
         except (ErrorMotor, OSError, ValueError, KeyError, TypeError, zipfile.BadZipFile) as error:
             mensaje = str(error) if isinstance(error, ErrorMotor) else "El motor devolvió una respuesta inválida"
-            self.mostrar(502, f"<p>{html.escape(mensaje)}</p>")
+            if acepta_json:
+                self.responder(502, "application/json", json.dumps({"error": "motor_no_disponible"}))
+            else:
+                self.mostrar(502, f"<p>{html.escape(mensaje)}</p>")
             return
-        if self.headers.get("Accept") == "application/json":
+        if acepta_json:
             self.responder(200, "application/json", json.dumps(resultado))
         else:
             detalle = html.escape(json.dumps(resultado, indent=2, ensure_ascii=False))
