@@ -105,6 +105,12 @@ public sealed partial class VentanaPrincipal : Window
             modelo.Estado = "El tema se aplicó, pero no se pudo guardar la preferencia.";
         }
     }
+    private void AbrirApariencia(object remitente, RoutedEventArgs argumentos)
+    {
+        Navegacion.SelectedItem = OpcionConfiguracion;
+        SelectorTema.Focus(FocusState.Programmatic);
+    }
+
     private void ActualizarProyectos() => ListaProyectos.ItemsSource = repositorio.Listar();
     private async Task EjecutarSeguro(Func<Task> accion)
     {
