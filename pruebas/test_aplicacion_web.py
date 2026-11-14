@@ -59,8 +59,10 @@ class InterfazWeb(unittest.TestCase):
             self.assertEqual(self.solicitar("GET", "/listo")[0], 200)
 
     def test_cabeceras(self):
-        estado, cabeceras, _ = self.solicitar("GET", "/")
+        estado, cabeceras, cuerpo = self.solicitar("GET", "/")
         self.assertEqual(estado, 200)
+        self.assertIn(b"color-scheme: light", cuerpo)
+        self.assertIn(b'action="/analizar"', cuerpo)
         self.assertIn("frame-ancestors 'none'", cabeceras["Content-Security-Policy"])
         self.assertEqual(cabeceras["X-Content-Type-Options"], "nosniff")
         self.assertEqual(cabeceras["Cache-Control"], "no-store")
