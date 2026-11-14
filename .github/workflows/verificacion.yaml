@@ -97,6 +97,21 @@ jobs:
           grep -Fq 'action="/analizar"' "$pagina"
       - name: Ejecutar el cálculo desde la aplicación
         run: docker compose exec -T aplicacion python probar_compose.py | tee "$RUTA_ESTADISTICA_EVIDENCIAS/05-calculo.txt"
+      - name: Verificar que el secreto se inyecta solo en ejecución
+        run: |
+          for servicio in aplicacion motor; do
+            imagen="$(docker compose images -q "$servicio")"
+            docker run --rm --entrypoint /bin/sh "$imagen" -ec 'test ! -e /run/secrets/motor'
+          done
+          registro="$RUNNER_TEMP/ruta-estadistica-servicios.log"
+          docker compose logs --no-color > "$registro" 2>&1
+          coincidencia=0
+          grep -rFq -f "$RUTA_ESTADISTICA_ARCHIVO_SECRETO" "$RUTA_ESTADISTICA_EVIDENCIAS" "$registro" || coincidencia=$?
+          if [ "$coincidencia" -eq 0 ]; then
+            echo "::error::Se detectó la credencial en los registros"
+            exit 1
+          fi
+          test "$coincidencia" -eq 1
       - name: Apagar servicios y retirar el secreto
         if: always()
         run: |
