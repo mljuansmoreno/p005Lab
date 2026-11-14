@@ -196,7 +196,17 @@ class Pagina(BaseHTTPRequestHandler):
 <html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <title>Ruta Estadística</title>
 <style>
-body {{max-width: 46rem; margin: 4rem auto; padding: 0 1rem; font: 1.1rem/1.55 system-ui}}
+:root {{
+    color-scheme: light;
+    --fondo: #f2f5f9;
+    --superficie: #ffffff;
+    --secundaria: #eaf0f7;
+    --borde: #d0d9e5;
+    --texto: #162337;
+    --texto-secundario: #42536a;
+    --acento: #154b80;
+}}
+body {{max-width: 46rem; margin: 4rem auto; padding: 0 1rem; font: 1.1rem/1.55 system-ui; background: var(--fondo); color: var(--texto)}}
 pre {{white-space: pre-wrap; overflow-wrap: anywhere; background: #f1f5f9; padding: 1rem}}
 button {{font: inherit; padding: .5rem 1rem}}
 </style>
