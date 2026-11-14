@@ -226,6 +226,9 @@ button:hover {{background: #103d69}}
 button:active {{background: #0c3053}}
 button:focus-visible {{outline: 2px solid var(--acento); outline-offset: 3px}}
 .aviso {{color: #752016; background: #fff2ef; border: 1px solid currentColor; border-radius: .5rem; padding: .75rem}}
+@media (forced-colors: active) {{
+    button:focus-visible {{outline-color: Highlight}}
+}}
 </style>
 <main><h1>Ruta Estadística</h1>
 <p>Calcula con R la media de las seis mediciones sintéticas de la columna c001.</p>
