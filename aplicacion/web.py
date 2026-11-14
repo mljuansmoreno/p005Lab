@@ -211,7 +211,20 @@ main {{background: var(--superficie); border: 1px solid var(--borde); border-rad
 h1 {{margin: 0; line-height: 1.15; font-size: clamp(2rem, 7vw, 2.6rem)}}
 main > p {{color: var(--texto-secundario); max-width: 62ch}}
 pre {{white-space: pre-wrap; overflow-wrap: anywhere; background: #f1f5f9; padding: 1rem}}
-button {{font: inherit; padding: .5rem 1rem}}
+button {{
+    font: inherit;
+    font-weight: 650;
+    color: var(--superficie);
+    background: var(--acento);
+    border: 1px solid var(--acento);
+    border-radius: .5rem;
+    padding: .55rem 1rem;
+    min-height: 2.75rem;
+    cursor: pointer;
+}}
+button:hover {{background: #103d69}}
+button:active {{background: #0c3053}}
+button:focus-visible {{outline: 2px solid var(--acento); outline-offset: 3px}}
 </style>
 <main><h1>Ruta Estadística</h1>
 <p>Calcula con R la media de las seis mediciones sintéticas de la columna c001.</p>
