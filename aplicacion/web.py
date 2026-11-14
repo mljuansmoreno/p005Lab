@@ -183,9 +183,16 @@ def configurar_destino(valor):
     return valor.rstrip("/")
 
 
+def leer_secreto(ruta):
+    secreto = Path(ruta).read_text(encoding="utf-8").strip()
+    if not re.fullmatch(r"[0-9a-fA-F]{64}", secreto):
+        raise ValueError("El archivo del motor debe contener 32 bytes en hexadecimal")
+    return secreto
+
+
 if __name__ == "__main__":
     destino = configurar_destino(os.environ["RUTA_ESTADISTICA_MOTOR_URL"])
-    secreto = Path(os.environ["RUTA_ESTADISTICA_ARCHIVO_SECRETO"]).read_text(encoding="utf-8").strip()
+    secreto = leer_secreto(os.environ["RUTA_ESTADISTICA_ARCHIVO_SECRETO"])
     with ThreadingHTTPServer(("0.0.0.0", 8080), Pagina) as servidor:
         servidor.destino = destino
         servidor.secreto = secreto
