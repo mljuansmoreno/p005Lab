@@ -13,6 +13,36 @@ docker info --format '{{.OSType}}'
 docker compose version
 ```
 
+### Preparar el secreto
+
+Desde la raíz del repositorio, use uno de los siguientes bloques. Si ya tiene un `.env`, conserve sus valores y compruebe que la ruta del secreto corresponda al archivo generado.
+
+**PowerShell**
+
+```powershell
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
+New-Item -ItemType Directory -Force credenciales | Out-Null
+if (!(Test-Path credenciales/motor.secreto)) {
+    $bytes = [byte[]]::new(32)
+    $generador = [Security.Cryptography.RandomNumberGenerator]::Create()
+    try { $generador.GetBytes($bytes) } finally { $generador.Dispose() }
+    Set-Content -LiteralPath credenciales/motor.secreto -Value ([BitConverter]::ToString($bytes).Replace('-', '')) -Encoding ASCII -NoNewline
+}
+```
+
+**Bash**
+
+```bash
+[ -f .env ] || cp .env.example .env
+mkdir -p -m 0700 credenciales
+if [ ! -f credenciales/motor.secreto ]; then
+  (umask 077; openssl rand -hex 32 > credenciales/motor.secreto)
+  chmod 0444 credenciales/motor.secreto
+fi
+```
+
+Git y Docker excluyen `.env` y el archivo de credencial. Compose lee la ruta desde `.env` y monta el archivo como `/run/secrets/motor` en ambos contenedores. En Linux, el directorio privado protege el archivo en el host y el modo `0444` permite que los procesos sin privilegios lo lean una vez montado. [Secretos en Docker Compose](https://docs.docker.com/compose/how-tos/use-secrets/).
+
 ## Aplicación de escritorio
 
 Aplicación Windows en español para recorrer pregunta, datos, preparación, ruta, resultados, interpretación y evidencia. Los cálculos los realiza el paquete R `rutaanalitica`; no se necesita una cuenta ni un modelo de lenguaje.
