@@ -103,11 +103,22 @@ jobs:
           motor="$(docker compose ps --format '{{.Name}}' motor)"
           docker network inspect ruta-estadistica-demo_analisis |
             jq -er --arg aplicacion "$aplicacion" --arg motor "$motor" '
-              .[0] | select(.Driver == "bridge" and
+              .[0] | select(.Driver == "bridge" and .Internal and
                 ([.Containers[].Name] | sort) == ([$aplicacion, $motor] | sort)) |
               "\(.Name) (\(.Driver))", (.Containers[] | "\(.Name) \(.IPv4Address)")
             ' | tee "$RUTA_ESTADISTICA_EVIDENCIAS/04-red.txt"
           docker inspect "$motor" --format '{{json .HostConfig.PortBindings}}' | jq -e 'length == 0'
+      - name: Verificar el aislamiento de los contenedores
+        run: |
+          docker inspect "$(docker compose ps -q aplicacion)" "$(docker compose ps -q motor)" |
+            jq -e 'length == 2 and all(.[];
+              .Config.User == "1654:1654" and
+              .HostConfig.ReadonlyRootfs and
+              (.HostConfig.CapDrop | map(ascii_downcase) | index("all")) != null and
+              (.HostConfig.SecurityOpt | any(startswith("no-new-privileges"))) and
+              .HostConfig.Memory > 0 and .HostConfig.PidsLimit > 0 and
+              .HostConfig.LogConfig.Type == "local"
+            )'
       - name: Comprobar el acceso web desde el host
         run: |
           pagina="$RUNNER_TEMP/ruta-estadistica-web.html"
