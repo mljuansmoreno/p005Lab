@@ -26,10 +26,14 @@ jobs:
         run: ./guiones/verificar_fuentes_contenedor.ps1
       - name: Preparar motor nativo
         shell: pwsh
-        run: ./guiones/preparar_desarrollo.ps1 -RutaR $env:R_HOME -AdquirirJson
+        run: |
+          $rutaR = (Rscript --vanilla -e 'cat(R.home())').Trim()
+          if ($LASTEXITCODE -ne 0 -or -not $rutaR) { throw 'No se pudo determinar la instalación de R' }
+          "RUTA_ESTADISTICA_R_CI=$rutaR" >> $env:GITHUB_ENV
+          ./guiones/preparar_desarrollo.ps1 -RutaR $rutaR -AdquirirJson
       - name: Verificar cifras, integración, documentación y nombres
         shell: pwsh
-        run: ./guiones/ejecutar_pruebas.ps1 -RutaR $env:R_HOME
+        run: ./guiones/ejecutar_pruebas.ps1 -RutaR $env:RUTA_ESTADISTICA_R_CI
       - name: Compilar escritorio
         shell: pwsh
         run: ./guiones/compilar.ps1
