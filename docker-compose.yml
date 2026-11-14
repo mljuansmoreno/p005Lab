@@ -11,6 +11,9 @@ services:
     build:
       context: .
       dockerfile: aplicacion/Dockerfile
+      labels:
+        org.opencontainers.image.source: https://github.com/mljuansmoreno/p005Lab
+        org.opencontainers.image.revision: ${RUTA_ESTADISTICA_REVISION:-local}
     environment:
       RUTA_ESTADISTICA_MOTOR_URL: http://motor:8787
       RUTA_ESTADISTICA_ARCHIVO_SECRETO: /run/secrets/motor
@@ -42,6 +45,9 @@ services:
     build:
       context: .
       dockerfile: contenedores/Dockerfile
+      labels:
+        org.opencontainers.image.source: https://github.com/mljuansmoreno/p005Lab
+        org.opencontainers.image.revision: ${RUTA_ESTADISTICA_REVISION:-local}
     environment:
       ASPNETCORE_URLS: http://0.0.0.0:8787
       RUTA_ESTADISTICA_ARCHIVO_SECRETO: /run/secrets/motor
