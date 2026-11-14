@@ -108,6 +108,7 @@ public sealed partial class VentanaPrincipal : Window
     private void AbrirApariencia(object remitente, RoutedEventArgs argumentos)
     {
         Navegacion.SelectedItem = OpcionConfiguracion;
+        DesplazamientoContenido.ChangeView(null, 0, null, true);
         SelectorTema.Focus(FocusState.Programmatic);
     }
 

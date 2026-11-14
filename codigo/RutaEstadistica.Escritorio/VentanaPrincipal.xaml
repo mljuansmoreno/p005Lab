@@ -36,7 +36,7 @@
 </NavigationView.MenuItems>
 <Border Background="{ThemeResource SuperficieRutaBrush}" BorderBrush="{ThemeResource BordeRutaBrush}"
         BorderThickness="1" CornerRadius="12">
-    <ScrollViewer Padding="24" HorizontalScrollBarVisibility="Disabled">
+    <ScrollViewer x:Name="DesplazamientoContenido" Padding="24" HorizontalScrollBarVisibility="Disabled">
         <StackPanel Spacing="16" MaxWidth="1000" HorizontalAlignment="Stretch">
 <StackPanel x:Name="PanelInicio" Spacing="12"><TextBlock Text="Tus proyectos" Style="{StaticResource TituloEtapa}"/><TextBox x:Name="NombreProyecto" Header="Nombre del proyecto" Text="Mi análisis"/><VariableSizedWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3">
     <Button Margin="0,0,8,8" Content="Crear proyecto" Click="CrearProyecto" Style="{StaticResource AccentButtonStyle}" />

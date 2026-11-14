@@ -3,6 +3,7 @@
   "identificadores": [
     "AplicarTema",
     "AbrirApariencia",
+    "DesplazamientoContenido",
     "ActualizarTemaBarra",
     "CambiarContraste",
     "host",
