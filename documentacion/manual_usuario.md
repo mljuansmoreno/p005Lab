@@ -1,5 +1,9 @@
 # Manual de uso
 
+## Apariencia
+
+La aplicación abre con el tema claro en un perfil nuevo. El botón **Apariencia** del encabezado lleva a **Configuración y ayuda**, donde puedes elegir **Claro**, **Oscuro** o **Según Windows**. La selección se aplica de inmediato y se guarda en tu perfil de Windows. Si activas un tema de contraste en Windows, la aplicación usa sus colores de accesibilidad.
+
 ## Pregunta y proyecto
 
 Inicio permite crear, abrir, renombrar, duplicar, importar y eliminar con respaldo. Para renombrar escriba el nombre en el campo del inicio y pulse Renombrar. Los cambios de pregunta y contexto se guardan automáticamente; la barra inferior informa errores. Las pestañas permiten regresar sin perder la pregunta.
