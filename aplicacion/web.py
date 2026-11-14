@@ -7,6 +7,7 @@ import json
 import math
 import os
 import re
+import sys
 import time
 from threading import BoundedSemaphore
 import uuid
@@ -155,6 +156,15 @@ class ServidorWeb(ThreadingHTTPServer):
             self.conexiones.release()
 
 
+def registrar_analisis(estado, inicio):
+    evento = {
+        "evento": "analisis_web",
+        "estado_http": estado,
+        "duracion_ms": round((time.monotonic() - inicio) * 1000),
+    }
+    print(json.dumps(evento), file=sys.stderr, flush=True)
+
+
 class Pagina(BaseHTTPRequestHandler):
     def log_message(self, formato, *argumentos):
         # El servidor de demostración no conserva registros de peticiones.
@@ -213,13 +223,16 @@ button {{font: inherit; padding: .5rem 1rem}}
         if self.path != "/analizar":
             self.send_error(404)
             return
+        inicio = time.monotonic()
         if not self.server.analisis.acquire(blocking=False):
+            registrar_analisis(503, inicio)
             self.responder(503, "application/json", '{"error":"capacidad_ocupada"}', reintentar=2)
             return
         acepta_json = self.headers.get("Accept") == "application/json"
         try:
             resultado = analizar(self.server.destino, self.server.secreto)
         except (ErrorMotor, OSError, ValueError, KeyError, TypeError, zipfile.BadZipFile) as error:
+            registrar_analisis(502, inicio)
             mensaje = str(error) if isinstance(error, ErrorMotor) else "El motor devolvió una respuesta inválida"
             if acepta_json:
                 self.responder(502, "application/json", json.dumps({"error": "motor_no_disponible"}))
@@ -228,6 +241,7 @@ button {{font: inherit; padding: .5rem 1rem}}
             return
         finally:
             self.server.analisis.release()
+        registrar_analisis(200, inicio)
         if acepta_json:
             self.responder(200, "application/json", json.dumps(resultado))
         else:
