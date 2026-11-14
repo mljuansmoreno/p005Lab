@@ -75,12 +75,12 @@ jobs:
           evidencias="$(mktemp -d "$RUNNER_TEMP/ruta-estadistica.XXXXXXXX")"
           echo "RUTA_ESTADISTICA_EVIDENCIAS=$evidencias" >> "$GITHUB_ENV"
       - name: Compilar las dos imágenes
-        run: docker compose --progress plain build
+        run: docker compose --progress plain build 2>&1 | tee "$RUTA_ESTADISTICA_EVIDENCIAS/01-compilacion.txt"
       - name: Arrancar Compose y esperar la salud de los servicios
-        run: docker compose up -d --wait --wait-timeout 90
+        run: docker compose up -d --wait --wait-timeout 90 2>&1 | tee "$RUTA_ESTADISTICA_EVIDENCIAS/02-arranque.txt"
       - name: Registrar el estado y la red
         run: |
-          docker ps --filter label=com.docker.compose.project=ruta-estadistica-demo
+          docker ps --filter label=com.docker.compose.project=ruta-estadistica-demo | tee "$RUTA_ESTADISTICA_EVIDENCIAS/03-docker-ps.txt"
           aplicacion="$(docker compose ps --format '{{.Name}}' aplicacion)"
           motor="$(docker compose ps --format '{{.Name}}' motor)"
           docker network inspect ruta-estadistica-demo_analisis |
@@ -88,7 +88,7 @@ jobs:
               .[0] | select(.Driver == "bridge" and
                 ([.Containers[].Name] | sort) == ([$aplicacion, $motor] | sort)) |
               "\(.Name) (\(.Driver))", (.Containers[] | "\(.Name) \(.IPv4Address)")
-            '
+            ' | tee "$RUTA_ESTADISTICA_EVIDENCIAS/04-red.txt"
           docker inspect "$motor" --format '{{json .HostConfig.PortBindings}}' | jq -e 'length == 0'
       - name: Comprobar el acceso web desde el host
         run: |
@@ -96,7 +96,7 @@ jobs:
           curl --noproxy '*' --fail --silent --show-error --max-time 5 http://127.0.0.1:8080/ --output "$pagina"
           grep -Fq 'action="/analizar"' "$pagina"
       - name: Ejecutar el cálculo desde la aplicación
-        run: docker compose exec -T aplicacion python probar_compose.py
+        run: docker compose exec -T aplicacion python probar_compose.py | tee "$RUTA_ESTADISTICA_EVIDENCIAS/05-calculo.txt"
       - name: Apagar servicios y retirar el secreto
         if: always()
         run: |
