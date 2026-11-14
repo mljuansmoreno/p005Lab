@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Storage.Pickers;
+using Windows.UI.ViewManagement;
 using RutaEstadistica.Aplicacion;
 using RutaEstadistica.Contratos;
 using RutaEstadistica.Dominio;
@@ -28,6 +29,7 @@ public sealed partial class VentanaPrincipal : Window
     private readonly IntermediarioMcp intermediario;
     private long revisionInterfaz;
     private bool esResultadoHistorico;
+    private readonly AccessibilitySettings accesibilidad = new();
     public VentanaPrincipal()
     {
         InitializeComponent();
@@ -36,13 +38,20 @@ public sealed partial class VentanaPrincipal : Window
         SelectorTema.SelectedItem = SelectorTema.Items.OfType<ComboBoxItem>()
             .First(opcion => Equals(opcion.Tag, tema.ToString()));
         Raiz.ActualThemeChanged += CambiarTemaEfectivo;
+        accesibilidad.HighContrastChanged += CambiarContraste;
         AplicarTema(tema);
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1280, 900));
         repositorio = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RutaEstadistica", "proyectos"));
         intermediario = new(repositorio, new MotorRLocal(recursos));
         _ = Task.Run(intermediario.EscucharAsync);
         ActualizarProyectos(); inicializando = false; Navegacion.SelectedItem = Navegacion.MenuItems[0];
-        Closed += (_, _) => { cancelacion?.Cancel(); intermediario.Dispose(); };
+        Closed += (_, _) =>
+        {
+            Raiz.ActualThemeChanged -= CambiarTemaEfectivo;
+            accesibilidad.HighContrastChanged -= CambiarContraste;
+            cancelacion?.Cancel();
+            intermediario.Dispose();
+        };
     }
     private ElementTheme LeerTema()
     {
@@ -69,12 +78,16 @@ public sealed partial class VentanaPrincipal : Window
 
     private void CambiarTemaEfectivo(FrameworkElement remitente, object argumentos) => ActualizarTemaBarra();
 
+    private void CambiarContraste(AccessibilitySettings remitente, object argumentos) => DispatcherQueue.TryEnqueue(ActualizarTemaBarra);
+
     private void ActualizarTemaBarra()
     {
-        if (AppWindowTitleBar.IsCustomizationSupported())
-            AppWindow.TitleBar.PreferredTheme = Raiz.ActualTheme == ElementTheme.Dark
-                ? TitleBarTheme.Dark
-                : TitleBarTheme.Light;
+        if (!AppWindowTitleBar.IsCustomizationSupported())
+            return;
+
+        AppWindow.TitleBar.PreferredTheme = accesibilidad.HighContrast
+            ? TitleBarTheme.Legacy
+            : Raiz.ActualTheme == ElementTheme.Dark ? TitleBarTheme.Dark : TitleBarTheme.Light;
     }
     private void CambiarTema(object remitente, SelectionChangedEventArgs argumentos)
     {

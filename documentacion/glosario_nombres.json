@@ -3,6 +3,7 @@
   "identificadores": [
     "AplicarTema",
     "ActualizarTemaBarra",
+    "CambiarContraste",
     "host",
     "hostPermitido",
     "nameof",
