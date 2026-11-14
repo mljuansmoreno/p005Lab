@@ -111,6 +111,17 @@ def analizar(destino, secreto):
     }
 
 
+def motor_disponible(destino, secreto):
+    cliente = build_opener(ProxyHandler({}), SinRedirecciones())
+    peticion = Request(destino + "/salud", headers={"Authorization": f"Bearer {secreto}"})
+    try:
+        with cliente.open(peticion, timeout=2) as respuesta:
+            datos = json.loads(respuesta.read(4097))
+            return isinstance(datos, dict) and datos.get("version_contrato") == 1 and datos.get("version_api") == 2
+    except (OSError, ValueError):
+        return False
+
+
 class Pagina(BaseHTTPRequestHandler):
     def log_message(self, formato, *argumentos):
         # El servidor de demostración no conserva registros de peticiones.
@@ -148,6 +159,9 @@ button {{font: inherit; padding: .5rem 1rem}}
             self.send_error(403)
         elif self.path == "/salud":
             self.responder(200, "application/json", '{"estado":"activo"}')
+        elif self.path == "/listo":
+            listo = motor_disponible(self.server.destino, self.server.secreto)
+            self.responder(200 if listo else 503, "application/json", json.dumps({"listo": listo}))
         elif self.path == "/":
             self.mostrar()
         else:
