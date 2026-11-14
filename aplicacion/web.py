@@ -15,7 +15,7 @@ import uuid
 import zipfile
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
@@ -51,17 +51,22 @@ def analizar(destino, secreto):
         if datos is not None:
             cabeceras["Content-Type"] = "application/json"
             cuerpo = json.dumps(datos).encode("utf-8")
-        restante = limite - time.monotonic()
-        exigir(restante > 0, "El análisis agotó el tiempo de espera")
-        try:
-            with cliente.open(Request(destino + ruta, cuerpo, cabeceras), timeout=min(restante, TIEMPO_MOTOR)) as respuesta:
-                exigir(respuesta.status == esperado, f"Respuesta inesperada en {ruta}")
-                contenido = respuesta.read(MAX_RESPUESTA_MOTOR + 1)
-                exigir(len(contenido) <= MAX_RESPUESTA_MOTOR, "Respuesta del motor demasiado grande")
-                exigir(time.monotonic() <= limite, "El análisis agotó el tiempo de espera")
-                return contenido
-        except URLError as error:
-            raise ErrorMotor(f"Error HTTP al consultar {ruta}") from error
+        intentos = 2 if datos is None else 1
+        for intento in range(intentos):
+            restante = limite - time.monotonic()
+            exigir(restante > 0, "El análisis agotó el tiempo de espera")
+            try:
+                with cliente.open(Request(destino + ruta, cuerpo, cabeceras), timeout=min(restante, TIEMPO_MOTOR)) as respuesta:
+                    exigir(respuesta.status == esperado, f"Respuesta inesperada en {ruta}")
+                    contenido = respuesta.read(MAX_RESPUESTA_MOTOR + 1)
+                    exigir(len(contenido) <= MAX_RESPUESTA_MOTOR, "Respuesta del motor demasiado grande")
+                    exigir(time.monotonic() <= limite, "El análisis agotó el tiempo de espera")
+                    return contenido
+            except (URLError, TimeoutError) as error:
+                transitorio = not isinstance(error, HTTPError) or error.code in (502, 503, 504)
+                if not transitorio or intento + 1 == intentos:
+                    raise ErrorMotor(f"Error HTTP al consultar {ruta}") from error
+                time.sleep(min(0.25, max(0, limite - time.monotonic())))
 
     huella = hashlib.sha256(CSV_SINTETICO.encode("utf-8")).hexdigest()
     # Reutiliza la carga del ejemplo sin ocupar una entrada por cada ejecución.
