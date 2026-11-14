@@ -35,6 +35,7 @@ public sealed partial class VentanaPrincipal : Window
         var tema = LeerTema();
         SelectorTema.SelectedItem = SelectorTema.Items.OfType<ComboBoxItem>()
             .First(opcion => Equals(opcion.Tag, tema.ToString()));
+        Raiz.ActualThemeChanged += CambiarTemaEfectivo;
         AplicarTema(tema);
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1280, 900));
         repositorio = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RutaEstadistica", "proyectos"));
@@ -63,12 +64,17 @@ public sealed partial class VentanaPrincipal : Window
     private void AplicarTema(ElementTheme tema)
     {
         Raiz.RequestedTheme = tema;
-        AppWindow.TitleBar.PreferredTheme = tema switch
-        {
-            ElementTheme.Light => TitleBarTheme.Light,
-            ElementTheme.Dark => TitleBarTheme.Dark,
-            _ => TitleBarTheme.Legacy
-        };
+        ActualizarTemaBarra();
+    }
+
+    private void CambiarTemaEfectivo(FrameworkElement remitente, object argumentos) => ActualizarTemaBarra();
+
+    private void ActualizarTemaBarra()
+    {
+        if (AppWindowTitleBar.IsCustomizationSupported())
+            AppWindow.TitleBar.PreferredTheme = Raiz.ActualTheme == ElementTheme.Dark
+                ? TitleBarTheme.Dark
+                : TitleBarTheme.Light;
     }
     private void CambiarTema(object remitente, SelectionChangedEventArgs argumentos)
     {

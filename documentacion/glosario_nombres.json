@@ -2,6 +2,7 @@
   "revision": "2026-11-09. Se revisaron los identificadores del tema de WinUI y del encabezado Host en la API.",
   "identificadores": [
     "AplicarTema",
+    "ActualizarTemaBarra",
     "host",
     "hostPermitido",
     "nameof",
