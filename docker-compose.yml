@@ -23,6 +23,7 @@ services:
     mem_limit: 128m
     pids_limit: 64
     stop_grace_period: 80s
+    restart: "on-failure:3"
     read_only: true
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
@@ -37,6 +38,7 @@ services:
       RUTA_ESTADISTICA_ARCHIVO_SECRETO: /run/secrets/motor
       RUTA_ESTADISTICA_PERMITIR_HOST_MOTOR: "1"
       RUTA_ESTADISTICA_DIRECTORIO_TRABAJOS: /tmp
+    restart: "on-failure:3"
     expose: ["8787"]
     networks: [analisis]
     secrets: [motor]
