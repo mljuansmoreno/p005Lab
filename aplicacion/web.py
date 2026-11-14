@@ -146,6 +146,8 @@ button {{font: inherit; padding: .5rem 1rem}}
     def do_GET(self):
         if not self.host_local():
             self.send_error(403)
+        elif self.path == "/salud":
+            self.responder(200, "application/json", '{"estado":"activo"}')
         elif self.path == "/":
             self.mostrar()
         else:
