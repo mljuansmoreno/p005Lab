@@ -84,8 +84,10 @@ def analizar(destino, secreto):
     exigir(trabajo["trabajo_id"] == trabajo_id and trabajo["proyecto_id"] == proyecto,
            "El estado corresponde a otro trabajo")
     with zipfile.ZipFile(io.BytesIO(consultar(ruta + "/resultado" + consulta, 200))) as paquete:
-        exigir(set(paquete.namelist()) == {"resultado.json", "figura.png"}, "Paquete de resultados inválido")
-        resultado = json.loads(paquete.read("resultado.json"))
+        exigir(sorted(paquete.namelist()) == ["figura.png", "resultado.json"], "Paquete de resultados inválido")
+        entrada = paquete.getinfo("resultado.json")
+        exigir(entrada.file_size <= MAX_RESPUESTA_MOTOR, "Resultado JSON demasiado grande")
+        resultado = json.loads(paquete.read(entrada))
     campos = ("solicitud_id", "proyecto_id", "hash_datos", "hash_preparacion", "tipo")
     exigir(all(resultado[campo] == solicitud[campo] for campo in campos),
            "El resultado difiere de la solicitud o del hash")
