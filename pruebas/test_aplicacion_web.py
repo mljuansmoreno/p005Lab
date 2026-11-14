@@ -57,3 +57,30 @@ class InterfazWeb(unittest.TestCase):
             self.assertEqual(self.solicitar("GET", "/listo")[0], 503)
         with patch("web.motor_disponible", return_value=True):
             self.assertEqual(self.solicitar("GET", "/listo")[0], 200)
+
+    def test_cabeceras(self):
+        estado, cabeceras, _ = self.solicitar("GET", "/")
+        self.assertEqual(estado, 200)
+        self.assertIn("frame-ancestors 'none'", cabeceras["Content-Security-Policy"])
+        self.assertEqual(cabeceras["X-Content-Type-Options"], "nosniff")
+        self.assertEqual(cabeceras["Cache-Control"], "no-store")
+
+    def test_error_json(self):
+        with patch("web.analizar", side_effect=OSError("mensaje interno")):
+            estado, cabeceras, cuerpo = self.solicitar(
+                "POST", "/analizar", {"Accept": "application/json"},
+            )
+        self.assertEqual(estado, 502)
+        self.assertTrue(cabeceras["Content-Type"].startswith("application/json"))
+        self.assertEqual(cuerpo, b'{"error": "motor_no_disponible"}')
+        self.assertTrue(self.servidor.analisis.acquire(blocking=False))
+        self.servidor.analisis.release()
+
+    def test_capacidad_ocupada(self):
+        for _ in range(2):
+            self.assertTrue(self.servidor.analisis.acquire(blocking=False))
+            self.addCleanup(self.servidor.analisis.release)
+        estado, cabeceras, cuerpo = self.solicitar("POST", "/analizar")
+        self.assertEqual(estado, 503)
+        self.assertEqual(cabeceras["Retry-After"], "2")
+        self.assertIn(b"capacidad_ocupada", cuerpo)
