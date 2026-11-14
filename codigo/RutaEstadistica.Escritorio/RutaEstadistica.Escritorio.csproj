@@ -3,5 +3,5 @@
 <PropertyGroup><DefaultLanguage>es-CO</DefaultLanguage></PropertyGroup>
 <ItemGroup><PackageReference Include="Microsoft.WindowsAppSDK" /><ProjectReference Include="../RutaEstadistica.Aplicacion/RutaEstadistica.Aplicacion.csproj" /></ItemGroup>
 <!-- Publicar debe conservar el índice PRI y XBF: el SDK administrado no los copia automáticamente. -->
-<Target Name="CopiarRecursosInterfaz" AfterTargets="Publish"><ItemGroup><RecursosInterfaz Include="$(TargetDir)*.xbf;$(TargetDir)$(MSBuildProjectName).pri" /></ItemGroup><Error Condition="!Exists('$(TargetDir)$(MSBuildProjectName).pri')" Text="INTERFAZ_RECURSOS_AUSENTES" /><Copy SourceFiles="@(RecursosInterfaz)" DestinationFolder="$(PublishDir)" /></Target>
+<Target Name="CopiarRecursosInterfaz" AfterTargets="Publish"><ItemGroup><RecursosInterfaz Include="$(TargetDir)*.xbf;$(TargetDir)$(MSBuildProjectName).pri" /></ItemGroup><Error Condition="!Exists('$(TargetDir)$(MSBuildProjectName).pri') Or !Exists('$(TargetDir)TemasRuta.xbf')" Text="INTERFAZ_RECURSOS_AUSENTES" /><Copy SourceFiles="@(RecursosInterfaz)" DestinationFolder="$(PublishDir)" /></Target>
 </Project>
