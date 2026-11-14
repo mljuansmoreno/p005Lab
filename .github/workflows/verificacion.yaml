@@ -78,6 +78,17 @@ jobs:
         run: docker compose --progress plain build
       - name: Arrancar Compose y esperar la salud de los servicios
         run: docker compose up -d --wait --wait-timeout 90
+      - name: Registrar el estado y la red
+        run: |
+          docker ps --filter label=com.docker.compose.project=ruta-estadistica-demo
+          aplicacion="$(docker compose ps --format '{{.Name}}' aplicacion)"
+          motor="$(docker compose ps --format '{{.Name}}' motor)"
+          docker network inspect ruta-estadistica-demo_analisis |
+            jq -er --arg aplicacion "$aplicacion" --arg motor "$motor" '
+              .[0] | select(.Driver == "bridge" and
+                ([.Containers[].Name] | sort) == ([$aplicacion, $motor] | sort)) |
+              "\(.Name) (\(.Driver))", (.Containers[] | "\(.Name) \(.IPv4Address)")
+            '
       - name: Ejecutar el cálculo desde la aplicación
         run: docker compose exec -T aplicacion python probar_compose.py
       - name: Apagar servicios y retirar el secreto
