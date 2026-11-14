@@ -1,6 +1,13 @@
 {
-  "revision": "2026-10-30: revisión de identificadores nuevos de trabajos, presentación e historial. Se conserva la revisión anterior; las APIs externas no se traducen.",
+  "revision": "2026-11-09. Se revisaron los identificadores del tema de WinUI y del encabezado Host en la API.",
   "identificadores": [
+    "AplicarTema",
+    "host",
+    "hostPermitido",
+    "nameof",
+    "permitirHostMotor",
+    "rutaTema",
+    "tema",
     "ActualizarProyectos",
     "AdvertenciaAnalisis",
     "Aplicacion",
