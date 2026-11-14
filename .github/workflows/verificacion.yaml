@@ -139,6 +139,23 @@ jobs:
           PY
       - name: Ejecutar el cálculo desde la aplicación
         run: docker compose exec -T aplicacion python probar_compose.py | tee "$RUTA_ESTADISTICA_EVIDENCIAS/05-calculo.txt"
+      - name: Probar caída y recuperación del motor
+        run: |
+          web='http://127.0.0.1:8080'
+          {
+            anterior="$(docker compose ps -q motor)"
+            docker compose stop motor
+            curl --noproxy '*' --fail --silent --show-error --max-time 5 "$web/salud" | jq -e '.estado == "activo"'
+            codigo="$(curl --noproxy '*' --silent --show-error --max-time 5 --output /dev/null --write-out '%{http_code}' "$web/listo")"
+            test "$codigo" = 503
+            echo "Disponibilidad con motor detenido: HTTP $codigo"
+            docker compose up -d --no-deps --force-recreate --wait --wait-timeout 90 motor
+            nuevo="$(docker compose ps -q motor)"
+            test -n "$nuevo"
+            test "$anterior" != "$nuevo"
+            curl --noproxy '*' --fail --silent --show-error --max-time 5 "$web/listo" | jq -e '.listo == true'
+            docker compose exec -T aplicacion python probar_compose.py
+          } 2>&1 | tee "$RUTA_ESTADISTICA_EVIDENCIAS/06-recuperacion.txt"
       - name: Verificar que el secreto se inyecta solo en ejecución
         run: |
           for servicio in aplicacion motor; do
