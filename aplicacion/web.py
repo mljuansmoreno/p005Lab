@@ -20,6 +20,8 @@ from datos_sinteticos import CSV_SINTETICO
 
 
 MAX_RESPUESTA_MOTOR = 4 * 1024 * 1024
+TIEMPO_ANALISIS = 65
+TIEMPO_MOTOR = 5
 
 
 class ErrorMotor(Exception):
@@ -37,6 +39,7 @@ def exigir(condicion, mensaje):
 
 
 def analizar(destino, secreto):
+    limite = time.monotonic() + TIEMPO_ANALISIS
     cliente = build_opener(ProxyHandler({}), SinRedirecciones())
 
     def consultar(ruta, esperado, datos=None):
@@ -45,11 +48,14 @@ def analizar(destino, secreto):
         if datos is not None:
             cabeceras["Content-Type"] = "application/json"
             cuerpo = json.dumps(datos).encode("utf-8")
+        restante = limite - time.monotonic()
+        exigir(restante > 0, "El análisis agotó el tiempo de espera")
         try:
-            with cliente.open(Request(destino + ruta, cuerpo, cabeceras), timeout=5) as respuesta:
+            with cliente.open(Request(destino + ruta, cuerpo, cabeceras), timeout=min(restante, TIEMPO_MOTOR)) as respuesta:
                 exigir(respuesta.status == esperado, f"Respuesta inesperada en {ruta}")
                 contenido = respuesta.read(MAX_RESPUESTA_MOTOR + 1)
                 exigir(len(contenido) <= MAX_RESPUESTA_MOTOR, "Respuesta del motor demasiado grande")
+                exigir(time.monotonic() <= limite, "El análisis agotó el tiempo de espera")
                 return contenido
         except URLError as error:
             raise ErrorMotor(f"Error HTTP al consultar {ruta}") from error
@@ -75,10 +81,10 @@ def analizar(destino, secreto):
     exigir(re.fullmatch(r"[0-9a-f]{32}", trabajo_id), "Identificador de trabajo inválido")
     ruta = f"/trabajos/{trabajo_id}"
     consulta = f"?proyecto_id={proyecto}"
-    limite = time.monotonic() + 65
     while trabajo["estado"] in ("pendiente", "ejecutando"):
-        exigir(time.monotonic() < limite, "El trabajo agotó el tiempo de espera")
-        time.sleep(0.2)
+        restante = limite - time.monotonic()
+        exigir(restante > 0, "El análisis agotó el tiempo de espera")
+        time.sleep(min(0.2, restante))
         trabajo = json.loads(consultar(ruta + consulta, 200))
     exigir(trabajo["estado"] == "completado", "El trabajo de R no se completó")
     exigir(trabajo["trabajo_id"] == trabajo_id and trabajo["proyecto_id"] == proyecto,
