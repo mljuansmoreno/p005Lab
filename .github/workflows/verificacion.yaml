@@ -156,6 +156,18 @@ jobs:
             curl --noproxy '*' --fail --silent --show-error --max-time 5 "$web/listo" | jq -e '.listo == true'
             docker compose exec -T aplicacion python probar_compose.py
           } 2>&1 | tee "$RUTA_ESTADISTICA_EVIDENCIAS/06-recuperacion.txt"
+      - name: Registrar la procedencia de la ejecución
+        run: |
+          docker version --format '{{json .Server}}' > "$RUNNER_TEMP/docker-servidor.json"
+          docker compose version --short > "$RUNNER_TEMP/compose-version.txt"
+          docker compose images --format json > "$RUNNER_TEMP/compose-imagenes.json"
+          jq -n --arg revision "$RUTA_ESTADISTICA_REVISION" \
+            --slurpfile docker "$RUNNER_TEMP/docker-servidor.json" \
+            --rawfile compose "$RUNNER_TEMP/compose-version.txt" \
+            --slurpfile imagenes "$RUNNER_TEMP/compose-imagenes.json" '
+              {revision: $revision, docker: $docker[0].Version,
+               compose: ($compose | rtrimstr("\n")), imagenes: $imagenes[0]}
+            ' > "$RUTA_ESTADISTICA_EVIDENCIAS/00-entorno.json"
       - name: Verificar que el secreto se inyecta solo en ejecución
         run: |
           for servicio in aplicacion motor; do
