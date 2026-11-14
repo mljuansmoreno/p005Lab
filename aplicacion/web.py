@@ -210,7 +210,7 @@ body {{max-width: 46rem; margin: 4rem auto; padding: 0 1rem; font: 1.1rem/1.55 s
 main {{background: var(--superficie); border: 1px solid var(--borde); border-radius: 1rem; padding: clamp(1rem, 5vw, 2.5rem)}}
 h1 {{margin: 0; line-height: 1.15; font-size: clamp(2rem, 7vw, 2.6rem)}}
 main > p {{color: var(--texto-secundario); max-width: 62ch}}
-pre {{white-space: pre-wrap; overflow-wrap: anywhere; background: #f1f5f9; padding: 1rem}}
+pre {{white-space: pre-wrap; overflow-wrap: anywhere; background: var(--secundaria); border: 1px solid var(--borde); border-radius: .5rem; padding: 1rem}}
 button {{
     font: inherit;
     font-weight: 650;
