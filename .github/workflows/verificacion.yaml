@@ -190,6 +190,16 @@ jobs:
           path: ${{ env.RUTA_ESTADISTICA_EVIDENCIAS }}
           if-no-files-found: error
           overwrite: true
+      - name: Resumir la entrega Docker
+        run: |
+          {
+            echo '### Demostración Docker'
+            echo
+            echo '- Imágenes construidas y dos servicios saludables.'
+            echo '- Red interna, motor autenticado y controles de aislamiento verificados.'
+            echo '- Análisis real en R antes y después de recrear el motor.'
+            printf '\nArtefacto: `docker-linux-%s`\n' "$GITHUB_SHA"
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Apagar servicios y retirar el secreto
         if: always()
         run: |
