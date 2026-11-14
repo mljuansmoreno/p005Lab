@@ -172,8 +172,19 @@ button {{font: inherit; padding: .5rem 1rem}}
             self.mostrar(resultado=f"<h2>Resultado del motor R</h2><pre>{detalle}</pre>")
 
 
+def configurar_destino(valor):
+    url = urlsplit(valor)
+    if (
+        url.scheme != "http" or not url.hostname or url.port is None
+        or url.username is not None or url.password is not None
+        or url.path not in ("", "/") or url.query or url.fragment
+    ):
+        raise ValueError("Configure RUTA_ESTADISTICA_MOTOR_URL como http://host:puerto")
+    return valor.rstrip("/")
+
+
 if __name__ == "__main__":
-    destino = os.environ["RUTA_ESTADISTICA_MOTOR_URL"].rstrip("/")
+    destino = configurar_destino(os.environ["RUTA_ESTADISTICA_MOTOR_URL"])
     secreto = Path(os.environ["RUTA_ESTADISTICA_ARCHIVO_SECRETO"]).read_text(encoding="utf-8").strip()
     with ThreadingHTTPServer(("0.0.0.0", 8080), Pagina) as servidor:
         servidor.destino = destino
