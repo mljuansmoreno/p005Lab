@@ -123,6 +123,38 @@ def motor_disponible(destino, secreto):
         return False
 
 
+class ServidorWeb(ThreadingHTTPServer):
+    request_queue_size = 32
+
+    def __init__(self, direccion, destino, secreto):
+        self.destino = destino
+        self.secreto = secreto
+        self.analisis = BoundedSemaphore(2)
+        self.conexiones = BoundedSemaphore(16)
+        super().__init__(direccion, Pagina)
+
+    def get_request(self):
+        conexion, direccion = super().get_request()
+        conexion.settimeout(10)
+        return conexion, direccion
+
+    def process_request(self, conexion, direccion):
+        if not self.conexiones.acquire(blocking=False):
+            self.shutdown_request(conexion)
+            return
+        try:
+            super().process_request(conexion, direccion)
+        except BaseException:
+            self.conexiones.release()
+            raise
+
+    def process_request_thread(self, conexion, direccion):
+        try:
+            super().process_request_thread(conexion, direccion)
+        finally:
+            self.conexiones.release()
+
+
 class Pagina(BaseHTTPRequestHandler):
     def log_message(self, formato, *argumentos):
         # El servidor de demostración no conserva registros de peticiones.
@@ -224,8 +256,5 @@ def leer_secreto(ruta):
 if __name__ == "__main__":
     destino = configurar_destino(os.environ["RUTA_ESTADISTICA_MOTOR_URL"])
     secreto = leer_secreto(os.environ["RUTA_ESTADISTICA_ARCHIVO_SECRETO"])
-    with ThreadingHTTPServer(("0.0.0.0", 8080), Pagina) as servidor:
-        servidor.destino = destino
-        servidor.secreto = secreto
-        servidor.analisis = BoundedSemaphore(2)
+    with ServidorWeb(("0.0.0.0", 8080), destino, secreto) as servidor:
         servidor.serve_forever()
