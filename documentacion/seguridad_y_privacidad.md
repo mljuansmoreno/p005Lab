@@ -21,3 +21,7 @@ El canal se restringe al usuario actual. Se requiere aplicación abierta, habili
 La exportación MCP escribe dentro del proyecto y no devuelve rutas absolutas. No se instalan paquetes ni se interpretan instrucciones dentro de celdas. Las anotaciones de herramientas no sustituyen autorización.
 
 En caso de fallo use [catálogo](errores_y_soluciones.md) y [depuración](depuracion.md). Pruebas y límites reales: [calidad](pruebas_y_calidad.md), [observabilidad](observabilidad.md). No se ha realizado una auditoría de seguridad independiente.
+
+## Resultados de revisión
+
+Consulte los [resultados de la revisión de ciberseguridad](informes/revision_ciberseguridad.md) para ver los controles comprobados y los hallazgos de las imágenes.
