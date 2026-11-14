@@ -8,6 +8,7 @@ permissions:
 jobs:
   verificar:
     runs-on: windows-2025
+    timeout-minutes: 25
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: '1'
       R_KEEP_PKG_SOURCE: 'yes'
@@ -63,6 +64,10 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+      - name: Probar el contrato web sin Docker
+        env:
+          PYTHONPATH: aplicacion:guiones
+        run: python3 -m unittest discover -s pruebas -p test_aplicacion_web.py
       - name: Preparar secreto temporal y carpeta de evidencias
         run: |
           cp .env.example .env
