@@ -2,6 +2,7 @@ name: Verificación Windows y Docker
 on:
   push:
   pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
