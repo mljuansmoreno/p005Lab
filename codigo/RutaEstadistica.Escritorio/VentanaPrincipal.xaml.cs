@@ -30,7 +30,8 @@ public sealed partial class VentanaPrincipal : Window
     private bool esResultadoHistorico;
     public VentanaPrincipal()
     {
-        InitializeComponent(); ((FrameworkElement)Content).DataContext = modelo;
+        InitializeComponent();
+        Raiz.DataContext = modelo;
         var tema = LeerTema();
         SelectorTema.SelectedItem = SelectorTema.Items.OfType<ComboBoxItem>()
             .First(opcion => Equals(opcion.Tag, tema.ToString()));
