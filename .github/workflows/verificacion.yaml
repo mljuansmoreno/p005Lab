@@ -112,6 +112,13 @@ jobs:
             exit 1
           fi
           test "$coincidencia" -eq 1
+      - name: Publicar evidencias del cálculo
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: docker-linux-${{ github.sha }}
+          path: ${{ env.RUTA_ESTADISTICA_EVIDENCIAS }}
+          if-no-files-found: error
+          overwrite: true
       - name: Apagar servicios y retirar el secreto
         if: always()
         run: |
