@@ -47,8 +47,9 @@ public sealed partial class VentanaPrincipal : Window
     {
         try
         {
-            return File.ReadAllText(rutaTema) switch
+            return File.ReadAllText(rutaTema).Trim() switch
             {
+                nameof(ElementTheme.Light) => ElementTheme.Light,
                 nameof(ElementTheme.Dark) => ElementTheme.Dark,
                 nameof(ElementTheme.Default) => ElementTheme.Default,
                 _ => ElementTheme.Light
