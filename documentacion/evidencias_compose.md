@@ -66,6 +66,12 @@ La prueba llama a `POST /analizar` dentro de `aplicacion`. La aplicación carga 
 
 Los identificadores cambian en cada ejecución. La prueba exige que el trabajo termine, que la huella corresponda al CSV de entrada y que la media coincida con `25/6`.
 
+## Comprobar la recuperación
+
+El workflow actual agrega `06-recuperacion.txt`. Detiene el motor, verifica que la web siga viva y que `/listo` devuelva HTTP 503, recrea el motor y ejecuta otra vez el cálculo. `00-entorno.json` registra la revisión, versiones de Docker y Compose e imágenes de la ejecución.
+
+Para consultar los resultados de la revisión que esté evaluando, abra la ejecución del commit en Actions y descargue `docker-linux-<SHA>`. El procedimiento manual está en [operación de Compose](operacion_compose.md#recuperar-el-motor). [Ejecuciones de main](https://github.com/mljuansmoreno/p005Lab/actions/workflows/verificacion.yaml?query=branch%3Amain).
+
 ## Detener la demostración
 
 ```console
