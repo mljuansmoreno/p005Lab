@@ -152,7 +152,7 @@ public sealed partial class VentanaPrincipal : Window
     private void DuplicarProyecto(object remitente, RoutedEventArgs argumentos) => _ = EjecutarSeguro(() => { ExigirProyecto(); proyecto = repositorio.Duplicar(proyecto!.Id); ActualizarProyectos(); CargarProyecto(); return Task.CompletedTask; });
     private async void EliminarProyecto(object remitente, RoutedEventArgs argumentos) => await EjecutarSeguro(async () =>
     {
-        ExigirProyecto(); var dialogo = new ContentDialog { XamlRoot = Content.XamlRoot, RequestedTheme = Raiz.RequestedTheme, Title = "¿Eliminar este proyecto?", Content = "Se creará un archivo recuperable en respaldos. Los informes ya exportados se conservan.", PrimaryButtonText = "Eliminar con respaldo", CloseButtonText = "Conservar", DefaultButton = ContentDialogButton.Close };
+        ExigirProyecto(); var dialogo = new ContentDialog { XamlRoot = Raiz.XamlRoot, RequestedTheme = Raiz.ActualTheme, Title = "¿Eliminar este proyecto?", Content = "Se creará un archivo recuperable en respaldos. Los informes ya exportados se conservan.", PrimaryButtonText = "Eliminar con respaldo", CloseButtonText = "Conservar", DefaultButton = ContentDialogButton.Close };
         if (await dialogo.ShowAsync() != ContentDialogResult.Primary) return;
         repositorio.EliminarConRespaldo(proyecto!.Id); proyecto = null; datos = null; datosImportados = null; LimpiarResultado(); ActualizarProyectos(); modelo.Estado = "Proyecto eliminado con respaldo recuperable.";
     });
@@ -324,7 +324,7 @@ public sealed partial class VentanaPrincipal : Window
     private async void AutorizarMcp(object remitente, RoutedEventArgs argumentos) => await EjecutarSeguro(async () =>
     {
         ExigirProyecto();
-        var dialogo = new ContentDialog { XamlRoot = Content.XamlRoot, RequestedTheme = Raiz.RequestedTheme, Title = "Autorizar integración para este proyecto", Content = "El cliente conectado podrá recibir nombres de columnas, recuentos y resultados autorizados. Si usa un modelo en la nube, esos contenidos pueden salir del equipo. Autoriza solo un cliente de confianza. La concesión caduca al cerrar o revocar.", PrimaryButtonText = "Autorizar este proyecto", CloseButtonText = "Cancelar", DefaultButton = ContentDialogButton.Close };
+        var dialogo = new ContentDialog { XamlRoot = Raiz.XamlRoot, RequestedTheme = Raiz.ActualTheme, Title = "Autorizar integración para este proyecto", Content = "El cliente conectado podrá recibir nombres de columnas, recuentos y resultados autorizados. Si usa un modelo en la nube, esos contenidos pueden salir del equipo. Autoriza solo un cliente de confianza. La concesión caduca al cerrar o revocar.", PrimaryButtonText = "Autorizar este proyecto", CloseButtonText = "Cancelar", DefaultButton = ContentDialogButton.Close };
         if (await dialogo.ShowAsync() != ContentDialogResult.Primary) return;
         intermediario.Conceder(new(proyecto!.Id, true, PermitirCalculos.IsChecked == true, false, PermitirExportaciones.IsChecked == true)); intermediario.Activar(); EstadoIntegracion.Text = "Integración MCP ACTIVA · proyecto: " + proyecto.Nombre; modelo.Estado = "Integración activa. Puedes revocar todos los permisos en Configuración.";
     });
