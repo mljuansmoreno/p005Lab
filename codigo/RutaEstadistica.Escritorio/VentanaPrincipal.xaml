@@ -24,7 +24,9 @@
             <TextBlock Text="De tu pregunta a una evidencia que puedes explicar"
                        Foreground="{ThemeResource TextoSecundarioRutaBrush}" TextWrapping="Wrap" />
         </StackPanel>
-        <Button x:Uid="AbrirApariencia" Grid.Column="1" Content="Apariencia" VerticalAlignment="Center" Click="AbrirApariencia" />
+        <Button x:Uid="AbrirApariencia" Grid.Column="1" Content="Apariencia"
+                ToolTipService.ToolTip="Cambiar el tema de la aplicación"
+                VerticalAlignment="Center" Click="AbrirApariencia" />
     </Grid>
 </Border>
 <NavigationView x:Name="Navegacion" Grid.Row="1" IsBackButtonVisible="Collapsed" IsSettingsVisible="False"

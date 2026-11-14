@@ -6,6 +6,7 @@
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="NombreAplicacion.Text" xml:space="preserve"><value>Ruta Estadística</value></data>
   <data name="AbrirApariencia.Content" xml:space="preserve"><value>Apariencia</value></data>
+  <data name="AbrirApariencia.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.HelpText" xml:space="preserve"><value>Abre la selección del tema.</value></data>
   <data name="SelectorApariencia.Header" xml:space="preserve"><value>Tema</value></data>
   <data name="TemaClaro.Content" xml:space="preserve"><value>Claro</value></data>
   <data name="TemaOscuro.Content" xml:space="preserve"><value>Oscuro</value></data>
