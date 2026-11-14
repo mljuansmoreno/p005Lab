@@ -124,6 +124,19 @@ jobs:
           pagina="$RUNNER_TEMP/ruta-estadistica-web.html"
           curl --noproxy '*' --fail --silent --show-error --max-time 5 http://127.0.0.1:8080/ --output "$pagina"
           grep -Fq 'action="/analizar"' "$pagina"
+      - name: Comprobar la autenticación interna del motor
+        run: |
+          curl --noproxy '*' --fail --silent --show-error --max-time 5 http://127.0.0.1:8080/listo |
+            jq -e '.listo == true'
+          docker compose exec -T aplicacion python - <<'PY'
+          from http.client import HTTPConnection
+          cliente = HTTPConnection("motor", 8787, timeout=5)
+          cliente.request("GET", "/salud")
+          respuesta = cliente.getresponse()
+          if respuesta.status != 403:
+              raise SystemExit(f"Se esperaba HTTP 403 sin credencial; respuesta: {respuesta.status}")
+          print("Motor: HTTP 403 sin credencial; sonda autenticada correcta.")
+          PY
       - name: Ejecutar el cálculo desde la aplicación
         run: docker compose exec -T aplicacion python probar_compose.py | tee "$RUTA_ESTADISTICA_EVIDENCIAS/05-calculo.txt"
       - name: Verificar que el secreto se inyecta solo en ejecución
