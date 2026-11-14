@@ -16,5 +16,5 @@ RUN printf '75eb910c82b350ec33f094779da0f87bff154c232e4ae39c9896a9b89f3ac82d  /t
 ENV ASPNETCORE_URLS=http://0.0.0.0:8787
 ENV RUTA_ESTADISTICA_ARCHIVO_SECRETO=/run/secrets/motor
 USER 1654:1654
-HEALTHCHECK --interval=20s --timeout=3s CMD curl -fsS -H "Authorization: Bearer $(cat /run/secrets/motor)" -H "Host: localhost" http://127.0.0.1:8787/salud || exit 1
+HEALTHCHECK --interval=5s --timeout=3s CMD printf 'header = "Authorization: Bearer %s"\n' "$(cat "$RUTA_ESTADISTICA_ARCHIVO_SECRETO")" | curl -fsS -o /dev/null --config - http://127.0.0.1:8787/salud
 ENTRYPOINT ["/aplicacion/RutaEstadistica.ServidorLocal"]
