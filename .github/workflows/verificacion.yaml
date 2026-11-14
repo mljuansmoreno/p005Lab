@@ -89,6 +89,7 @@ jobs:
                 ([.Containers[].Name] | sort) == ([$aplicacion, $motor] | sort)) |
               "\(.Name) (\(.Driver))", (.Containers[] | "\(.Name) \(.IPv4Address)")
             '
+          docker inspect "$motor" --format '{{json .HostConfig.PortBindings}}' | jq -e 'length == 0'
       - name: Ejecutar el cálculo desde la aplicación
         run: docker compose exec -T aplicacion python probar_compose.py
       - name: Apagar servicios y retirar el secreto
