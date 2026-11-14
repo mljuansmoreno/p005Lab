@@ -1,4 +1,4 @@
-name: Verificación Windows
+name: Verificación Windows y Docker
 on:
   push:
   pull_request:
@@ -48,3 +48,40 @@ jobs:
       - name: Compilar host MCP
         shell: pwsh
         run: dotnet build codigo/RutaEstadistica.ServidorMcp -c Release --no-restore
+
+  docker:
+    name: Docker Linux y cálculo entre contenedores
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Preparar secreto temporal y carpeta de evidencias
+        run: |
+          cp .env.example .env
+          git check-ignore --quiet .env
+          git check-ignore --quiet credenciales/motor.secreto
+          secreto="$(docker compose config --format json | jq -er '.secrets.motor.file')"
+          echo "RUTA_ESTADISTICA_ARCHIVO_SECRETO=$secreto" >> "$GITHUB_ENV"
+          umask 077
+          mkdir -p "$(dirname "$secreto")"
+          openssl rand -hex 32 > "$secreto"
+          chmod 0444 "$secreto"
+          echo "::add-mask::$(cat "$secreto")"
+          evidencias="$(mktemp -d "$RUNNER_TEMP/ruta-estadistica.XXXXXXXX")"
+          echo "RUTA_ESTADISTICA_EVIDENCIAS=$evidencias" >> "$GITHUB_ENV"
+      - name: Compilar las dos imágenes
+        run: docker compose --progress plain build
+      - name: Arrancar Compose y esperar la salud de los servicios
+        run: docker compose up -d --wait --wait-timeout 90
+      - name: Ejecutar el cálculo desde la aplicación
+        run: docker compose exec -T aplicacion python probar_compose.py
+      - name: Apagar servicios y retirar el secreto
+        if: always()
+        run: |
+          if [ -n "$RUTA_ESTADISTICA_ARCHIVO_SECRETO" ]; then
+            trap 'rm -f "$RUTA_ESTADISTICA_ARCHIVO_SECRETO"' EXIT
+            docker compose down --remove-orphans
+          fi
