@@ -65,7 +65,7 @@ Detenga los servicios con `docker compose down --remove-orphans`. Puede conserva
 - **`motor`** aloja la API .NET, ejecuta R y devuelve el cálculo. Compose conecta los servicios por la red bridge interna `analisis`. Solo la web también se conecta a `entrada`. La aplicación resuelve el motor por DNS y el puerto del motor queda dentro de Docker.
 - El [modo Docker del escritorio](documentacion/docker.md) usa `contenedores/compose.yaml`. El [inicio nativo de WinUI](LEEME.md#inicio-de-desarrollo) usa R local.
 
-GitHub Actions ejecuta la prueba en Linux y las comprobaciones nativas en Windows. El trabajo Linux publica la compilación, el arranque, la red, el cálculo y su repetición después de recrear el motor, junto con la revisión y las versiones del entorno. [Workflow](https://github.com/mljuansmoreno/p005Lab/actions/workflows/verificacion.yaml) · [Evidencias paso a paso](documentacion/evidencias_compose.md) · [Artículo en PDF](documentacion/ruta-estadistica-articulo.pdf) · [Artículo en DOCX](documentacion/ruta-estadistica-articulo.docx).
+GitHub Actions ejecuta la prueba en Linux y las comprobaciones nativas en Windows. El trabajo Linux publica la compilación, el arranque, la red, el cálculo y su repetición después de recrear el motor, junto con la revisión y las versiones del entorno. [Workflow](https://github.com/mljuansmoreno/p005Lab/actions/workflows/verificacion.yaml) · [Evidencias paso a paso](documentacion/evidencias_compose.md) · [Operación y diagnóstico](documentacion/operacion_compose.md) · [Artículo en PDF](documentacion/ruta-estadistica-articulo.pdf) · [Artículo en DOCX](documentacion/ruta-estadistica-articulo.docx).
 
 ## Aplicación de escritorio
 
