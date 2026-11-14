@@ -12,7 +12,7 @@ services:
     depends_on:
       motor:
         condition: service_healthy
-    networks: [analisis]
+    networks: [entrada, analisis]
     secrets: [motor]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/', timeout=2).close()"]
@@ -48,6 +48,9 @@ services:
 
 networks:
   analisis:
+    driver: bridge
+    internal: true
+  entrada:
     driver: bridge
 
 secrets:
