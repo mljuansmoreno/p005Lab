@@ -1,6 +1,6 @@
 # Estado de entrega
 
-GitHub Actions construyó la aplicación web y el motor R, arrancó ambos contenedores en Linux y verificó el cálculo descriptivo. [Evidencias de Compose](evidencias_compose.md) · [Artículo de entrega](ruta-estadistica-articulo.pdf).
+GitHub Actions construyó la aplicación web y el motor R, arrancó ambos contenedores en Linux y verificó el cálculo descriptivo. [Evidencias de Compose](evidencias_compose.md) · [Artículo de entrega](ruta-estadistica-articulo.pdf) · [Operación y actualización de imágenes](operacion_compose.md).
 
 ## Verificación de Windows y Docker en GitHub Actions
 

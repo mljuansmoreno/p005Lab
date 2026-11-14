@@ -30,4 +30,11 @@ Detenga ambos servicios con `docker compose down`. Quite el archivo anterior de 
 
 El despliegue usa un solo host, HTTP privado entre contenedores y un puerto web en loopback. Los registros quedan en el host y se rotan por tamaño. Los datos y trabajos son temporales. Una exposición a terceros requeriría definir y validar TLS, identidad de los usuarios y el modelo de persistencia correspondiente.
 
+## Actualizar las imágenes base
+
+1. Consulte la imagen candidata con `docker buildx imagetools inspect <imagen:etiqueta>`. Verifique la plataforma pública y copie el digest del índice o manifiesto según el Dockerfile.
+2. Actualice la referencia fija en el Dockerfile correspondiente. Las referencias de .NET y R también se registran en [bases.lock.json](../contenedores/bases.lock.json).
+3. Ejecute las pruebas de Windows y Docker en CI. Revise la procedencia de las dos imágenes y la prueba de recuperación en el artefacto.
+4. Si una actualización falla, revise el cambio de digest y revierta el commit de la actualización para recuperar la referencia anterior.
+
 [Redes de Compose](https://docs.docker.com/reference/compose-file/networks/) · [Rotación con el driver local de Docker](https://docs.docker.com/engine/logging/drivers/local/).
