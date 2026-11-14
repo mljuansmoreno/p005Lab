@@ -8,6 +8,7 @@ import math
 import os
 import re
 import time
+from threading import BoundedSemaphore
 import uuid
 import zipfile
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -127,7 +128,7 @@ class Pagina(BaseHTTPRequestHandler):
         # El servidor de demostración no conserva registros de peticiones.
         pass
 
-    def responder(self, estado, tipo, cuerpo):
+    def responder(self, estado, tipo, cuerpo, reintentar=None):
         datos = cuerpo.encode("utf-8")
         self.send_response(estado)
         self.send_header("Content-Type", f"{tipo}; charset=utf-8")
@@ -136,6 +137,8 @@ class Pagina(BaseHTTPRequestHandler):
         self.send_header("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "no-referrer")
+        if reintentar is not None:
+            self.send_header("Retry-After", str(reintentar))
         self.end_headers()
         self.wfile.write(datos)
 
@@ -178,6 +181,9 @@ button {{font: inherit; padding: .5rem 1rem}}
         if self.path != "/analizar":
             self.send_error(404)
             return
+        if not self.server.analisis.acquire(blocking=False):
+            self.responder(503, "application/json", '{"error":"capacidad_ocupada"}', reintentar=2)
+            return
         acepta_json = self.headers.get("Accept") == "application/json"
         try:
             resultado = analizar(self.server.destino, self.server.secreto)
@@ -188,6 +194,8 @@ button {{font: inherit; padding: .5rem 1rem}}
             else:
                 self.mostrar(502, f"<p>{html.escape(mensaje)}</p>")
             return
+        finally:
+            self.server.analisis.release()
         if acepta_json:
             self.responder(200, "application/json", json.dumps(resultado))
         else:
@@ -219,4 +227,5 @@ if __name__ == "__main__":
     with ThreadingHTTPServer(("0.0.0.0", 8080), Pagina) as servidor:
         servidor.destino = destino
         servidor.secreto = secreto
+        servidor.analisis = BoundedSemaphore(2)
         servidor.serve_forever()
