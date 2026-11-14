@@ -10,4 +10,5 @@
   <data name="TemaClaro.Content" xml:space="preserve"><value>Claro</value></data>
   <data name="TemaOscuro.Content" xml:space="preserve"><value>Oscuro</value></data>
   <data name="TemaWindows.Content" xml:space="preserve"><value>Según Windows</value></data>
+  <data name="AyudaApariencia.Text" xml:space="preserve"><value>El tema claro es el predeterminado. Tu selección se aplica de inmediato y se guarda para el próximo inicio.</value></data>
 </root>
