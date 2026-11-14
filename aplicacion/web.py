@@ -279,7 +279,11 @@ button:focus-visible {{outline: 2px solid var(--acento); outline-offset: 3px}}
             self.responder(200, "application/json", json.dumps(resultado))
         else:
             detalle = html.escape(json.dumps(resultado, indent=2, ensure_ascii=False))
-            self.mostrar(resultado=f"<h2>Resultado del motor R</h2><pre>{detalle}</pre>")
+            self.mostrar(resultado=(
+                '<section aria-labelledby="titulo-resultado">'
+                '<h2 id="titulo-resultado">Resultado del motor R</h2>'
+                f"<pre>{detalle}</pre></section>"
+            ))
 
 
 def configurar_destino(valor):
