@@ -58,6 +58,8 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
       - name: Preparar secreto temporal y carpeta de evidencias
         run: |
           cp .env.example .env
