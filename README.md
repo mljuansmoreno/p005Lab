@@ -43,6 +43,26 @@ fi
 
 Git y Docker excluyen `.env` y el archivo de credencial. Compose lee la ruta desde `.env` y monta el archivo como `/run/secrets/motor` en ambos contenedores. En Linux, el directorio privado protege el archivo en el host y el modo `0444` permite que los procesos sin privilegios lo lean una vez montado. [Secretos en Docker Compose](https://docs.docker.com/compose/how-tos/use-secrets/).
 
+### Arrancar y probar
+
+```console
+docker compose config --quiet
+docker compose up -d --build --wait --wait-timeout 90
+docker compose ps
+docker network inspect ruta-estadistica-demo_analisis
+docker compose exec -T aplicacion python probar_compose.py
+```
+
+Abra [127.0.0.1:8080](http://127.0.0.1:8080) y pulse **Calcular ejemplo**. Debe obtener seis filas analizadas y una media de aproximadamente `4.16666666666667`. La prueba automatizada usa la misma acción del formulario y valida el destino `motor:8787`, el estado del trabajo, la huella SHA-256 y el resultado numérico. Si el puerto web está ocupado, cambie `RUTA_ESTADISTICA_PUERTO_WEB` en `.env` y abra ese puerto en el navegador.
+
+Detenga los servicios con `docker compose down --remove-orphans`. Puede conservar el secreto para el próximo arranque o borrar `credenciales/motor.secreto` después de detenerlos.
+
+### Servicios y evidencias
+
+- **`aplicacion`** publica la interfaz web en loopback. Envía el CSV y el trabajo por HTTP autenticado, consulta el estado y descarga el resultado.
+- **`motor`** aloja la API .NET, ejecuta R y devuelve el cálculo. Compose conecta los dos servicios a la red bridge `analisis`. La aplicación resuelve el motor por su nombre de servicio y el puerto del motor queda dentro de Docker.
+- El [modo Docker del escritorio](documentacion/docker.md) usa `contenedores/compose.yaml`. El [inicio nativo de WinUI](LEEME.md#inicio-de-desarrollo) usa R local.
+
 ## Aplicación de escritorio
 
 Aplicación Windows en español para recorrer pregunta, datos, preparación, ruta, resultados, interpretación y evidencia. Los cálculos los realiza el paquete R `rutaanalitica`; no se necesita una cuenta ni un modelo de lenguaje.
