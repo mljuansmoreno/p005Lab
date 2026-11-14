@@ -19,6 +19,9 @@ from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_ope
 from datos_sinteticos import CSV_SINTETICO
 
 
+MAX_RESPUESTA_MOTOR = 4 * 1024 * 1024
+
+
 class ErrorMotor(Exception):
     pass
 
@@ -45,7 +48,9 @@ def analizar(destino, secreto):
         try:
             with cliente.open(Request(destino + ruta, cuerpo, cabeceras), timeout=5) as respuesta:
                 exigir(respuesta.status == esperado, f"Respuesta inesperada en {ruta}")
-                return respuesta.read()
+                contenido = respuesta.read(MAX_RESPUESTA_MOTOR + 1)
+                exigir(len(contenido) <= MAX_RESPUESTA_MOTOR, "Respuesta del motor demasiado grande")
+                return contenido
         except URLError as error:
             raise ErrorMotor(f"Error HTTP al consultar {ruta}") from error
 
