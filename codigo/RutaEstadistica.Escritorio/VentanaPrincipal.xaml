@@ -6,7 +6,14 @@
         <RowDefinition Height="*" />
         <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
-<StackPanel><TextBlock x:Uid="NombreAplicacion" Text="Ruta Estadística" Style="{ThemeResource TitleTextBlockStyle}"/><TextBlock Text="De tu pregunta a una evidencia que puedes explicar"/></StackPanel>
+<Border Background="{ThemeResource SuperficieRutaBrush}" BorderBrush="{ThemeResource BordeRutaBrush}"
+        BorderThickness="1" CornerRadius="12" Padding="20,14">
+    <StackPanel Spacing="4">
+        <TextBlock x:Uid="NombreAplicacion" Text="Ruta Estadística" Style="{ThemeResource TitleTextBlockStyle}" />
+        <TextBlock Text="De tu pregunta a una evidencia que puedes explicar"
+                   Foreground="{ThemeResource TextoSecundarioRutaBrush}" TextWrapping="Wrap" />
+    </StackPanel>
+</Border>
 <NavigationView x:Name="Navegacion" Grid.Row="1" IsBackButtonVisible="Collapsed" IsSettingsVisible="False" PaneDisplayMode="Left" SelectionChanged="CambiarPaso">
 <NavigationView.MenuItems>
 <NavigationViewItem Content="Inicio y proyectos" Tag="0" Icon="Home"/><NavigationViewItem Content="1 · Pregunta" Tag="1" Icon="Help"/><NavigationViewItem Content="2 · Datos" Tag="2" Icon="OpenFile"/><NavigationViewItem Content="3 · Preparación" Tag="3" Icon="Edit"/><NavigationViewItem Content="4 · Ruta" Tag="4" Icon="Map"/><NavigationViewItem Content="5 · Resultados" Tag="5" Icon="View"/><NavigationViewItem Content="6 · Interpretación" Tag="6" Icon="Message"/><NavigationViewItem Content="7 · Evidencia y exportación" Tag="7" Icon="Save"/><NavigationViewItem Content="Configuración y ayuda" Tag="8" Icon="Setting"/>
