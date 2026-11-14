@@ -36,6 +36,7 @@ services:
     security_opt: [no-new-privileges:true]
 
   motor:
+    init: true
     logging: *registro
     platform: linux/amd64
     build:
