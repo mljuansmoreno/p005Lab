@@ -72,7 +72,8 @@ public sealed partial class VentanaPrincipal : Window
     }
     private void CambiarTema(object remitente, SelectionChangedEventArgs argumentos)
     {
-        if (inicializando || SelectorTema.SelectedItem is not ComboBoxItem { Tag: string opcion })
+        if (inicializando || SelectorTema.SelectedItem is not ComboBoxItem { Tag: string opcion }
+            || opcion is not (nameof(ElementTheme.Light) or nameof(ElementTheme.Dark) or nameof(ElementTheme.Default)))
             return;
 
         AplicarTema(Enum.Parse<ElementTheme>(opcion));
