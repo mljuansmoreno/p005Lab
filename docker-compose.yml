@@ -15,7 +15,7 @@ services:
     networks: [entrada, analisis]
     secrets: [motor]
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/', timeout=2).close()"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/listo', timeout=2.5).close()"]
       interval: 5s
       timeout: 3s
       retries: 6
