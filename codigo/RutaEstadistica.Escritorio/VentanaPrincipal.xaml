@@ -58,9 +58,13 @@
                    Foreground="{ThemeResource TextoSecundarioRutaBrush}" />
     </StackPanel>
 </Border>
-<Grid ColumnSpacing="12"><Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="Indicador" FontWeight="SemiBold"/><TextBlock Grid.Column="1" Text="Valor" FontWeight="SemiBold"/></Grid>
+<Grid ColumnSpacing="12" Padding="12,8" Background="{ThemeResource SuperficieSecundariaRutaBrush}">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="2*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+    <TextBlock Text="Indicador" FontWeight="SemiBold" />
+    <TextBlock Grid.Column="1" Text="Valor" FontWeight="SemiBold" />
+</Grid>
 <ListView x:Name="TablaCifras" MaxHeight="360" AutomationProperties.Name="Cifras calculadas por R" SelectionMode="Single">
-<ListView.ItemTemplate><DataTemplate x:DataType="contratos:FilaResultado"><Grid ColumnSpacing="12" HorizontalAlignment="Stretch" AutomationProperties.Name="{x:Bind DescripcionAccesible}"><Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="{x:Bind Indicador}" TextWrapping="Wrap"/><TextBlock Grid.Column="1" Text="{x:Bind Valor}" TextWrapping="Wrap"/></Grid></DataTemplate></ListView.ItemTemplate>
+<ListView.ItemTemplate><DataTemplate x:DataType="contratos:FilaResultado"><Grid Margin="0,4" ColumnSpacing="12" HorizontalAlignment="Stretch" AutomationProperties.Name="{x:Bind DescripcionAccesible}"><Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="{x:Bind Indicador}" TextWrapping="Wrap"/><TextBlock Grid.Column="1" Text="{x:Bind Valor}" TextWrapping="Wrap"/></Grid></DataTemplate></ListView.ItemTemplate>
 <ListView.ItemContainerStyle><Style TargetType="ListViewItem"><Setter Property="HorizontalContentAlignment" Value="Stretch"/></Style></ListView.ItemContainerStyle></ListView>
 <StackPanel x:Name="PanelFrecuencias" Spacing="8" Visibility="Collapsed">
 <TextBlock Text="Frecuencias de respuesta única" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
