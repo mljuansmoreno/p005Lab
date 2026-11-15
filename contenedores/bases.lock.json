@@ -9,9 +9,19 @@
     "imagen": "rocker/r-ver:4.5.2",
     "resumen": "sha256:fd4ccdd3a4a6f7ef805e2daeee2a0fe3bf126bc231f36351223baecf5a595a4c"
   },
+  "python": {
+    "imagen": "python:3.13.18-alpine3.23",
+    "resumen": "sha256:bf88c40985006a79ca25458159a4da1dffc457f9ae234e948b2d6df56ca5ebd2",
+    "fecha_consulta": "2026-11-15"
+  },
+  "alpine_web": {
+    "imagen": "alpine:3.23",
+    "resumen": "sha256:469c9ea410b9215eaee7976ba6c0639039b444be8e5d638f7abbada189971eb2",
+    "fecha_consulta": "2026-11-15"
+  },
   "jsonlite": {
     "url": "https://cran.r-project.org/src/contrib/jsonlite_2.0.0.tar.gz",
     "sha256": "75eb910c82b350ec33f094779da0f87bff154c232e4ae39c9896a9b89f3ac82d"
   },
-  "estado": "Metadatos verificados en registros oficiales; imagen no ejecutada"
+  "estado": "Referencias de base verificadas contra los registros oficiales"
 }

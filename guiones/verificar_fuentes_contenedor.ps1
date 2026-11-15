@@ -8,6 +8,16 @@ foreach ($par in @(@('sdk','IMAGEN_SDK'), @('motor_r','IMAGEN_R'))) {
     $coincidencia = [regex]::Match($definicion, "(?m)^ARG $($par[1])=(.+)$")
     if (-not $coincidencia.Success -or $coincidencia.Groups[1].Value.Trim() -cne "$($base.imagen)@$($base.resumen)") { throw 'IMAGEN_RESUMEN_NO_COINCIDE' }
 }
+$definicionWeb = Get-Content "$raiz/aplicacion/Dockerfile" -Raw
+$basesWeb = @([regex]::Matches($definicionWeb, '(?m)^FROM (\S+)[ \t\r]*$') | ForEach-Object { $_.Groups[1].Value })
+if ($basesWeb.Count -ne 2) { throw 'IMAGEN_WEB_BASES_INVALIDAS' }
+foreach ($nombre in @('python', 'alpine_web')) {
+    $base = $registro.$nombre
+    if ($base.resumen -notmatch '^sha256:[a-f0-9]{64}$' -or
+        $basesWeb -cnotcontains "$($base.imagen)@$($base.resumen)") {
+        throw 'IMAGEN_WEB_RESUMEN_NO_COINCIDE'
+    }
+}
 $fuente = Join-Path $raiz 'distribucion/fuentes/jsonlite_2.0.0.tar.gz'
 $huella = (Get-FileHash -LiteralPath $fuente -Algorithm SHA256).Hash.ToLowerInvariant()
 if ($huella -cne $registro.jsonlite.sha256 -or -not $definicion.Contains($huella)) { throw 'FUENTE_RESUMEN_NO_COINCIDE' }
