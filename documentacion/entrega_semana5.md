@@ -7,7 +7,7 @@ Juan Sebastián Moreno Díaz
 
 ## Resumen
 
-Se incorporó Jenkins a `p005Lab` para construir los dos servicios del producto, ejecutar sus verificaciones Linux y conservar evidencia vinculada a la revisión de Git. El controlador usó Jenkins LTS 2.580.2 en Docker. Un agente con un ejecutor se conectó por WebSocket desde Ubuntu WSL2 y obtuvo `main` desde GitHub. GitHub Actions conservó la verificación nativa de Windows y compartió controles de Compose con Jenkins. El build manual inicial identificó falsos positivos de Gitleaks en las versiones de plugins; se ajustó el formato de su inventario y se mantuvo el escaneo. El ensayo local de los contenedores obtuvo seis filas y una media de 4.16666666666667 con R. Las ejecuciones Jenkins se detallan en la sección de resultados.
+Se incorporó Jenkins a `p005Lab` para construir los dos servicios del producto, ejecutar sus verificaciones Linux y conservar evidencia vinculada a la revisión de Git. El controlador usó Jenkins LTS 2.580.2 en Docker. Un agente con un ejecutor se conectó por WebSocket desde Ubuntu WSL2 y obtuvo `main` desde GitHub. GitHub Actions conservó la verificación nativa de Windows y compartió controles de Compose con Jenkins. El build automático #9 verificó el cálculo de seis filas con media 4.16666666666667, la recuperación ante la caída del motor y la suite de R. El escaneo completó su política de cero avisos altos y críticos para ambas imágenes con la base de avisos del 15 de noviembre de 2026.
 
 **Palabras clave** · Jenkins, integración continua, Docker Compose, R, trazabilidad.
 
@@ -64,17 +64,17 @@ Syft prepara la información de componentes y Grype contrasta las imágenes con 
 
 ## 4. Resultados y trazabilidad
 
-La base confirmada de `main` fue `0b0a87d38bda8552c2926e65dd5f928e4211eea7`. Se aprobaron seis pruebas web y once pruebas actuales del orquestador. El primer ensayo de Compose construyó las dos imágenes desde Windows y el motor quedó no saludable. En WSL2, con un archivo de credencial nativo Linux, ambos servicios alcanzaron estado saludable. El resultado sintético fue `completado`, obtenido desde `motor:8787`, con media 4.16666666666667 para seis filas. La huella del conjunto se validó y la suite de R terminó correctamente. Ese ensayo fue local, separado del historial Jenkins.
+La base confirmada de `main` fue `0b0a87d38bda8552c2926e65dd5f928e4211eea7`. El build #9 archivó seis pruebas web y trece de integración sin fallos ni omisiones. En ambos cálculos, el motor respondió `completado` para seis filas y la media coincidió con 25/6 dentro de la tolerancia de 1e-10. El servicio web conservó su sonda de vida y devolvió HTTP 503 en disponibilidad con el motor detenido. La recreación permitió repetir el cálculo con la misma huella SHA-256 del conjunto de datos. Jenkins archivó también la salida de R 4.5.2 y la limpieza del proyecto Compose.
 
 | Build Jenkins | Causa y revisión | Duración | Resultado |
 | --- | --- | --- | --- |
 | [main #1](http://127.0.0.1:9090/job/ruta-estadistica-main/1/) | Manual, `01db14f` | 119,698 s | FAILURE. Gitleaks detectó 23 coincidencias en versiones públicas de plugins. Las etapas posteriores quedaron omitidas. |
 | [main #2](http://127.0.0.1:9090/job/ruta-estadistica-main/2/) | Cambio SCM, `dd66a4c` | 468,253 s | FAILURE. Gitleaks, web y compilación correctos. El arranque falló con archivos del checkout en modo 0600. |
 | [main #3](http://127.0.0.1:9090/job/ruta-estadistica-main/3/) | Cambio SCM, `932f8b7` | 1218,248 s | FAILURE. Pasaron secretos, orquestador y web. La primera compilación con permisos corregidos agotó su plazo. |
-| [Autoprueba #1](http://127.0.0.1:9090/job/ruta-estadistica-autoprueba/1/) | Prueba manual en un job aislado, `dd66a4c` | Consulte el build | FAILURE durante el arranque. La aserción intencional aún quedó sin ejecutar. |
-| [Historial de main](http://127.0.0.1:9090/job/ruta-estadistica-main/) | `pollSCM` sobre la rama | Por build | El estado de cada revisión se conserva en su manifiesto. |
+| [Autoprueba #3](http://127.0.0.1:9090/job/ruta-estadistica-autoprueba/3/) | Manual, `59ff28e`, job aislado | 1498,147 s | FAILURE en la aserción intencional del destino. JUnit registró un fallo y el proyecto de prueba se retiró. |
+| [main #9](http://127.0.0.1:9090/job/ruta-estadistica-main/9/) | Cambio SCM, `911f2cb` | 611,138 s | SUCCESS. Construcción, cálculo, recuperación, R, escaneo y limpieza verificados. |
 
-La corrección `dd66a4c` conserva los mismos plugins y cambia cómo se representa el inventario. Se confirmó cero hallazgos con Gitleaks 8.30.1 sobre un checkout aislado antes de publicar. Los trabajos Windows y Docker de Actions en `01db14f` pasaron. El trabajo de secretos registró el mismo falso positivo que Jenkins. En 932f8b7, los tres trabajos de Actions aprobaron. Tras corregir la máscara de creación del agente, el checkout de Jenkins confirmó modo 0644 para las fuentes copiadas a las imágenes. El plazo de compilación aumentó a 24 minutos tras observar el arranque en frío. Se mantuvo el plazo global de 45 minutos. El manifiesto de cierre registra los resultados del SHA final fuera del historial para evitar una referencia circular. [Ejecución de Actions en 01db14f](https://github.com/mljuansmoreno/p005Lab/actions/runs/43726760882). [Ejecución de Actions en 932f8b7](https://github.com/mljuansmoreno/p005Lab/actions/runs/43728574243).
+La corrección `dd66a4c` conservó los mismos plugins y cambió la representación del inventario que había activado Gitleaks. La corrección `911f2cb` permitió pasar los identificadores canónicos de las imágenes a Syft. En esta última revisión se verificaron las huellas de quince archivos de evidencia de Jenkins. GitHub Actions completó los trabajos Windows, Docker y secretos en el mismo SHA. El manifiesto de cierre registra los resultados del SHA que quede en `main` y se genera fuera del historial para evitar una referencia circular. [Ejecución de Actions en 911f2cb](https://github.com/mljuansmoreno/p005Lab/actions/runs/43754604687).
 
 ## 5. Evaluación, límites y conclusiones
 
