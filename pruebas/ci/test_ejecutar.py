@@ -53,10 +53,11 @@ class PruebasInforme(unittest.TestCase):
 class PruebasEjecucion(unittest.TestCase):
     def test_compose_aislado_de_variables_heredadas(self):
         with patch.dict(os.environ, {"COMPOSE_PROFILES": "ajeno", "COMPOSE_PROJECT_NAME": "demo"}):
-            env = ejecutar.entorno_compose("ruta-ci-prueba", Path("/tmp/con espacios/secreto"), 18180)
+            ruta = Path("/tmp/con espacios/secreto")
+            env = ejecutar.entorno_compose("ruta-ci-prueba", ruta, 18180)
         self.assertNotIn("COMPOSE_PROFILES", env)
         self.assertEqual(env["COMPOSE_PROJECT_NAME"], "ruta-ci-prueba")
-        self.assertEqual(env["RUTA_ESTADISTICA_ARCHIVO_SECRETO"], "/tmp/con espacios/secreto")
+        self.assertEqual(env["RUTA_ESTADISTICA_ARCHIVO_SECRETO"], str(ruta))
         self.assertEqual(env["COMPOSE_DISABLE_ENV_FILE"], "1")
 
     def test_puerto_reservado_y_ocupado(self):
@@ -86,6 +87,7 @@ class PruebasEjecucion(unittest.TestCase):
             with (patch.object(ejecutar, "SALIDA", ruta),
                   patch.object(ejecutar, "PRIVADO", privado),
                   patch.object(ejecutar, "puerto_web", return_value=8181),
+                  patch.object(Path, "chmod"),
                   patch.object(ejecutar, "entorno_compose", return_value={}),
                   patch.object(ejecutar, "comando", side_effect=subprocess.CalledProcessError(23, "fixture")),
                   patch.object(ejecutar, "limpiar") as limpiar):

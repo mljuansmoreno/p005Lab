@@ -106,8 +106,10 @@ PY
     docker compose exec -T aplicacion python probar_compose.py
     ;;
   r)
+    docker compose exec -T motor Rscript --version
     docker compose exec -T -e R_LIBS_USER=/aplicacion/runtime/biblioteca motor \
       Rscript --vanilla /aplicacion/motor_r/rutaanalitica/tests/verificar.R
+    printf "Suite de rutaanalitica ejecutada correctamente.\n"
     ;;
   *)
     printf 'Comprobación Compose desconocida: %s\n' "$accion" >&2

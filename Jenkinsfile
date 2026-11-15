@@ -43,6 +43,7 @@ pipeline {
         }
         stage('Probar web') {
             steps {
+                sh 'python3 -m unittest discover -s pruebas/ci'
                 sh 'python3 guiones/ci/ejecutar.py web'
             }
         }
