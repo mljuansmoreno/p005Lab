@@ -97,15 +97,7 @@ jobs:
           evidencias="$(mktemp -d "$RUNNER_TEMP/ruta-estadistica.XXXXXXXX")"
           echo "RUTA_ESTADISTICA_EVIDENCIAS=$evidencias" >> "$GITHUB_ENV"
       - name: Validar la configuración resuelta de Compose
-        run: |
-          docker compose config --format json | jq -e '
-            (.services | keys) == ["aplicacion", "motor"] and
-            .networks.analisis.internal and
-            (.services.motor.networks | keys) == ["analisis"] and
-            (.services.motor.ports | length) == 0 and
-            (.services.aplicacion.ports | length) == 1 and
-            .services.aplicacion.ports[0].host_ip == "127.0.0.1"
-          '
+        run: bash guiones/ci/comprobar_compose.sh configuracion
       - name: Compilar las dos imágenes
         run: docker compose --progress plain build 2>&1 | tee "$RUTA_ESTADISTICA_EVIDENCIAS/01-compilacion.txt"
       - name: Arrancar Compose y esperar la salud de los servicios
@@ -113,63 +105,17 @@ jobs:
       - name: Registrar el estado y la red
         run: |
           docker ps --filter label=com.docker.compose.project=ruta-estadistica-demo | tee "$RUTA_ESTADISTICA_EVIDENCIAS/03-docker-ps.txt"
-          aplicacion="$(docker compose ps --format '{{.Name}}' aplicacion)"
-          motor="$(docker compose ps --format '{{.Name}}' motor)"
-          docker network inspect ruta-estadistica-demo_analisis |
-            jq -er --arg aplicacion "$aplicacion" --arg motor "$motor" '
-              .[0] | select(.Driver == "bridge" and .Internal and
-                ([.Containers[].Name] | sort) == ([$aplicacion, $motor] | sort)) |
-              "\(.Name) (\(.Driver))", (.Containers[] | "\(.Name) \(.IPv4Address)")
-            ' | tee "$RUTA_ESTADISTICA_EVIDENCIAS/04-red.txt"
-          docker inspect "$motor" --format '{{json .HostConfig.PortBindings}}' | jq -e 'length == 0'
+          bash guiones/ci/comprobar_compose.sh red | tee "$RUTA_ESTADISTICA_EVIDENCIAS/04-red.txt"
       - name: Verificar el aislamiento de los contenedores
-        run: |
-          docker inspect "$(docker compose ps -q aplicacion)" "$(docker compose ps -q motor)" |
-            jq -e 'length == 2 and all(.[];
-              .Config.User == "1654:1654" and
-              .HostConfig.ReadonlyRootfs and
-              (.HostConfig.CapDrop | map(ascii_downcase) | index("all")) != null and
-              (.HostConfig.SecurityOpt | any(startswith("no-new-privileges"))) and
-              .HostConfig.Memory > 0 and .HostConfig.PidsLimit > 0 and
-              .HostConfig.LogConfig.Type == "local"
-            )'
+        run: bash guiones/ci/comprobar_compose.sh aislamiento
       - name: Comprobar el acceso web desde el host
-        run: |
-          pagina="$RUNNER_TEMP/ruta-estadistica-web.html"
-          curl --noproxy '*' --fail --silent --show-error --max-time 5 http://127.0.0.1:8080/ --output "$pagina"
-          grep -Fq 'action="/analizar"' "$pagina"
+        run: bash guiones/ci/comprobar_compose.sh acceso
       - name: Comprobar la autenticación interna del motor
-        run: |
-          curl --noproxy '*' --fail --silent --show-error --max-time 5 http://127.0.0.1:8080/listo |
-            jq -e '.listo == true'
-          docker compose exec -T aplicacion python - <<'PY'
-          from http.client import HTTPConnection
-          cliente = HTTPConnection("motor", 8787, timeout=5)
-          cliente.request("GET", "/salud")
-          respuesta = cliente.getresponse()
-          if respuesta.status != 403:
-              raise SystemExit(f"Se esperaba HTTP 403 sin credencial; respuesta: {respuesta.status}")
-          print("Motor: HTTP 403 sin credencial; sonda autenticada correcta.")
-          PY
+        run: bash guiones/ci/comprobar_compose.sh autenticacion
       - name: Ejecutar el cálculo desde la aplicación
-        run: docker compose exec -T aplicacion python probar_compose.py | tee "$RUTA_ESTADISTICA_EVIDENCIAS/05-calculo.txt"
+        run: bash guiones/ci/comprobar_compose.sh calcular | tee "$RUTA_ESTADISTICA_EVIDENCIAS/05-calculo.txt"
       - name: Probar caída y recuperación del motor
-        run: |
-          web='http://127.0.0.1:8080'
-          {
-            anterior="$(docker compose ps -q motor)"
-            docker compose stop motor
-            curl --noproxy '*' --fail --silent --show-error --max-time 5 "$web/salud" | jq -e '.estado == "activo"'
-            codigo="$(curl --noproxy '*' --silent --show-error --max-time 5 --output /dev/null --write-out '%{http_code}' "$web/listo")"
-            test "$codigo" = 503
-            echo "Disponibilidad con motor detenido: HTTP $codigo"
-            docker compose up -d --no-deps --force-recreate --wait --wait-timeout 90 motor
-            nuevo="$(docker compose ps -q motor)"
-            test -n "$nuevo"
-            test "$anterior" != "$nuevo"
-            curl --noproxy '*' --fail --silent --show-error --max-time 5 "$web/listo" | jq -e '.listo == true'
-            docker compose exec -T aplicacion python probar_compose.py
-          } 2>&1 | tee "$RUTA_ESTADISTICA_EVIDENCIAS/06-recuperacion.txt"
+        run: bash guiones/ci/comprobar_compose.sh recuperar | tee "$RUTA_ESTADISTICA_EVIDENCIAS/06-recuperacion.txt"
       - name: Registrar la procedencia de la ejecución
         run: |
           docker version --format '{{json .Server}}' > "$RUNNER_TEMP/docker-servidor.json"
