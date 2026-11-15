@@ -18,8 +18,14 @@ obtener_herramienta_ci grype \
 base_avisos="$("$temporal/grype" db status -o json | jq -er 'select(.valid) | .built | strings')"
 export GRYPE_DB_AUTO_UPDATE=false
 for servicio in aplicacion motor; do
-  imagen="$(docker compose images -q "$servicio")"
-  test -n "$imagen"
+  referencia="$(docker compose images -q "$servicio")"
+  test -n "$referencia"
+  # Docker save requiere el prefijo cuando Compose devuelve los 64 hexadecimales.
+  if [[ "$referencia" =~ ^[0-9a-f]{64}$ ]]; then
+    referencia="sha256:$referencia"
+  fi
+  imagen="$(docker image inspect --format '{{.Id}}' "$referencia")"
+  [[ "$imagen" =~ ^sha256:[0-9a-f]{64}$ ]]
   "$temporal/syft" "docker:$imagen" -o cyclonedx-json > "$temporal/sbom.json"
   jq -e '.components | length > 0' "$temporal/sbom.json" > /dev/null
   "$temporal/grype" "sbom:$temporal/sbom.json" -o json > "$temporal/grype.json"
