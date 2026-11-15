@@ -51,3 +51,14 @@ bash jenkins/iniciar_agente.sh
 Si Java y jq son portátiles, anteponga sus directorios de binarios al `PATH` del agente antes del último comando. Compruebe que Jenkins muestra el agente en línea y ejecute **Build Now** una vez para sembrar la consulta SCM. Después, valide la causa automática en [el historial del job](http://127.0.0.1:9090/job/ruta-estadistica-main/). El endpoint del controlador y el puerto web de CI son sitios de loopback independientes. El motor escucha internamente en `motor:8787`.
 
 Consulte la [operación y recuperación](operacion_jenkins.md), el [informe de semana 5](entrega_semana5.md) y la [referencia oficial de aislamiento de Jenkins](https://www.jenkins.io/doc/book/security/controller-isolation/).
+
+## Reproducir el fallo de cálculo en un job aislado
+
+Importe [trabajo-autoprueba.xml](../jenkins/trabajo-autoprueba.xml) como `ruta-estadistica-autoprueba` en una instalación nueva. El job usa [Jenkinsfile.autoprueba](../jenkins/Jenkinsfile.autoprueba) y se inicia manualmente. Si la instancia ya tiene un job con ese nombre, conserve su historial y actualice su configuración con `update-job` en lugar de crearlo de nuevo.
+
+```bash
+java -jar jenkins-cli.jar -s http://127.0.0.1:9090/ -auth "@$RUTA_CI_AUTH" \
+  create-job ruta-estadistica-autoprueba < jenkins/trabajo-autoprueba.xml
+```
+
+El resultado esperado es `FAILURE` con fallo en el caso `calculo` y éxito en `limpieza` dentro de `reportes/integracion.xml`. El contenedor web hace la solicitud real al motor habitual. El fixture cambia el destino esperado únicamente en la aserción. Si la ejecución se detiene antes de `calculo`, use los informes para diagnosticar la etapa que falló.

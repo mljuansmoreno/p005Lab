@@ -1,0 +1,67 @@
+pipeline {
+    agent { label 'linux-docker' }
+
+    options {
+        skipDefaultCheckout()
+        disableConcurrentBuilds()
+        timestamps()
+        timeout(time: 35, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '8'))
+    }
+
+    environment {
+        PYTHONPATH = 'guiones/ci:aplicacion:guiones'
+        RUTA_CI_CAUSA = 'Fixture aislado: destino de cálculo intencionalmente distinto'
+    }
+
+    stages {
+        stage('Preparar la autoprueba') {
+            steps {
+                deleteDir()
+                checkout scm
+                sh 'python3 guiones/ci/ejecutar.py preparar'
+                sh 'python3 guiones/ci/ejecutar.py secretos'
+            }
+        }
+        stage('Fallo controlado del cálculo real') {
+            steps {
+                sh '''
+                    cat > salidas/fixture-calculo.sh <<'FIN'
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ $1 == calcular ]]; then
+    exec docker compose exec -T aplicacion python probar_compose.py motor-fixture:8787
+fi
+exec bash guiones/ci/comprobar_compose.sh "$@"
+FIN
+                    python3 - <<'PY'
+import sys
+import ejecutar
+sys.argv.append('docker')
+ejecutar.COMPROBAR = ('bash', 'salidas/fixture-calculo.sh')
+raise SystemExit(ejecutar.main())
+PY
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                def salida = 'salidas/jenkins-ci'
+                if (fileExists("${salida}/00-entorno.json")) {
+                    try {
+                        sh 'python3 guiones/ci/ejecutar.py finalizar'
+                    } finally {
+                        def archivos = sh(script: 'python3 guiones/ci/ejecutar.py archivos', returnStdout: true).trim()
+                        archiveArtifacts artifacts: archivos, fingerprint: true, followSymlinks: false
+                    }
+                }
+                if (fileExists("${salida}/reportes/integracion.xml")) {
+                    junit testResults: "${salida}/reportes/integracion.xml"
+                }
+            }
+        }
+    }
+}
