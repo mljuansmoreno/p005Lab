@@ -98,6 +98,7 @@ class PruebasEjecucion(unittest.TestCase):
         with TemporaryDirectory() as directorio, redirect_stdout(io.StringIO()):
             ruta = Path(directorio)
             (ruta / "reportes").mkdir()
+            (ruta / "00-entorno.json").write_text("{}", encoding="utf-8")
             privado = ruta / "privado"
             with (patch.object(ejecutar, "SALIDA", ruta),
                   patch.object(ejecutar, "PRIVADO", privado),
@@ -113,11 +114,15 @@ class PruebasEjecucion(unittest.TestCase):
             reporte = ET.parse(ruta / "reportes/integracion.xml").getroot()
             self.assertEqual(reporte.get("failures"), "1")
             self.assertTrue((ruta / "09-limpieza.txt").exists())
+            entorno = json.loads((ruta / "00-entorno.json").read_text(encoding="utf-8"))
+            self.assertRegex(entorno["proyecto"], r"^ruta-ci-[0-9a-f]{16}$")
+            self.assertEqual(entorno["puerto_web"], 8181)
 
     def test_fallo_de_limpieza_conserva_el_error_de_integracion(self):
         with TemporaryDirectory() as directorio, redirect_stdout(io.StringIO()):
             ruta = Path(directorio)
             (ruta / "reportes").mkdir()
+            (ruta / "00-entorno.json").write_text("{}", encoding="utf-8")
             with (patch.object(ejecutar, "SALIDA", ruta),
                   patch.object(ejecutar, "PRIVADO", ruta / "privado"),
                   patch.object(ejecutar, "puerto_web", return_value=8181),
@@ -131,6 +136,26 @@ class PruebasEjecucion(unittest.TestCase):
             self.assertEqual(reporte.get("failures"), "1")
             self.assertIsNotNone(reporte.find("testcase[@name='limpieza']/error"))
             self.assertFalse((ruta / "09-limpieza.txt").exists())
+
+    def test_interrupcion_conserva_senal_y_publica_desmontaje(self):
+        with TemporaryDirectory() as directorio, redirect_stdout(io.StringIO()):
+            ruta = Path(directorio)
+            (ruta / "reportes").mkdir()
+            (ruta / "00-entorno.json").write_text("{}", encoding="utf-8")
+            privado = ruta / "privado"
+            with (patch.object(ejecutar, "SALIDA", ruta), patch.object(ejecutar, "PRIVADO", privado),
+                  patch.object(ejecutar, "puerto_web", return_value=8181), patch.object(Path, "chmod"),
+                  patch.object(ejecutar, "entorno_compose", return_value={}),
+                  patch.object(ejecutar, "comando", side_effect=InterruptedError("fixture de cancelación")),
+                  patch.object(ejecutar, "limpiar") as limpiar):
+                with self.assertRaises(InterruptedError):
+                    ejecutar.integrar("0")
+            limpiar.assert_called_once()
+            self.assertEqual(list(privado.iterdir()), [])
+            reporte = ET.parse(ruta / "reportes/integracion.xml").getroot()
+            self.assertIsNotNone(reporte.find("testcase[@name='configuracion']/error"))
+            self.assertIsNotNone(reporte.find("testcase[@name='limpieza']"))
+            self.assertTrue((ruta / "09-limpieza.txt").exists())
 
     def test_dependencia_ausente_deja_revision_y_estado(self):
         with TemporaryDirectory() as directorio, patch.object(ejecutar, "SALIDA", Path(directorio)):

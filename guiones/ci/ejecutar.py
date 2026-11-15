@@ -220,6 +220,10 @@ def integrar(puerto):
     PRIVADO.mkdir(parents=True, exist_ok=True)
     sufijo = secrets.token_hex(8)
     proyecto = f"ruta-ci-{sufijo}"
+    metadatos = SALIDA / "00-entorno.json"
+    datos = json.loads(metadatos.read_text(encoding="utf-8"))
+    datos.update({"proyecto": proyecto, "puerto_web": puerto})
+    json_archivo(metadatos, datos)
     print(f"Proyecto aislado {proyecto}, web 127.0.0.1:{puerto}", flush=True)
     reporte = Reporte("integracion")
     pasos = (
@@ -246,8 +250,7 @@ def integrar(puerto):
         try:
             for nombre, archivos, orden, plazo in pasos:
                 ejecutar_caso(reporte, nombre, temporal, entorno, orden, plazo, archivos)
-            datos = json.loads((SALIDA / "00-entorno.json").read_text(encoding="utf-8"))
-            datos.update({"imagenes": procedencia(entorno), "proyecto": proyecto, "puerto_web": puerto})
+            datos["imagenes"] = procedencia(entorno)
             json_archivo(temporal / "00-entorno.json", datos)
             for servicio in ("aplicacion", "motor"):
                 comando(("docker", "run", "--rm", "--network", "none", "--read-only",
@@ -260,7 +263,7 @@ def integrar(puerto):
             ejecutar_caso(reporte, "escaneo", temporal, entorno,
                           ("bash", "guiones/escanear_imagenes.sh", str(temporal)), PLAZO_ESCANEO)
             verificar_politica(temporal, datos["imagenes"])
-        except (OSError, ValueError, subprocess.SubprocessError, InterruptedError) as fallo:
+        except (OSError, ValueError, subprocess.SubprocessError) as fallo:
             error = fallo
             if str(fallo).startswith("arranque:"):
                 try:
@@ -280,7 +283,8 @@ def integrar(puerto):
             except (OSError, ValueError, subprocess.SubprocessError):
                 mensaje = f"No se verificó el desmontaje del proyecto {proyecto}"
                 reporte.caso("limpieza", "compose", monotonic() - inicio_limpieza, "error", mensaje)
-                error = ValueError(f"{error}. {mensaje}" if error else mensaje)
+                tipo_error = InterruptedError if isinstance(error, InterruptedError) else ValueError
+                error = tipo_error(f"{error}. {mensaje}" if error else mensaje)
             else:
                 reporte.caso("limpieza", "compose", monotonic() - inicio_limpieza)
             finally:
@@ -303,9 +307,11 @@ def ejecutar_caso(reporte, nombre, temporal, entorno, orden, plazo, archivos=())
         mensaje = f"{nombre}: código de salida {fallo.returncode}"
         reporte.caso(nombre, "compose", monotonic() - inicio, "failure", mensaje)
         raise ValueError(mensaje) from None
-    except (OSError, subprocess.TimeoutExpired, InterruptedError) as fallo:
+    except (OSError, subprocess.TimeoutExpired) as fallo:
         mensaje = f"{nombre}: {type(fallo).__name__}"
         reporte.caso(nombre, "compose", monotonic() - inicio, "error", mensaje)
+        if isinstance(fallo, InterruptedError):
+            raise
         raise ValueError(mensaje) from None
     else:
         reporte.caso(nombre, "compose", monotonic() - inicio)
@@ -379,6 +385,9 @@ def main():
             manifestar(exigir=False)
         if args.fase == "archivos":
             print(",".join(listados_archivo()))
+    except InterruptedError as fallo:
+        print(f"CI: {fallo}", file=sys.stderr)
+        return 143
     except (ValueError, OSError, subprocess.SubprocessError, KeyError) as fallo:
         print(f"CI: {fallo}", file=sys.stderr)
         return 1
