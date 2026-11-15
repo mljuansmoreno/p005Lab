@@ -8,6 +8,9 @@ RUN dotnet publish codigo/RutaEstadistica.ServidorLocal -c Release -r linux-x64 
 FROM ${IMAGEN_R}
 RUN apt-get update \
     && apt-get install -y --no-install-recommends apt libapt-pkg6.0t64 libbrotli1 libicu74 libssl3t64 libgssapi-krb5-2 curl \
+    && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' apt)" ge 2.8.4ubuntu0.1 \
+    && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' libapt-pkg6.0t64)" ge 2.8.4ubuntu0.1 \
+    && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' libbrotli1)" ge 1.1.0-2ubuntu0.1 \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /aplicacion
 COPY --from=compilacion /publicado/ ./
