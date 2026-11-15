@@ -10,6 +10,10 @@ import re
 import subprocess
 import sys
 
+from ejecutar import ARCHIVOS, REPORTES
+
+EVIDENCIAS_OBLIGATORIAS = {*ARCHIVOS, *(f"reportes/{nombre}.xml" for nombre in REPORTES)}
+
 
 def git(*args):
     return subprocess.check_output(("git", *args), text=True, encoding="utf-8").strip()
@@ -64,25 +68,49 @@ def auditar_build(carpeta):
     entorno = datos(carpeta / f"{artefacto}00-entorno.json")
     manifiesto = datos(carpeta / f"{artefacto}manifest.json")
     revision = sha(entorno["revision"])
-    if revision != manifiesto["revision"] or int(entorno["build"]) != build["number"]:
+    causa_jenkins = ", ".join(causa["_class"].rsplit(".", 1)[-1]
+                             for accion in build["actions"] for causa in accion.get("causes", []))
+    autoprueba = carpeta.name.startswith("autoprueba-")
+    if (revision != manifiesto["revision"] or str(entorno["build"]) != str(build["number"]) or
+            entorno["build_url"] != build["url"] or not causa_jenkins or
+            (not autoprueba and entorno["causa"] != causa_jenkins)):
         raise ValueError(f"No coinciden metadatos en {carpeta.name}")
+    if build["building"] or not build["result"]:
+        raise ValueError(f"El build de {carpeta.name} sigue en ejecución")
+    archivados = {archivo["relativePath"] for archivo in build.get("artifacts", [])}
     comprobados = []
+    no_archivados = []
+    nombres_locales = set()
     for nombre, registro in manifiesto["archivos"].items():
         # La descarga local usa un prefijo fijo y sustituye las barras por guiones.
         nombre_local = nombre.replace("/", "-")
-        if not re.fullmatch(r"[a-zA-Z0-9_.-]+", nombre_local):
+        if (not re.fullmatch(r"[a-zA-Z0-9_.-]+", nombre_local) or
+                nombre_local in nombres_locales):
             raise ValueError(f"Nombre de artefacto inválido en {carpeta.name}")
+        nombres_locales.add(nombre_local)
         ruta = carpeta / f"{artefacto}{nombre_local}"
-        if ruta.is_file():
-            contenido = ruta.read_bytes()
-            if (hashlib.sha256(contenido).hexdigest() != registro.get("sha256") or
-                    len(contenido) != registro.get("bytes")):
-                raise ValueError(f"Huella o tamaño incorrecto en {nombre_local}")
-            comprobados.append(nombre)
+        if registro == {"estado": "no generado"} and not ruta.exists():
+            continue
+        if not ruta.is_file():
+            if (build["result"] != "SUCCESS" and "artifacts" in build and
+                    f"salidas/jenkins-ci/{nombre}" not in archivados):
+                no_archivados.append(nombre)
+                continue
+            raise ValueError(f"Falta el artefacto declarado en {carpeta.name}: {nombre}")
+        contenido = ruta.read_bytes()
+        if (hashlib.sha256(contenido).hexdigest() != registro.get("sha256") or
+                len(contenido) != registro.get("bytes")):
+            raise ValueError(f"Huella o tamaño incorrecto en {nombre_local}")
+        comprobados.append(nombre)
+    faltantes = EVIDENCIAS_OBLIGATORIAS.difference(comprobados)
+    if build["result"] == "SUCCESS" and faltantes:
+        raise ValueError(f"Build exitoso con evidencia incompleta en {carpeta.name}: {', '.join(sorted(faltantes))}")
     return {
         "numero": build["number"], "revision": revision, "url": build["url"],
         "resultado": build["result"], "duracion_ms": build["duration"],
-        "causa": entorno["causa"], "artefactos_con_huella_verificada": comprobados,
+        "causa": causa_jenkins, "artefactos_con_huella_verificada": comprobados,
+        "artefactos_declarados_sin_archivar": no_archivados,
+        **({"descripcion_autoprueba": entorno["causa"]} if autoprueba else {}),
     }
 
 
