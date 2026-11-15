@@ -2,7 +2,16 @@
 <flow-definition>
   <description>Verificación de Ruta Estadística, rama main.</description>
   <keepDependencies>false</keepDependencies>
-  <properties/>
+  <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>20</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>10</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+  </properties>
   <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition">
     <scm class="hudson.plugins.git.GitSCM">
       <configVersion>2</configVersion>
