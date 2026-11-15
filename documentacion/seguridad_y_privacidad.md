@@ -22,6 +22,12 @@ La exportación MCP escribe dentro del proyecto y no devuelve rutas absolutas. N
 
 En caso de fallo use [catálogo](errores_y_soluciones.md) y [depuración](depuracion.md). Pruebas y límites reales: [calidad](pruebas_y_calidad.md), [observabilidad](observabilidad.md). No se ha realizado una auditoría de seguridad independiente.
 
+## Información publicada
+
+La verificación de GitHub Actions escanea el contenido del checkout, incluidos hasta dos niveles de archivos comprimidos, y mantiene enmascarados los valores detectados. La fuente incluida de jsonlite conserva el código y la licencia con marcadores en su documentación de ejemplo. Los datos de proyecto y los archivos de credenciales locales se excluyen de Git y Docker.
+
+Para mantener privado el correo en futuros commits, configura la dirección `noreply` que GitHub muestra en **Settings → Emails** como correo de Git. Si se confirma la exposición de una credencial activa, rótala o revócala primero y revisa después el historial y los artefactos que pudieron conservarla. [Privacidad del correo en GitHub](https://docs.github.com/en/account-and-profile/reference/email-addresses-reference) · [Retirar datos sensibles](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository).
+
 ## Resultados de revisión
 
 Consulte los [resultados de la revisión de ciberseguridad](informes/revision_ciberseguridad.md) para ver los controles comprobados y los hallazgos de las imágenes. La [remediación de imágenes](remediacion_imagenes.md) describe los cambios de dependencias y la comprobación en CI.
