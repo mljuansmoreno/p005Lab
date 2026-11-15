@@ -105,3 +105,7 @@ MCP: [consentimiento y lanzador](documentacion/mcp.md). La aplicación debe esta
 [Manual](documentacion/manual_usuario.md) · [Desarrollo](documentacion/instalacion_desarrollo.md) · [Mapa del código](documentacion/mapa_codigo.md) · [Depuración](documentacion/depuracion.md) · [Limitaciones](documentacion/limitaciones_y_pendientes.md).
 
 No se incluyen capturas de una interfaz que no haya sido ejecutada. Las capturas verificadas, cuando existan, se conservan en `salidas/informes`.
+
+## Integración continua con Jenkins
+
+[Instalación](documentacion/jenkins.md) · [Operación y reproducción](documentacion/operacion_jenkins.md) · [Informe de semana 5](documentacion/entrega_semana5.md). GitHub Actions conserva los trabajos de Windows, Docker y secretos.
