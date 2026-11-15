@@ -26,20 +26,13 @@ El agente reutiliza los paquetes de Gitleaks, Syft y Grype desde su directorio p
 - **Agente fuera de línea.** Desde Linux pruebe `curl --noproxy '*' --fail http://127.0.0.1:9090/login -o /dev/null`, `java -version` y `docker info --format '{{.OSType}}/{{.Architecture}}'`. Compruebe la URL de Jenkins, el modo `0600` de la credencial y vuelva a ejecutar el [lanzador](../jenkins/iniciar_agente.sh).
 - **Contenedor no saludable.** Confirme que el agente usa un socket Unix, que el daemon acepta la ruta Linux del secreto y que el contenedor puede leer el montaje. El montaje de archivos desde Windows puede tener permisos distintos de los de WSL. Revise salud, código de salida y estado de OOM mediante inspección selectiva.
 - **Escaneo fallido.** Revise si falló la descarga, la huella, la actualización de la base, la ejecución del escáner o la política. Jenkins detiene los servicios del proyecto antes de escanear sus imágenes para reducir la carga local. Los informes de seguridad incluyen el ID de imagen y la fecha de la base de avisos. Alta o crítica distinta de cero impide completar el build.
-- **Detención abrupta.** Copie solo el identificador `ruta-ci-…` de ese build. Revise Docker antes de recuperar, desde el checkout que usó el agente:
+- **Detención abrupta.** Confirme que el build terminó. En el checkout Linux que usó el agente y con el mismo daemon, tome el identificador `ruta-ci-…` de su `00-entorno.json` o de la consola. Revise los recursos de ese proyecto y ejecute la recuperación. La orden comprueba la retirada de los recursos por etiqueta y admite reintentos.
 
   ```bash
   read -r -p 'Proyecto exacto de la consola: ' proyecto
-  if [[ "$proyecto" =~ ^ruta-ci-[0-9a-f]{16}$ ]]; then
-    docker ps -a --filter "label=com.docker.compose.project=$proyecto"
-    docker network ls --filter "label=com.docker.compose.project=$proyecto"
-    RUTA_ESTADISTICA_ARCHIVO_SECRETO=/dev/null COMPOSE_DISABLE_ENV_FILE=1 \
-      docker compose -f docker-compose.yml -f jenkins/compose-pruebas.yaml -p "$proyecto" down --remove-orphans --rmi local --timeout 15
-    if [ -d salidas/credenciales ]; then
-      find salidas/credenciales -mindepth 2 -maxdepth 2 -type f \
-        -path "salidas/credenciales/$proyecto-*/motor.secreto" -delete
-    fi
-  fi
+  docker ps -a --filter "label=com.docker.compose.project=$proyecto"
+  docker network ls --filter "label=com.docker.compose.project=$proyecto"
+  python3 guiones/ci/ejecutar.py recuperar-limpieza --proyecto "$proyecto"
   ```
 
 - **Apagado previsto.** Espere a que la cola y el agente queden libres. Detenga el lanzador del agente con `Ctrl+C` en su terminal. Ejecute `docker compose -f jenkins/compose.yaml stop` para conservar el volumen y los builds. Para reiniciar, use `docker compose -f jenkins/compose.yaml up -d` y vuelva a conectar el agente. Los respaldos del volumen requieren protección de credenciales y acceso administrativo local.

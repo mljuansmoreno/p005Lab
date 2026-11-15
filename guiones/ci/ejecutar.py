@@ -27,6 +27,7 @@ COMPOSE = ("docker", "compose")
 COMPROBAR = ("bash", "guiones/ci/comprobar_compose.sh")
 ESPERA_SALUD = "180"
 PLAZO_ESCANEO = 18 * 60
+PATRON_PROYECTO_CI = r"ruta-ci-[0-9a-f]{16}"
 REPORTES = ("web", "integracion")
 ARCHIVOS = (
     "00-entorno.json", "01-compilacion.txt", "02-arranque.txt", "03-docker-ps.txt",
@@ -92,14 +93,7 @@ def puerto_web(valor):
         return puerto
 
 
-def preflight():
-    if sys.platform != "linux":
-        raise ValueError("Se requiere Linux amd64 o una distribución WSL2")
-
-    for programa in ("git", "docker", "bash", "jq", "curl", "openssl", "tar", "sha256sum"):
-        if not shutil.which(programa):
-            raise ValueError(f"Falta el programa {programa}")
-
+def verificar_daemon():
     estado = texto(("docker", "info", "--format", "{{.OSType}} {{.Architecture}} {{.ServerVersion}}"))
     sistema, arquitectura, docker = estado.split()
     if sistema != "linux" or arquitectura not in ("x86_64", "amd64"):
@@ -112,6 +106,18 @@ def preflight():
                          '{{.Endpoints.docker.Host}}'))
     if not destino.startswith("unix://"):
         raise ValueError("Se requiere un socket Unix con acceso a las rutas del agente")
+    return arquitectura, docker
+
+
+def preflight():
+    if sys.platform != "linux":
+        raise ValueError("Se requiere Linux amd64 o una distribución WSL2")
+
+    for programa in ("git", "docker", "bash", "jq", "curl", "openssl", "tar", "sha256sum"):
+        if not shutil.which(programa):
+            raise ValueError(f"Falta el programa {programa}")
+
+    arquitectura, docker = verificar_daemon()
     compose = texto((*COMPOSE, "version", "--short"))
     if "--wait-timeout" not in texto((*COMPOSE, "up", "--help")):
         raise ValueError("La versión de Compose carece de up --wait-timeout")
@@ -189,7 +195,7 @@ def procedencia(entorno):
 
 
 def limpiar(entorno, proyecto):
-    if not re.fullmatch(r"ruta-ci-[0-9a-f]{16}", proyecto) or entorno.get("COMPOSE_PROJECT_NAME") != proyecto:
+    if not re.fullmatch(PATRON_PROYECTO_CI, proyecto) or entorno.get("COMPOSE_PROJECT_NAME") != proyecto:
         raise ValueError("La limpieza requiere el nombre exacto del proyecto CI propio")
     orden = (*COMPOSE, "down", "--remove-orphans", "--rmi", "local", "--timeout", "15")
     try:
@@ -201,6 +207,18 @@ def limpiar(entorno, proyecto):
                  ("volume", "ls", "-q"), ("image", "ls", "-q")):
         if texto(("docker", *args, "--filter", etiqueta), entorno=entorno):
             raise ValueError(f"Quedan recursos del proyecto {proyecto}")
+
+
+def recuperar_limpieza(proyecto):
+    if not re.fullmatch(PATRON_PROYECTO_CI, proyecto):
+        raise ValueError("Indique el nombre exacto de un proyecto CI")
+    verificar_daemon()
+    limpiar(entorno_compose(proyecto, Path("/dev/null"), 8080), proyecto)
+    if not PRIVADO.is_symlink():
+        for carpeta in PRIVADO.glob(f"{proyecto}-*"):
+            if carpeta.is_dir() and not carpeta.is_symlink():
+                (carpeta / "motor.secreto").unlink(missing_ok=True)
+    print(f"Proyecto {proyecto}: desmontaje comprobado y credencial retirada.")
 
 
 def publicar(temporal, llave):
@@ -366,9 +384,13 @@ def interrumpir(_senal, _marco):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("fase", choices=("preparar", "secretos", "web", "docker", "finalizar", "archivos", "local"))
+    parser.add_argument("fase", choices=("preparar", "secretos", "web", "docker", "finalizar", "archivos",
+                                        "local", "recuperar-limpieza"))
     parser.add_argument("--puerto", default=os.getenv("RUTA_CI_PUERTO_WEB", "0"))
+    parser.add_argument("--proyecto", help="Identificador del build terminado al recuperar su limpieza")
     args = parser.parse_args()
+    if bool(args.proyecto) != (args.fase == "recuperar-limpieza"):
+        parser.error("Use --proyecto únicamente con recuperar-limpieza")
     os.chdir(RAIZ)
     signal.signal(signal.SIGTERM, interrumpir)
     try:
@@ -385,6 +407,8 @@ def main():
             manifestar(exigir=False)
         if args.fase == "archivos":
             print(",".join(listados_archivo()))
+        if args.fase == "recuperar-limpieza":
+            recuperar_limpieza(args.proyecto)
     except InterruptedError as fallo:
         print(f"CI: {fallo}", file=sys.stderr)
         return 143

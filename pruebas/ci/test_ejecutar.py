@@ -215,6 +215,27 @@ class PruebasEjecucion(unittest.TestCase):
         self.assertEqual(ejecutar_docker.call_count, 2)
         self.assertEqual(ejecutar_docker.call_args_list[0], ejecutar_docker.call_args_list[1])
 
+    def test_recupera_solo_la_credencial_del_proyecto_terminado(self):
+        proyecto = "ruta-ci-1111111111111111"
+        with TemporaryDirectory() as directorio, redirect_stdout(io.StringIO()):
+            privado = Path(directorio)
+            propio = privado / f"{proyecto}-fixture" / "motor.secreto"
+            ajeno = privado / "ruta-ci-2222222222222222-fixture" / "motor.secreto"
+            for ruta in (propio, ajeno):
+                ruta.parent.mkdir()
+                ruta.touch()
+            with (patch.object(ejecutar, "PRIVADO", privado), patch.object(ejecutar, "verificar_daemon") as daemon,
+                  patch.object(ejecutar, "limpiar") as limpiar, patch.object(ejecutar, "revision", return_value="a" * 40)):
+                with self.assertRaisesRegex(ValueError, "proyecto CI"):
+                    ejecutar.recuperar_limpieza("ruta-estadistica-demo")
+                daemon.assert_not_called()
+                ejecutar.recuperar_limpieza(proyecto)
+                ejecutar.recuperar_limpieza(proyecto)
+            self.assertEqual(limpiar.call_count, 2)
+            self.assertEqual(limpiar.call_args.args[1], proyecto)
+            self.assertFalse(propio.exists())
+            self.assertTrue(ajeno.exists())
+
     def test_escaneo_rechaza_coincidencias_y_reporte_sin_base(self):
         with TemporaryDirectory() as directorio:
             ruta = Path(directorio)
