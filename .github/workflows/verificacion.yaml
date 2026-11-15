@@ -171,6 +171,8 @@ jobs:
               {revision: $revision, docker: $docker[0].Version,
                compose: ($compose | rtrimstr("\n")), imagenes: $imagenes[0]}
             ' > "$RUTA_ESTADISTICA_EVIDENCIAS/00-entorno.json"
+      - name: Escanear las imágenes construidas
+        run: bash guiones/escanear_imagenes.sh "$RUTA_ESTADISTICA_EVIDENCIAS"
       - name: Verificar que el secreto se inyecta solo en ejecución
         run: |
           for servicio in aplicacion motor; do
@@ -193,6 +195,10 @@ jobs:
           path: ${{ env.RUTA_ESTADISTICA_EVIDENCIAS }}
           if-no-files-found: error
           overwrite: true
+      - name: Exigir imágenes sin coincidencias altas ni críticas
+        run: |
+          jq -e -s 'length == 2 and all(.[]; .altas == 0 and .criticas == 0)' \
+            "$RUTA_ESTADISTICA_EVIDENCIAS"/seguridad-{aplicacion,motor}.json
       - name: Resumir la entrega Docker
         run: |
           {
