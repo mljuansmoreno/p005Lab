@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "guiones/ci"))
-from auditar_entrega import auditar_build, EVIDENCIAS_OBLIGATORIAS
+from auditar_entrega import acciones_finales, auditar_build, EVIDENCIAS_OBLIGATORIAS, TRABAJOS_ACTIONS
 
 
 class PruebasAuditoria(unittest.TestCase):
@@ -75,3 +75,16 @@ class PruebasAuditoria(unittest.TestCase):
         api.write_text(json.dumps(build), encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "Falta el artefacto declarado"):
             auditar_build(carpeta)
+
+    def test_actions_exige_revision_exacta_y_tres_trabajos_aprobados(self):
+        url = "https://github.com/ejemplo/proyecto/actions/runs/1"
+        revision = "a" * 40
+        jobs = [{"name": nombre, "status": "completed", "conclusion": "success", "url": url}
+                for nombre in TRABAJOS_ACTIONS]
+        run = {"headSha": revision, "status": "completed", "conclusion": "success", "url": url, "jobs": jobs}
+        self.assertEqual(len(acciones_finales(run, revision)["trabajos"]), 3)
+        with self.assertRaisesRegex(ValueError, "SHA final"):
+            acciones_finales(run, "b" * 40)
+        next(j for j in jobs if j["name"] == "verificar")["conclusion"] = "skipped"
+        with self.assertRaisesRegex(ValueError, "Falta evidencia exitosa"):
+            acciones_finales(run, revision)

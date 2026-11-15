@@ -14,6 +14,7 @@ from zipfile import BadZipFile, ZipFile
 from ejecutar import ARCHIVOS, REPORTES
 
 EVIDENCIAS_OBLIGATORIAS = {*ARCHIVOS, *(f"reportes/{nombre}.xml" for nombre in REPORTES)}
+TRABAJOS_ACTIONS = {"verificar", "Docker Linux y cálculo entre contenedores", "Credenciales y archivos comprimidos"}
 
 
 def git(*args):
@@ -164,12 +165,29 @@ def auditar_paquete(ruta):
     return revision, verificados
 
 
+def acciones_finales(actions, revision):
+    if actions["headSha"] != revision or actions["status"] != "completed" or actions["conclusion"] != "success":
+        raise ValueError("El run de Actions no acredita el SHA final")
+    trabajos = actions["jobs"]
+    aprobados = {j["name"] for j in trabajos if j["status"] == "completed" and j["conclusion"] == "success"}
+    if not TRABAJOS_ACTIONS <= aprobados:
+        raise ValueError("Falta evidencia exitosa de Windows, Docker o secretos en Actions")
+    return {
+        **{campo: actions[campo] for campo in ("headSha", "url", "status", "conclusion")},
+        "trabajos": [{"nombre": j["name"], "estado": j["status"], "conclusion": j["conclusion"], "url": j["url"]}
+                      for j in trabajos],
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     entradas = parser.add_mutually_exclusive_group(required=True)
     entradas.add_argument("bitacora", type=Path, nargs="?")
     entradas.add_argument("--paquete", type=Path, help="Audita el anexo ZIP de semana 5 sin extraer archivos")
+    parser.add_argument("--actions", type=Path, help="JSON de GitHub CLI con las verificaciones del SHA final")
     args = parser.parse_args()
+    if args.paquete and args.actions:
+        parser.error("Use --actions con la ruta de la bitácora")
     try:
         if args.paquete:
             revision, total = auditar_paquete(args.paquete)
@@ -184,7 +202,13 @@ def main():
             "fecha_utc": datetime.now(timezone.utc).isoformat(),
             **historial, "meta": 84, "deficit": max(0, 84 - historial["publicados"]),
             "jenkins": builds,
+            "jenkins_revision_final": [b for b in builds if b["revision"] == historial["final_remoto"] and
+                                        "/ruta-estadistica-main/" in b["url"]],
         }
+        if args.actions:
+            if historial["final_remoto"] != historial["final_local"]:
+                raise ValueError("El checkout local difiere de origin/main")
+            resultado["actions_revision_final"] = acciones_finales(datos(args.actions), historial["final_remoto"])
         ruta = args.bitacora / "manifiesto-cierre.json"
         ruta.write_text(json.dumps(resultado, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(f"Publicados: {historial['publicados']}. Builds auditados: {len(builds)}.")
