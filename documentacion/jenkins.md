@@ -62,3 +62,5 @@ java -jar jenkins-cli.jar -s http://127.0.0.1:9090/ -auth "@$RUTA_CI_AUTH" \
 ```
 
 El resultado esperado es `FAILURE` con fallo en el caso `calculo` y éxito en `limpieza` dentro de `reportes/integracion.xml`. El contenedor web hace la solicitud real al motor habitual. El fixture cambia el destino esperado únicamente en la aserción. Si la ejecución se detiene antes de `calculo`, use los informes para diagnosticar la etapa que falló.
+
+Para comprobar la cancelación, seleccione `cancelacion` en **Build with Parameters**. Cuando aparezca `Compose: calculo`, pulse **Stop** durante la pausa de un minuto. Compruebe el resultado `ABORTED`, el caso `limpieza` y `09-limpieza.txt`. Si el agente quedó inaccesible, use el procedimiento de [recuperación por proyecto](operacion_jenkins.md#diagnosticar-y-apagar) después de que termine la ejecución.

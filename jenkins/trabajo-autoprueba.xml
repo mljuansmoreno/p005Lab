@@ -1,8 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <flow-definition>
-  <description>Autoprueba manual de la aserción de cálculo y el desmontaje de su proyecto CI.</description>
+  <description>Autopruebas manuales de aserción y cancelación con desmontaje de su proyecto CI.</description>
   <keepDependencies>false</keepDependencies>
-  <properties/>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>RUTA_CI_ESCENARIO</name>
+          <description>Fallo deliberado de cálculo o pausa con los servicios arriba para cancelar el job.</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>fallo_calculo</string>
+              <string>cancelacion</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
   <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition">
     <scm class="hudson.plugins.git.GitSCM">
       <configVersion>2</configVersion>
