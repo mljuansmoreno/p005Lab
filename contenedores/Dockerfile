@@ -6,7 +6,9 @@ COPY global.json Directory.Build.props Directory.Packages.props ./
 COPY codigo ./codigo
 RUN dotnet publish codigo/RutaEstadistica.ServidorLocal -c Release -r linux-x64 --self-contained true -o /publicado
 FROM ${IMAGEN_R}
-RUN apt-get update && apt-get install -y --no-install-recommends libicu74 libssl3t64 libgssapi-krb5-2 curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends apt libapt-pkg6.0t64 libicu74 libssl3t64 libgssapi-krb5-2 curl \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /aplicacion
 COPY --from=compilacion /publicado/ ./
 COPY motor_r ./motor_r
