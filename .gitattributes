@@ -1,0 +1,2 @@
+jenkins/*.sh text eol=lf
+guiones/ci/*.sh text eol=lf
