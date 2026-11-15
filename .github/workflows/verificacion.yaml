@@ -82,6 +82,8 @@ jobs:
         env:
           PYTHONPATH: aplicacion:guiones
         run: python3 -m unittest discover -s pruebas -p test_aplicacion_web.py
+      - name: Cotejar bases y fuentes fijadas
+        run: python3 guiones/ci/verificar_fuentes.py
       - name: Preparar secreto temporal y carpeta de evidencias
         run: |
           cp .env.example .env
