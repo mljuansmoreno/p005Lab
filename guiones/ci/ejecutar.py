@@ -185,7 +185,7 @@ def integrar(puerto):
     reporte = Reporte("integracion")
     pasos = (
         ("configuracion", (), (*COMPROBAR, "configuracion"), 30),
-        ("compilacion", ("01-compilacion.txt",), (*COMPOSE, "--progress", "plain", "build"), 900),
+        ("compilacion", ("01-compilacion.txt",), (*COMPOSE, "--progress", "plain", "build"), 1440),
         ("arranque", ("02-arranque.txt",), (*COMPOSE, "up", "-d", "--wait", "--wait-timeout", "90"), 120),
         ("estado", ("03-docker-ps.txt",), (*COMPOSE, "ps", "--all"), 30),
         ("red", ("04-red.txt",), (*COMPROBAR, "red"), 30),
