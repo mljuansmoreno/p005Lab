@@ -189,6 +189,8 @@ def procedencia(entorno):
 
 
 def limpiar(entorno, proyecto):
+    if not re.fullmatch(r"ruta-ci-[0-9a-f]{16}", proyecto) or entorno.get("COMPOSE_PROJECT_NAME") != proyecto:
+        raise ValueError("La limpieza requiere el nombre exacto del proyecto CI propio")
     orden = (*COMPOSE, "down", "--remove-orphans", "--rmi", "local", "--timeout", "15")
     try:
         comando(orden, entorno=entorno, plazo=90)
@@ -269,13 +271,18 @@ def integrar(puerto):
         finally:
             # Evitar que un segundo SIGTERM interrumpa el desmontaje acotado.
             anterior = signal.signal(signal.SIGTERM, signal.SIG_IGN)
+            inicio_limpieza = monotonic()
             try:
                 limpiar(entorno, proyecto)
                 (temporal / "09-limpieza.txt").write_text(
                     f"Proyecto {proyecto}: contenedores, redes, volúmenes e imágenes retirados.\n",
                     encoding="utf-8")
             except (OSError, ValueError, subprocess.SubprocessError):
-                error = ValueError(f"No se verificó el desmontaje del proyecto {proyecto}")
+                mensaje = f"No se verificó el desmontaje del proyecto {proyecto}"
+                reporte.caso("limpieza", "compose", monotonic() - inicio_limpieza, "error", mensaje)
+                error = ValueError(f"{error}. {mensaje}" if error else mensaje)
+            else:
+                reporte.caso("limpieza", "compose", monotonic() - inicio_limpieza)
             finally:
                 secreto.unlink(missing_ok=True)
                 signal.signal(signal.SIGTERM, anterior)

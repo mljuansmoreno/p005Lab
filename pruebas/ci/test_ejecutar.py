@@ -114,6 +114,24 @@ class PruebasEjecucion(unittest.TestCase):
             self.assertEqual(reporte.get("failures"), "1")
             self.assertTrue((ruta / "09-limpieza.txt").exists())
 
+    def test_fallo_de_limpieza_conserva_el_error_de_integracion(self):
+        with TemporaryDirectory() as directorio, redirect_stdout(io.StringIO()):
+            ruta = Path(directorio)
+            (ruta / "reportes").mkdir()
+            with (patch.object(ejecutar, "SALIDA", ruta),
+                  patch.object(ejecutar, "PRIVADO", ruta / "privado"),
+                  patch.object(ejecutar, "puerto_web", return_value=8181),
+                  patch.object(Path, "chmod"),
+                  patch.object(ejecutar, "entorno_compose", return_value={}),
+                  patch.object(ejecutar, "comando", side_effect=subprocess.CalledProcessError(23, "fixture")),
+                  patch.object(ejecutar, "limpiar", side_effect=ValueError("fixture de desmontaje"))):
+                with self.assertRaisesRegex(ValueError, "configuracion: código de salida 23.*desmontaje"):
+                    ejecutar.integrar("0")
+            reporte = ET.parse(ruta / "reportes/integracion.xml").getroot()
+            self.assertEqual(reporte.get("failures"), "1")
+            self.assertIsNotNone(reporte.find("testcase[@name='limpieza']/error"))
+            self.assertFalse((ruta / "09-limpieza.txt").exists())
+
     def test_dependencia_ausente_deja_revision_y_estado(self):
         with TemporaryDirectory() as directorio, patch.object(ejecutar, "SALIDA", Path(directorio)):
             with patch.object(ejecutar, "preflight", side_effect=ValueError("Falta el programa jq")):
@@ -140,12 +158,22 @@ class PruebasEjecucion(unittest.TestCase):
                 ejecutar.preflight()
 
     def test_limpieza_falla_si_queda_recurso_etiquetado(self):
+        proyecto = "ruta-ci-1111111111111111"
         with (patch.object(ejecutar, "comando") as ejecutar_docker,
               patch.object(ejecutar, "texto", return_value="contenedor-fixture") as listar):
             with self.assertRaisesRegex(ValueError, "Quedan recursos"):
-                ejecutar.limpiar({"COMPOSE_PROJECT_NAME": "ruta-ci-prueba"}, "ruta-ci-prueba")
+                ejecutar.limpiar({"COMPOSE_PROJECT_NAME": proyecto}, proyecto)
         self.assertIn("--remove-orphans", ejecutar_docker.call_args.args[0])
-        self.assertIn("label=com.docker.compose.project=ruta-ci-prueba", listar.call_args.args[0])
+        self.assertIn(f"label=com.docker.compose.project={proyecto}", listar.call_args.args[0])
+
+    def test_limpieza_rechaza_demo_o_proyecto_de_otro_build(self):
+        proyecto = "ruta-ci-1111111111111111"
+        for objetivo, entorno in (("ruta-estadistica-demo", "ruta-estadistica-demo"),
+                                  (proyecto, "ruta-ci-2222222222222222")):
+            with self.subTest(objetivo=objetivo, entorno=entorno), patch.object(ejecutar, "comando") as docker:
+                with self.assertRaisesRegex(ValueError, "proyecto CI propio"):
+                    ejecutar.limpiar({"COMPOSE_PROJECT_NAME": entorno}, objetivo)
+                docker.assert_not_called()
 
     @unittest.skipUnless(sys.platform == "linux", "Los grupos de procesos se prueban en Linux")
     def test_plazo_interrumpe_hijos_con_salida_abierta(self):
@@ -155,9 +183,10 @@ class PruebasEjecucion(unittest.TestCase):
 
     def test_limpieza_reintenta_solo_por_plazo(self):
         agotado = subprocess.TimeoutExpired("fixture", 90)
+        proyecto = "ruta-ci-1111111111111111"
         with (patch.object(ejecutar, "comando", side_effect=[agotado, b""]) as ejecutar_docker,
               patch.object(ejecutar, "texto", return_value="")):
-            ejecutar.limpiar({}, "ruta-ci-prueba")
+            ejecutar.limpiar({"COMPOSE_PROJECT_NAME": proyecto}, proyecto)
         self.assertEqual(ejecutar_docker.call_count, 2)
         self.assertEqual(ejecutar_docker.call_args_list[0], ejecutar_docker.call_args_list[1])
 
