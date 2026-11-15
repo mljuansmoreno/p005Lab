@@ -9,6 +9,17 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 jobs:
+  secretos:
+    name: Credenciales y archivos comprimidos
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Revisar el contenido publicable
+        run: bash guiones/verificar_secretos.sh
+
   verificar:
     runs-on: windows-2025
     timeout-minutes: 25
