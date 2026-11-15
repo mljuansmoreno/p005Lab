@@ -2,7 +2,7 @@
 
 ## Comprobar una ejecución
 
-En el historial de [ruta-estadistica-main](http://127.0.0.1:9090/job/ruta-estadistica-main/), abra el número de build. Compare la causa y el SHA de **Console Output** con `00-entorno.json`. Revise **Test Result**, el escaneo de cada imagen y el `manifest.json` en **Artifacts**. Compruebe la entrada de limpieza del mismo build. Jenkins guarda 20 ejecuciones y los artefactos de las 10 más recientes. El timeout global es de 45 minutos y un solo ejecutor admite la carga Docker. La compilación de imágenes dispone de 24 minutos. El ensayo en frío del build #3 alcanzó el límite inicial de 15 minutos en este puesto.
+En el historial de [ruta-estadistica-main](http://127.0.0.1:9090/job/ruta-estadistica-main/), abra el número de build. Compare la causa y el SHA de **Console Output** con `00-entorno.json`. Revise **Test Result**, el escaneo de cada imagen y el `manifest.json` en **Artifacts**. Compruebe la entrada de limpieza del mismo build. Jenkins guarda 20 ejecuciones y los artefactos de las 10 más recientes. El plazo global es de 55 minutos y un solo ejecutor admite la carga Docker. La compilación dispone de 24 minutos. El escaneo dispone de 18 minutos tras observar en los builds #10 y #11 que el límite de 11 minutos venció durante el análisis del motor en WSL2. Ambos intentos archivaron el informe de la aplicación y el desmontaje.
 
 En CI, [compose-pruebas.yaml](../jenkins/compose-pruebas.yaml) da margen de arranque a la sonda HTTP de la web bajo carga local. La espera de Compose admite hasta 180 segundos. Se conservan los mismos endpoints, las aserciones de salud, la política de seguridad y la configuración normal de la demo.
 

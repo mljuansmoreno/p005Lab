@@ -26,6 +26,7 @@ PRIVADO = RAIZ / "salidas/credenciales"
 COMPOSE = ("docker", "compose")
 COMPROBAR = ("bash", "guiones/ci/comprobar_compose.sh")
 ESPERA_SALUD = "180"
+PLAZO_ESCANEO = 18 * 60
 REPORTES = ("web", "integracion")
 ARCHIVOS = (
     "00-entorno.json", "01-compilacion.txt", "02-arranque.txt", "03-docker-ps.txt",
@@ -255,7 +256,7 @@ def integrar(puerto):
                           (*COMPOSE, "stop", "--timeout", "15"), 90)
             (temporal / "servicios.txt").write_bytes(comando((*COMPOSE, "logs", "--no-color"), entorno=entorno))
             ejecutar_caso(reporte, "escaneo", temporal, entorno,
-                          ("bash", "guiones/escanear_imagenes.sh", str(temporal)), 660)
+                          ("bash", "guiones/escanear_imagenes.sh", str(temporal)), PLAZO_ESCANEO)
             verificar_politica(temporal, datos["imagenes"])
         except (OSError, ValueError, subprocess.SubprocessError, InterruptedError) as fallo:
             error = fallo
