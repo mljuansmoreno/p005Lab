@@ -24,4 +24,4 @@ En caso de fallo use [catálogo](errores_y_soluciones.md) y [depuración](depura
 
 ## Resultados de revisión
 
-Consulte los [resultados de la revisión de ciberseguridad](informes/revision_ciberseguridad.md) para ver los controles comprobados y los hallazgos de las imágenes.
+Consulte los [resultados de la revisión de ciberseguridad](informes/revision_ciberseguridad.md) para ver los controles comprobados y los hallazgos de las imágenes. La [remediación de imágenes](remediacion_imagenes.md) describe los cambios de dependencias y la comprobación en CI.
