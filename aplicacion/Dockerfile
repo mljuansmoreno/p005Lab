@@ -17,6 +17,7 @@ RUN set -eu -o pipefail; \
     apk del --no-network .detector-runtime; \
     if apk info -e sqlite-libs; then exit 1; fi; \
     python -c 'import importlib.util, ssl, zlib; assert importlib.util.find_spec("sqlite3") is None'
+RUN apk upgrade --no-cache
 WORKDIR /aplicacion
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 COPY aplicacion/web.py aplicacion/probar_compose.py guiones/datos_sinteticos.py ./

@@ -23,6 +23,7 @@ services:
       motor:
         condition: service_healthy
     networks: [entrada, analisis]
+    dns_opt: ["timeout:2", "attempts:2"]
     secrets: [motor]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/listo', timeout=2.5).close()"]
