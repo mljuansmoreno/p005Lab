@@ -124,6 +124,13 @@ class PruebasEjecucion(unittest.TestCase):
             self.assertEqual(datos["estado_entorno"], "fallo")
             self.assertNotIn("plataforma", datos)
 
+    def test_url_commit_excluye_origenes_con_credenciales(self):
+        sha = "a" * 40
+        self.assertEqual(ejecutar.url_commit("https://github.com/ejemplo/proyecto.git", sha),
+                         f"https://github.com/ejemplo/proyecto/commit/{sha}")
+        self.assertIsNone(ejecutar.url_commit("https://usuario:clave@github.com/ejemplo/proyecto.git", sha))
+        self.assertIsNone(ejecutar.url_commit("https://github.com/ejemplo/proyecto?token=fixture", sha))
+
     def test_preflight_rechaza_falta_de_jq(self):
         def buscar(programa):
             return None if programa == "jq" else programa

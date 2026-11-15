@@ -72,6 +72,13 @@ def revision():
     return sha
 
 
+def url_commit(origen, sha):
+    repositorio = re.fullmatch(r"https://github\.com/([\w-]+/[\w.-]+)", origen, re.ASCII)
+    if repositorio:
+        return f"https://github.com/{repositorio[1].removesuffix('.git')}/commit/{sha}"
+    return None
+
+
 def puerto_web(valor):
     puerto = int(valor)
     if puerto and (not 1024 <= puerto <= 65535 or puerto in (8787, 9090)):
@@ -107,15 +114,19 @@ def preflight():
     compose = texto((*COMPOSE, "version", "--short"))
     if "--wait-timeout" not in texto((*COMPOSE, "up", "--help")):
         raise ValueError("La versión de Compose carece de up --wait-timeout")
-    if shutil.disk_usage(RAIZ).free < 3 * 1024**3:
+    espacio_libre = shutil.disk_usage(RAIZ).free
+    if espacio_libre < 3 * 1024**3:
         raise ValueError("Se requieren al menos 3 GiB libres para el checkout y las pruebas")
     verificar_fuentes()
     for fuente in ("aplicacion/web.py", "aplicacion/probar_compose.py",
                    "guiones/datos_sinteticos.py", "motor_r/trabajador.R"):
         if not Path(fuente).stat().st_mode & 0o004:
             raise ValueError(f"El usuario del contenedor debe poder leer {fuente}. Revise la umask del agente.")
-    return {"docker": docker, "compose": compose, "python": sys.version.split()[0],
-            "git": texto(("git", "--version")), "arquitectura": arquitectura}
+    versiones = {programa: texto((programa, opcion)).splitlines()[0]
+                 for programa, opcion in (("git", "--version"), ("jq", "--version"),
+                                          ("curl", "--version"), ("openssl", "version"))}
+    return {**versiones, "docker": docker, "compose": compose, "python": sys.version.split()[0],
+            "arquitectura": arquitectura, "espacio_checkout_bytes": espacio_libre}
 
 
 def preparar():
@@ -126,8 +137,11 @@ def preparar():
                  *(SALIDA / "reportes" / f"{n}.xml" for n in REPORTES)]:
         ruta.unlink(missing_ok=True)
     ruta = SALIDA / "00-entorno.json"
+    sha = revision()
     datos = {
-        "revision": revision(),
+        "revision": sha,
+        "rama_checkout": os.getenv("RUTA_CI_RAMA") or None,
+        "commit_url": url_commit(os.getenv("RUTA_CI_ORIGEN", ""), sha),
         "fecha_utc": datetime.now(timezone.utc).isoformat(),
         "build": os.getenv("BUILD_NUMBER"),
         "build_url": os.getenv("BUILD_URL"),

@@ -22,8 +22,10 @@ pipeline {
         stage('Obtener código') {
             steps {
                 deleteDir()
-                checkout scm
                 script {
+                    def datosGit = checkout scm
+                    env.RUTA_CI_RAMA = datosGit.GIT_BRANCH ?: ''
+                    env.RUTA_CI_ORIGEN = datosGit.GIT_URL ?: ''
                     env.RUTA_CI_CAUSA = currentBuild.getBuildCauses().collect { causa ->
                         causa._class.tokenize('.').last()
                     }.join(', ')
