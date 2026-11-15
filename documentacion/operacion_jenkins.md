@@ -4,6 +4,8 @@
 
 En el historial de [ruta-estadistica-main](http://127.0.0.1:9090/job/ruta-estadistica-main/), abra el número de build. Compare la causa y el SHA de **Console Output** con `00-entorno.json`. Revise **Test Result**, el escaneo de cada imagen y el `manifest.json` en **Artifacts**. Compruebe la entrada de limpieza del mismo build. Jenkins guarda 20 ejecuciones y los artefactos de las 10 más recientes. El timeout global es de 45 minutos y un solo ejecutor admite la carga Docker. La compilación de imágenes dispone de 24 minutos. El ensayo en frío del build #3 alcanzó el límite inicial de 15 minutos en este puesto.
 
+En CI, [compose-pruebas.yaml](../jenkins/compose-pruebas.yaml) da margen de arranque a la sonda HTTP de la web bajo carga local. La espera de Compose admite hasta 180 segundos. Se conservan los mismos endpoints, las aserciones de salud, la política de seguridad y la configuración normal de la demo.
+
 Una ejecución verde requiere que el análisis de secretos, la web, la configuración, el arranque, los controles de contenedores, el análisis estadístico, la recuperación, R y ambos escaneos terminen correctamente. `FAILURE` indica un paso obligatorio fallido. JUnit publica los casos ejecutados. Una interrupción puede figurar como `ABORTED` y requerir reapertura del agente para auditar los recursos. En un build verde, una evidencia obligatoria ausente hace fallar el cierre.
 
 ## Reproducir el cálculo local
@@ -30,7 +32,7 @@ Los informes quedan bajo `salidas/jenkins-ci/`. Por defecto el agente comprueba 
     docker ps -a --filter "label=com.docker.compose.project=$proyecto"
     docker network ls --filter "label=com.docker.compose.project=$proyecto"
     RUTA_ESTADISTICA_ARCHIVO_SECRETO=/dev/null COMPOSE_DISABLE_ENV_FILE=1 \
-      docker compose -f docker-compose.yml -p "$proyecto" down --remove-orphans --rmi local
+      docker compose -f docker-compose.yml -f jenkins/compose-pruebas.yaml -p "$proyecto" down --remove-orphans --rmi local
     if [ -d salidas/credenciales ]; then
       find salidas/credenciales -mindepth 2 -maxdepth 2 -type f \
         -path "salidas/credenciales/$proyecto-*/motor.secreto" -delete

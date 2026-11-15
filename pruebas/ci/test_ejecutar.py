@@ -59,6 +59,7 @@ class PruebasEjecucion(unittest.TestCase):
         self.assertEqual(env["COMPOSE_PROJECT_NAME"], "ruta-ci-prueba")
         self.assertEqual(env["RUTA_ESTADISTICA_ARCHIVO_SECRETO"], str(ruta))
         self.assertEqual(env["COMPOSE_DISABLE_ENV_FILE"], "1")
+        self.assertTrue(env["COMPOSE_FILE"].endswith(str(Path("jenkins/compose-pruebas.yaml"))))
 
     def test_puerto_reservado_y_ocupado(self):
         with self.assertRaises(ValueError):

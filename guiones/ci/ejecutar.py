@@ -25,6 +25,7 @@ SALIDA = RAIZ / "salidas/jenkins-ci"
 PRIVADO = RAIZ / "salidas/credenciales"
 COMPOSE = ("docker", "compose")
 COMPROBAR = ("bash", "guiones/ci/comprobar_compose.sh")
+ESPERA_SALUD = "180"
 REPORTES = ("web", "integracion")
 ARCHIVOS = (
     "00-entorno.json", "01-compilacion.txt", "02-arranque.txt", "03-docker-ps.txt",
@@ -132,11 +133,13 @@ def preparar():
 def entorno_compose(proyecto, secreto, puerto):
     entorno = {k: v for k, v in os.environ.items() if not k.startswith("COMPOSE_")}
     entorno.update({
-        "COMPOSE_FILE": str(RAIZ / "docker-compose.yml"),
+        "COMPOSE_FILE": os.pathsep.join((str(RAIZ / "docker-compose.yml"),
+                                          str(RAIZ / "jenkins/compose-pruebas.yaml"))),
         "COMPOSE_PROJECT_NAME": proyecto,
         "COMPOSE_DISABLE_ENV_FILE": "1",
         "RUTA_ESTADISTICA_ARCHIVO_SECRETO": str(secreto),
         "RUTA_ESTADISTICA_PUERTO_WEB": str(puerto),
+        "RUTA_CI_ESPERA_SALUD": ESPERA_SALUD,
         "RUTA_ESTADISTICA_REVISION": revision(),
     })
     return entorno
@@ -186,14 +189,14 @@ def integrar(puerto):
     pasos = (
         ("configuracion", (), (*COMPROBAR, "configuracion"), 30),
         ("compilacion", ("01-compilacion.txt",), (*COMPOSE, "--progress", "plain", "build"), 1440),
-        ("arranque", ("02-arranque.txt",), (*COMPOSE, "up", "-d", "--wait", "--wait-timeout", "90"), 120),
+        ("arranque", ("02-arranque.txt",), (*COMPOSE, "up", "-d", "--wait", "--wait-timeout", ESPERA_SALUD), 220),
         ("estado", ("03-docker-ps.txt",), (*COMPOSE, "ps", "--all"), 30),
         ("red", ("04-red.txt",), (*COMPROBAR, "red"), 30),
         ("aislamiento", ("07-aislamiento.json",), (*COMPROBAR, "aislamiento"), 30),
         ("acceso", (), (*COMPROBAR, "acceso"), 30),
         ("autenticacion", ("10-autenticacion.txt",), (*COMPROBAR, "autenticacion"), 30),
         ("calculo", ("05-calculo.txt",), (*COMPROBAR, "calcular"), 90),
-        ("recuperacion", ("06-recuperacion.txt",), (*COMPROBAR, "recuperar"), 270),
+        ("recuperacion", ("06-recuperacion.txt",), (*COMPROBAR, "recuperar"), 325),
         ("pruebas_r", ("08-pruebas-r.txt",), (*COMPROBAR, "r"), 120),
     )
     with tempfile.TemporaryDirectory(prefix=f"{proyecto}-", dir=PRIVADO) as directorio:

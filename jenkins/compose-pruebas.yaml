@@ -1,0 +1,6 @@
+# Margen de ejecución de la sonda bajo carga de compilación en WSL2.
+services:
+  aplicacion:
+    healthcheck:
+      start_period: 45s
+      timeout: 15s

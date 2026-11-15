@@ -98,7 +98,7 @@ PY
       --output /dev/null --write-out '%{http_code}' "$web/listo")"
     test "$codigo" = 503
     printf 'Disponibilidad con motor detenido: HTTP %s\n' "$codigo"
-    docker compose up -d --no-deps --force-recreate --wait --wait-timeout 90 motor
+    docker compose up -d --no-deps --force-recreate --wait --wait-timeout "${RUTA_CI_ESPERA_SALUD:-90}" motor
     nuevo="$(docker compose ps -q motor)"
     test -n "$nuevo"
     test "$anterior" != "$nuevo"
