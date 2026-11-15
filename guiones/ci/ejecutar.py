@@ -194,6 +194,20 @@ def procedencia(entorno):
     return imagenes
 
 
+def procedencia_actual():
+    sha = revision()
+    if os.getenv("RUTA_ESTADISTICA_REVISION", sha) != sha:
+        raise ValueError("La revisión de CI no coincide con el checkout")
+    entorno = {**os.environ, "RUTA_ESTADISTICA_REVISION": sha}
+    return {
+        "revision": sha,
+        "proyecto": entorno.get("COMPOSE_PROJECT_NAME"),
+        "docker": texto(("docker", "version", "--format", "{{.Server.Version}}"), entorno=entorno),
+        "compose": texto((*COMPOSE, "version", "--short"), entorno=entorno),
+        "imagenes": procedencia(entorno),
+    }
+
+
 def limpiar(entorno, proyecto):
     if not re.fullmatch(PATRON_PROYECTO_CI, proyecto) or entorno.get("COMPOSE_PROJECT_NAME") != proyecto:
         raise ValueError("La limpieza requiere el nombre exacto del proyecto CI propio")
@@ -385,7 +399,7 @@ def interrumpir(_senal, _marco):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("fase", choices=("preparar", "secretos", "web", "docker", "finalizar", "archivos",
-                                        "local", "recuperar-limpieza"))
+                                        "local", "recuperar-limpieza", "procedencia"))
     parser.add_argument("--puerto", default=os.getenv("RUTA_CI_PUERTO_WEB", "0"))
     parser.add_argument("--proyecto", help="Identificador del build terminado al recuperar su limpieza")
     args = parser.parse_args()
@@ -409,6 +423,8 @@ def main():
             print(",".join(listados_archivo()))
         if args.fase == "recuperar-limpieza":
             recuperar_limpieza(args.proyecto)
+        if args.fase == "procedencia":
+            print(json.dumps(procedencia_actual(), ensure_ascii=False, indent=2))
     except InterruptedError as fallo:
         print(f"CI: {fallo}", file=sys.stderr)
         return 143

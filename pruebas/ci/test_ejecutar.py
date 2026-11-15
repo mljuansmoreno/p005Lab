@@ -174,6 +174,13 @@ class PruebasEjecucion(unittest.TestCase):
         self.assertIsNone(ejecutar.url_commit("https://usuario:clave@github.com/ejemplo/proyecto.git", sha))
         self.assertIsNone(ejecutar.url_commit("https://github.com/ejemplo/proyecto?token=fixture", sha))
 
+    def test_procedencia_rechaza_revision_ci_distinta_al_checkout(self):
+        with (patch.object(ejecutar, "revision", return_value="a" * 40),
+              patch.dict(os.environ, {"RUTA_ESTADISTICA_REVISION": "b" * 40}), patch.object(ejecutar, "texto") as docker):
+            with self.assertRaisesRegex(ValueError, "no coincide con el checkout"):
+                ejecutar.procedencia_actual()
+            docker.assert_not_called()
+
     def test_preflight_rechaza_falta_de_jq(self):
         def buscar(programa):
             return None if programa == "jq" else programa
