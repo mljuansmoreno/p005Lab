@@ -194,7 +194,8 @@ class PruebasEjecucion(unittest.TestCase):
         with TemporaryDirectory() as directorio:
             ruta = Path(directorio)
             informe = ruta / "seguridad-aplicacion.json"
-            datos = {"imagen": "sha256:" + "a" * 64, "base_avisos": "fecha", "altas": 1, "criticas": 0}
+            datos = {"imagen": "sha256:" + "a" * 64, "base_avisos": "fecha", "altas": 1, "criticas": 0,
+                     "sbom": {"formato": "CycloneDX", "sha256": "b" * 64, "componentes": 12}}
             informe.write_text(json.dumps(datos), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "1 altas"):
                 ejecutar.verificar_politica(ruta, {"aplicacion": datos["imagen"]})
@@ -202,3 +203,22 @@ class PruebasEjecucion(unittest.TestCase):
             informe.write_text(json.dumps(datos), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "no corresponde"):
                 ejecutar.verificar_politica(ruta, {"aplicacion": datos["imagen"]})
+
+    def test_escaneo_requiere_id_exacto_y_huella_del_sbom(self):
+        with TemporaryDirectory() as directorio:
+            ruta = Path(directorio)
+            informe = ruta / "seguridad-motor.json"
+            imagen = "sha256:" + "a" * 64
+            datos = {"imagen": imagen, "base_avisos": "fecha", "altas": 0, "criticas": 0,
+                     "sbom": {"formato": "CycloneDX", "sha256": "b" * 64, "componentes": 12}}
+            informe.write_text(json.dumps(datos), encoding="utf-8")
+            ejecutar.verificar_politica(ruta, {"motor": imagen})
+            datos["imagen"] = "a" * 12
+            informe.write_text(json.dumps(datos), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "no corresponde"):
+                ejecutar.verificar_politica(ruta, {"motor": imagen})
+            datos["imagen"] = imagen
+            datos["sbom"]["sha256"] = None
+            informe.write_text(json.dumps(datos), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "procedencia del SBOM"):
+                ejecutar.verificar_politica(ruta, {"motor": imagen})

@@ -318,9 +318,13 @@ def ejecutar_caso(reporte, nombre, temporal, entorno, orden, plazo, archivos=())
 def verificar_politica(temporal, imagenes):
     for servicio, imagen in imagenes.items():
         datos = json.loads((temporal / f"seguridad-{servicio}.json").read_text(encoding="utf-8"))
-        if datos["imagen"] not in (imagen, imagen.removeprefix("sha256:"),
-                                  imagen.removeprefix("sha256:")[:12]) or not datos["base_avisos"]:
+        if datos["imagen"] != imagen or not datos["base_avisos"]:
             raise ValueError(f"El escaneo de {servicio} no corresponde a la imagen construida")
+        sbom = datos.get("sbom", {})
+        if (not isinstance(sbom, dict) or sbom.get("formato") != "CycloneDX"
+                or not isinstance(sbom.get("sha256"), str) or not re.fullmatch(r"[0-9a-f]{64}", sbom["sha256"])
+                or type(sbom.get("componentes")) is not int or sbom["componentes"] <= 0):
+            raise ValueError(f"Falta la procedencia del SBOM de {servicio}")
         if datos["altas"] != 0 or datos["criticas"] != 0:
             raise ValueError(f"{servicio}: {datos['altas']} altas y {datos['criticas']} críticas")
 

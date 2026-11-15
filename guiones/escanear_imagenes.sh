@@ -27,14 +27,18 @@ for servicio in aplicacion motor; do
   imagen="$(docker image inspect --format '{{.Id}}' "$referencia")"
   [[ "$imagen" =~ ^sha256:[0-9a-f]{64}$ ]]
   "$temporal/syft" "docker:$imagen" -o cyclonedx-json > "$temporal/sbom.json"
-  jq -e '.components | length > 0' "$temporal/sbom.json" > /dev/null
+  componentes="$(jq -er 'select(.bomFormat == "CycloneDX") | .components |
+    select(type == "array" and length > 0) | length' "$temporal/sbom.json")"
+  huella="$(sha256sum "$temporal/sbom.json")"
   "$temporal/grype" "sbom:$temporal/sbom.json" -o json > "$temporal/grype.json"
-  jq --arg imagen "$imagen" --arg base "$base_avisos" '
+  jq --arg imagen "$imagen" --arg base "$base_avisos" \
+     --arg huella "${huella%% *}" --argjson componentes "$componentes" '
     if (.matches | type) != "array" then
       error("Informe de Grype incompleto")
     else
       ([.matches[] | .vulnerability.severity | ascii_downcase]) as $severidades |
       {imagen: $imagen, base_avisos: $base,
+       sbom: {formato: "CycloneDX", sha256: $huella, componentes: $componentes},
        altas: ($severidades | map(select(. == "high")) | length),
        criticas: ($severidades | map(select(. == "critical")) | length),
        pendientes: [.matches[] | select(.vulnerability.severity | ascii_downcase | IN("high", "critical")) |
