@@ -115,7 +115,7 @@ jobs:
       - name: Ejecutar el cálculo desde la aplicación
         run: bash guiones/ci/comprobar_compose.sh calcular | tee "$RUTA_ESTADISTICA_EVIDENCIAS/05-calculo.txt"
       - name: Probar caída y recuperación del motor
-        run: bash guiones/ci/comprobar_compose.sh recuperar | tee "$RUTA_ESTADISTICA_EVIDENCIAS/06-recuperacion.txt"
+        run: bash guiones/ci/comprobar_compose.sh recuperar 2>&1 | tee "$RUTA_ESTADISTICA_EVIDENCIAS/06-recuperacion.txt"
       - name: Registrar la procedencia de la ejecución
         run: |
           docker version --format '{{json .Server}}' > "$RUNNER_TEMP/docker-servidor.json"
