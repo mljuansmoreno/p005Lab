@@ -21,7 +21,9 @@
   },
   "jsonlite": {
     "url": "https://cran.r-project.org/src/contrib/jsonlite_2.0.0.tar.gz",
-    "sha256": "75eb910c82b350ec33f094779da0f87bff154c232e4ae39c9896a9b89f3ac82d"
+    "sha256": "a8bc820eb8d0f0b0d86e0b732d6f76d64a512de67849f2c1d233cac03220b407",
+    "sha256_original": "75eb910c82b350ec33f094779da0f87bff154c232e4ae39c9896a9b89f3ac82d",
+    "adaptacion": "Marcadores de ejemplo en la documentación y actualización de su manifiesto MD5"
   },
   "estado": "Referencias de base verificadas contra los registros oficiales"
 }

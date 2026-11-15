@@ -17,7 +17,7 @@ COPY --from=compilacion /publicado/ ./
 COPY motor_r ./motor_r
 COPY distribucion/fuentes/jsonlite_2.0.0.tar.gz /tmp/jsonlite_2.0.0.tar.gz
 # Comprobar la fuente antes de instalar; el archivo está versionado para no depender de su traslado en CRAN.
-RUN printf '75eb910c82b350ec33f094779da0f87bff154c232e4ae39c9896a9b89f3ac82d  /tmp/jsonlite_2.0.0.tar.gz\n' | sha256sum -c - && mkdir -p runtime/biblioteca runtime/R/bin && ln -s /usr/local/bin/Rscript runtime/R/bin/Rscript && Rscript --vanilla -e "install.packages('/tmp/jsonlite_2.0.0.tar.gz',repos=NULL,lib='runtime/biblioteca')" && R_LIBS_USER=/aplicacion/runtime/biblioteca R CMD INSTALL -l runtime/biblioteca motor_r/rutaanalitica && rm /tmp/jsonlite_2.0.0.tar.gz && useradd -u 1654 -m analista
+RUN printf 'a8bc820eb8d0f0b0d86e0b732d6f76d64a512de67849f2c1d233cac03220b407  /tmp/jsonlite_2.0.0.tar.gz\n' | sha256sum -c - && mkdir -p runtime/biblioteca runtime/R/bin && ln -s /usr/local/bin/Rscript runtime/R/bin/Rscript && Rscript --vanilla -e "install.packages('/tmp/jsonlite_2.0.0.tar.gz',repos=NULL,lib='runtime/biblioteca')" && R_LIBS_USER=/aplicacion/runtime/biblioteca R CMD INSTALL -l runtime/biblioteca motor_r/rutaanalitica && rm /tmp/jsonlite_2.0.0.tar.gz && useradd -u 1654 -m analista
 ENV ASPNETCORE_URLS=http://0.0.0.0:8787
 ENV RUTA_ESTADISTICA_ARCHIVO_SECRETO=/run/secrets/motor
 USER 1654:1654
