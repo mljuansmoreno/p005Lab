@@ -49,6 +49,20 @@ class PruebasInforme(unittest.TestCase):
             datos = json.loads((Path(directorio) / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(datos["archivos"]["reportes/web.xml"]["estado"], "no generado")
 
+    def test_archivo_ignora_nombres_ajenos_y_reportes_vacios(self):
+        with TemporaryDirectory() as directorio:
+            raiz = Path(directorio)
+            salida = raiz / "salidas/jenkins-ci"
+            (salida / "reportes").mkdir(parents=True)
+            for nombre in ("00-entorno.json", "99-no-publicar.txt", "seguridad-extra.json", "reportes/otro.xml"):
+                (salida / nombre).write_bytes(b"fixture")
+            (salida / "reportes/web.xml").touch()
+            with (patch.object(ejecutar, "RAIZ", raiz), patch.object(ejecutar, "SALIDA", salida),
+                  patch.object(ejecutar, "revision", return_value="a" * 40)):
+                ejecutar.manifestar(exigir=False)
+                self.assertEqual(ejecutar.listados_archivo(), ["salidas/jenkins-ci/00-entorno.json",
+                                                              "salidas/jenkins-ci/manifest.json"])
+
 
 class PruebasEjecucion(unittest.TestCase):
     def test_compose_aislado_de_variables_heredadas(self):

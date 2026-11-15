@@ -303,15 +303,26 @@ def verificar_politica(temporal, imagenes):
             raise ValueError(f"{servicio}: {datos['altas']} altas y {datos['criticas']} críticas")
 
 
+def rutas_evidencia():
+    return [*(SALIDA / n for n in ARCHIVOS), *(SALIDA / "reportes" / f"{n}.xml" for n in REPORTES)]
+
+
+def evidencia_regular(ruta):
+    return ruta.is_file() and not ruta.is_symlink() and ruta.stat().st_size > 0
+
+
+def listados_archivo():
+    return [ruta.relative_to(RAIZ).as_posix() for ruta in (*rutas_evidencia(), SALIDA / "manifest.json")
+            if evidencia_regular(ruta)]
+
+
 def manifestar(exigir):
-    rutas = [SALIDA / n for n in ARCHIVOS]
-    rutas.extend(SALIDA / "reportes" / f"{n}.xml" for n in REPORTES)
-    estados = {}
-    for ruta in rutas:
-        estados[ruta.relative_to(SALIDA).as_posix()] = (
+    estados = {
+        ruta.relative_to(SALIDA).as_posix(): (
             {"sha256": hashlib.sha256(ruta.read_bytes()).hexdigest(), "bytes": ruta.stat().st_size}
-            if ruta.is_file() and ruta.stat().st_size else {"estado": "no generado"}
-        )
+            if evidencia_regular(ruta) else {"estado": "no generado"}
+        ) for ruta in rutas_evidencia()
+    }
     json_archivo(SALIDA / "manifest.json", {"revision": revision(), "archivos": estados})
     if exigir and any("sha256" not in estado for estado in estados.values()):
         raise ValueError("Faltan evidencias obligatorias")
@@ -323,7 +334,7 @@ def interrumpir(_senal, _marco):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("fase", choices=("preparar", "secretos", "web", "docker", "finalizar", "local"))
+    parser.add_argument("fase", choices=("preparar", "secretos", "web", "docker", "finalizar", "archivos", "local"))
     parser.add_argument("--puerto", default=os.getenv("RUTA_CI_PUERTO_WEB", "0"))
     args = parser.parse_args()
     os.chdir(RAIZ)
@@ -340,6 +351,8 @@ def main():
             manifestar(exigir=True)
         if args.fase == "finalizar":
             manifestar(exigir=False)
+        if args.fase == "archivos":
+            print(",".join(listados_archivo()))
     except (ValueError, OSError, subprocess.SubprocessError, KeyError) as fallo:
         print(f"CI: {fallo}", file=sys.stderr)
         return 1

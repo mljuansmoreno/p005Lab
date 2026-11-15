@@ -62,7 +62,8 @@ pipeline {
                     try {
                         sh 'python3 guiones/ci/ejecutar.py finalizar'
                     } finally {
-                        archiveArtifacts artifacts: "${salida}/manifest.json,${salida}/??-*.json,${salida}/??-*.txt,${salida}/seguridad-*.json,${salida}/reportes/*.xml", fingerprint: true
+                        def archivos = sh(script: 'python3 guiones/ci/ejecutar.py archivos', returnStdout: true).trim()
+                        archiveArtifacts artifacts: archivos, fingerprint: true, followSymlinks: false
                     }
                 }
                 for (def informe : ['web', 'integracion']) {
