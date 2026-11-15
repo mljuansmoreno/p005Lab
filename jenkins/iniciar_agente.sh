@@ -14,6 +14,7 @@ fi
 curl --noproxy '*' --fail --silent --show-error --max-time 30 \
   "$jenkins/jnlpJars/agent.jar" --output agent.jar
 # El workspace queda bajo un directorio privado. Docker debe copiar fuentes legibles por UID 1654.
+export RUTA_CI_CACHE_HERRAMIENTAS="$PWD/cache-herramientas"
 umask 022
 exec java -jar agent.jar -url "$jenkins/" -name linux-docker \
   -secret @conexion.secreto -webSocket -workDir "$trabajo"

@@ -19,6 +19,8 @@ PYTHONPATH=aplicacion:guiones python3 guiones/ci/ejecutar.py local
 
 Los informes quedan bajo `salidas/jenkins-ci/`. Por defecto el agente comprueba un puerto efímero libre en loopback, cuyo uso exclusivo se confirma al arrancar Compose. Si otro proceso gana la carrera por el puerto, el arranque devuelve error y desmonta el proyecto. Para escoger un puerto libre, agregue `--puerto 18081`. El estado esperado de `05-calculo.txt` es `completado`, con destino `motor:8787`, seis filas y media `25/6`. `06-recuperacion.txt` debe mostrar `HTTP 503` con el motor detenido y otro cálculo después de recrearlo. El cálculo comprueba el SHA-256 del CSV sintético y el formato de ambos identificadores.
 
+El agente reutiliza los paquetes de Gitleaks, Syft y Grype desde su directorio privado. Conserva un paquete por herramienta y comprueba la huella SHA-256 antes de extraerlo en cada build. Un paquete inválido se descarga de nuevo. La base de avisos se actualiza y los escaneos se ejecutan en cada verificación.
+
 ## Diagnosticar y apagar
 
 - **Agente fuera de línea.** Desde Linux pruebe `curl --noproxy '*' --fail http://127.0.0.1:9090/login -o /dev/null`, `java -version` y `docker info --format '{{.OSType}}/{{.Architecture}}'`. Compruebe la URL de Jenkins, el modo `0600` de la credencial y vuelva a ejecutar el [lanzador](../jenkins/iniciar_agente.sh).

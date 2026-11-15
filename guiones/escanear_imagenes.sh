@@ -5,20 +5,14 @@ evidencias="$1"
 temporal="$(mktemp -d)"
 trap 'rm -rf "$temporal"' EXIT
 
-instalar() {
-  local herramienta="$1" url="$2" huella="$3"
-  curl --fail --silent --show-error --location --retry 3 \
-    --connect-timeout 15 --max-time 180 "$url" --output "$temporal/paquete.tar.gz"
-  printf '%s  %s\n' "$huella" "$temporal/paquete.tar.gz" | sha256sum --check --status
-  tar -xzf "$temporal/paquete.tar.gz" -C "$temporal" -- "$herramienta"
-}
+source "$(dirname -- "${BASH_SOURCE[0]}")/ci/herramientas.sh"
 
-instalar syft \
+obtener_herramienta_ci syft \
   https://github.com/anchore/syft/releases/download/v1.57.1/syft_1.57.1_linux_amd64.tar.gz \
-  bf52519eb57f675d47c07d43213cb6dff6449f3d6d1147ff6701ed91f44eef0c
-instalar grype \
+  bf52519eb57f675d47c07d43213cb6dff6449f3d6d1147ff6701ed91f44eef0c "$temporal"
+obtener_herramienta_ci grype \
   https://github.com/anchore/grype/releases/download/v0.121.3/grype_0.121.3_linux_amd64.tar.gz \
-  e9da18cc1429e786722e32161288103600efffd8e483c90761f90485bd1bec85
+  e9da18cc1429e786722e32161288103600efffd8e483c90761f90485bd1bec85 "$temporal"
 
 "$temporal/grype" db update
 base_avisos="$("$temporal/grype" db status -o json | jq -er 'select(.valid) | .built | strings')"
