@@ -20,3 +20,5 @@ python3 guiones/ci/auditar_entrega.py salidas/jenkins-semana5
 ```
 
 Cada SHA se puede comprobar con `git merge-base --is-ancestor SHA origin/main` y su cambio con `git show --stat SHA`. El informe en el repositorio cita builds previos verificables. El manifiesto de cierre externo registra el resultado de la revisión final y evita una referencia circular.
+
+Para revisar el anexo ZIP recibido, ejecute `python3 guiones/ci/auditar_entrega.py --paquete evidencias-jenkins-semana5.zip`. Esta modalidad comprueba las huellas y la coherencia de los metadatos de Jenkins y Actions en el ZIP, incluido un build Jenkins exitoso del SHA de cierre. Compruebe ese SHA en GitHub para contrastarlo con el historial publicado.

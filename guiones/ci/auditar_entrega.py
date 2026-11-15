@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+from zipfile import BadZipFile, ZipFile
 
 from ejecutar import ARCHIVOS, REPORTES
 
@@ -27,6 +28,12 @@ def sha(valor):
     if not re.fullmatch("[0-9a-f]{40}", valor):
         raise ValueError("Se esperaba un SHA completo")
     return valor
+
+
+def verificar_huella(contenido, registro, nombre):
+    if (hashlib.sha256(contenido).hexdigest() != registro.get("sha256") or
+            len(contenido) != registro.get("bytes")):
+        raise ValueError(f"Huella o tamaño incorrecto en {nombre}")
 
 
 def auditar_git(carpeta):
@@ -97,10 +104,7 @@ def auditar_build(carpeta):
                 no_archivados.append(nombre)
                 continue
             raise ValueError(f"Falta el artefacto declarado en {carpeta.name}: {nombre}")
-        contenido = ruta.read_bytes()
-        if (hashlib.sha256(contenido).hexdigest() != registro.get("sha256") or
-                len(contenido) != registro.get("bytes")):
-            raise ValueError(f"Huella o tamaño incorrecto en {nombre_local}")
+        verificar_huella(ruta.read_bytes(), registro, nombre_local)
         comprobados.append(nombre)
     faltantes = EVIDENCIAS_OBLIGATORIAS.difference(comprobados)
     if build["result"] == "SUCCESS" and faltantes:
@@ -114,11 +118,63 @@ def auditar_build(carpeta):
     }
 
 
+def auditar_paquete(ruta):
+    with ZipFile(ruta) as paquete:
+        nombres = set(paquete.namelist())
+        if len(nombres) != len(paquete.infolist()):
+            raise ValueError("Anexo con nombres de archivo duplicados")
+        cierre = json.loads(paquete.read("manifiesto-cierre.json"))
+        revision = sha(cierre["final_remoto"])
+        actions = cierre["actions_revision_final"]
+        if actions["headSha"] != revision or actions["status"] != "completed" or actions["conclusion"] != "success":
+            raise ValueError("El resultado de Actions no acredita la revisión de cierre")
+        builds = {}
+        esperados = {"manifiesto-cierre.json"}
+        verificados = 0
+        for build in cierre["jenkins"]:
+            tipo = "autoprueba" if "/ruta-estadistica-autoprueba/" in build["url"] else "build"
+            carpeta = f"{tipo}-{build['numero']}"
+            if f"{carpeta}/manifest.json" not in nombres:
+                continue
+            evidencia = json.loads(paquete.read(f"{carpeta}/manifest.json"))
+            api = json.loads(paquete.read(f"{carpeta}/jenkins-api-resumen.json"))
+            entorno = json.loads(paquete.read(f"{carpeta}/00-entorno.json"))
+            causas = ", ".join(causa.rsplit(".", 1)[-1] for causa in api["causes"])
+            if (evidencia["revision"] != build["revision"] or api["number"] != build["numero"] or
+                    api["url"] != build["url"] or api["result"] != build["resultado"] or
+                    api["duration"] != build["duracion_ms"] or api["building"] or causas != build["causa"] or
+                    entorno["revision"] != build["revision"] or str(entorno["build"]) != str(api["number"]) or
+                    entorno["build_url"] != api["url"] or (tipo == "build" and entorno["causa"] != causas)):
+                raise ValueError(f"Metadatos incoherentes en {carpeta}")
+            archivos = set(build["artefactos_con_huella_verificada"])
+            if api["result"] == "SUCCESS" and not EVIDENCIAS_OBLIGATORIAS <= archivos:
+                raise ValueError(f"Build exitoso con evidencia incompleta en {carpeta}")
+            esperados.update((f"{carpeta}/manifest.json", f"{carpeta}/jenkins-api-resumen.json"))
+            for nombre in archivos:
+                entrada = f"{carpeta}/{nombre}"
+                verificar_huella(paquete.read(entrada), evidencia["archivos"][nombre], entrada)
+                esperados.add(entrada)
+                verificados += 1
+            builds[carpeta] = build
+        if nombres != esperados:
+            raise ValueError("El anexo contiene archivos fuera del inventario")
+        if not any(b["revision"] == revision and b["resultado"] == "SUCCESS"
+                   for clave, b in builds.items() if clave.startswith("build-")):
+            raise ValueError("El anexo no contiene un build exitoso del SHA final")
+    return revision, verificados
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("bitacora", type=Path)
+    entradas = parser.add_mutually_exclusive_group(required=True)
+    entradas.add_argument("bitacora", type=Path, nargs="?")
+    entradas.add_argument("--paquete", type=Path, help="Audita el anexo ZIP de semana 5 sin extraer archivos")
     args = parser.parse_args()
     try:
+        if args.paquete:
+            revision, total = auditar_paquete(args.paquete)
+            print(f"Anexo verificado para {revision}. Huellas comprobadas: {total}.")
+            return 0
         historial = auditar_git(args.bitacora)
         builds = []
         for ruta in sorted(args.bitacora.iterdir()):
@@ -132,7 +188,7 @@ def main():
         ruta = args.bitacora / "manifiesto-cierre.json"
         ruta.write_text(json.dumps(resultado, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(f"Publicados: {historial['publicados']}. Builds auditados: {len(builds)}.")
-    except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
+    except (OSError, ValueError, KeyError, BadZipFile, subprocess.SubprocessError) as error:
         print(f"Auditoría: {error}", file=sys.stderr)
         return 1
     return 0
