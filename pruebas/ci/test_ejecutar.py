@@ -126,6 +126,20 @@ class PruebasEjecucion(unittest.TestCase):
         self.assertIn("--remove-orphans", ejecutar_docker.call_args.args[0])
         self.assertIn("label=com.docker.compose.project=ruta-ci-prueba", listar.call_args.args[0])
 
+    @unittest.skipUnless(sys.platform == "linux", "Los grupos de procesos se prueban en Linux")
+    def test_plazo_interrumpe_hijos_con_salida_abierta(self):
+        orden = ("bash", "-c", "sleep 30 & wait")
+        with self.assertRaises(subprocess.TimeoutExpired):
+            ejecutar.comando(orden, plazo=0.3)
+
+    def test_limpieza_reintenta_solo_por_plazo(self):
+        agotado = subprocess.TimeoutExpired("fixture", 90)
+        with (patch.object(ejecutar, "comando", side_effect=[agotado, b""]) as ejecutar_docker,
+              patch.object(ejecutar, "texto", return_value="")):
+            ejecutar.limpiar({}, "ruta-ci-prueba")
+        self.assertEqual(ejecutar_docker.call_count, 2)
+        self.assertEqual(ejecutar_docker.call_args_list[0], ejecutar_docker.call_args_list[1])
+
     def test_escaneo_rechaza_coincidencias_y_reporte_sin_base(self):
         with TemporaryDirectory() as directorio:
             ruta = Path(directorio)

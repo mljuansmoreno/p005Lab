@@ -23,7 +23,7 @@ Los informes quedan bajo `salidas/jenkins-ci/`. Por defecto el agente comprueba 
 
 - **Agente fuera de línea.** Desde Linux pruebe `curl --noproxy '*' --fail http://127.0.0.1:9090/login -o /dev/null`, `java -version` y `docker info --format '{{.OSType}}/{{.Architecture}}'`. Compruebe la URL de Jenkins, el modo `0600` de la credencial y vuelva a ejecutar el [lanzador](../jenkins/iniciar_agente.sh).
 - **Contenedor no saludable.** Confirme que el agente usa un socket Unix, que el daemon acepta la ruta Linux del secreto y que el contenedor puede leer el montaje. El montaje de archivos desde Windows puede tener permisos distintos de los de WSL. Revise salud, código de salida y estado de OOM mediante inspección selectiva.
-- **Escaneo fallido.** Revise si falló la descarga, la huella, la actualización de la base, la ejecución del escáner o la política. Los informes de seguridad incluyen el ID de imagen y la fecha de la base de avisos. Alta o crítica distinta de cero impide completar el build.
+- **Escaneo fallido.** Revise si falló la descarga, la huella, la actualización de la base, la ejecución del escáner o la política. Jenkins detiene los servicios del proyecto antes de escanear sus imágenes para reducir la carga local. Los informes de seguridad incluyen el ID de imagen y la fecha de la base de avisos. Alta o crítica distinta de cero impide completar el build.
 - **Detención abrupta.** Copie solo el identificador `ruta-ci-…` de ese build. Revise Docker antes de recuperar, desde el checkout que usó el agente:
 
   ```bash
@@ -32,7 +32,7 @@ Los informes quedan bajo `salidas/jenkins-ci/`. Por defecto el agente comprueba 
     docker ps -a --filter "label=com.docker.compose.project=$proyecto"
     docker network ls --filter "label=com.docker.compose.project=$proyecto"
     RUTA_ESTADISTICA_ARCHIVO_SECRETO=/dev/null COMPOSE_DISABLE_ENV_FILE=1 \
-      docker compose -f docker-compose.yml -f jenkins/compose-pruebas.yaml -p "$proyecto" down --remove-orphans --rmi local
+      docker compose -f docker-compose.yml -f jenkins/compose-pruebas.yaml -p "$proyecto" down --remove-orphans --rmi local --timeout 15
     if [ -d salidas/credenciales ]; then
       find salidas/credenciales -mindepth 2 -maxdepth 2 -type f \
         -path "salidas/credenciales/$proyecto-*/motor.secreto" -delete

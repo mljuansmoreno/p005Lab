@@ -36,10 +36,25 @@ ARCHIVOS = (
 
 
 def comando(argumentos, *, entorno=None, salida=None, plazo=120):
-    return subprocess.run(
-        argumentos, env=entorno, check=True, timeout=plazo, stderr=subprocess.STDOUT,
-        stdout=salida if salida is not None else subprocess.PIPE,
-    ).stdout
+    stdout = salida if salida is not None else subprocess.PIPE
+    if sys.platform != "linux":
+        return subprocess.run(argumentos, env=entorno, check=True, timeout=plazo,
+                              stderr=subprocess.STDOUT, stdout=stdout).stdout
+    # Bash, curl y Compose pueden lanzar hijos que también deben terminar al vencer el plazo.
+    with subprocess.Popen(argumentos, env=entorno, stderr=subprocess.STDOUT, stdout=stdout,
+                          start_new_session=True) as proceso:
+        try:
+            resultado, _ = proceso.communicate(timeout=plazo)
+        except (subprocess.TimeoutExpired, InterruptedError, KeyboardInterrupt):
+            try:
+                os.killpg(proceso.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            proceso.communicate()
+            raise
+        if proceso.returncode:
+            raise subprocess.CalledProcessError(proceso.returncode, argumentos, output=resultado)
+        return resultado
 
 
 def texto(argumentos, *, entorno=None):
@@ -159,7 +174,11 @@ def procedencia(entorno):
 
 
 def limpiar(entorno, proyecto):
-    comando((*COMPOSE, "down", "--remove-orphans", "--rmi", "local"), entorno=entorno)
+    orden = (*COMPOSE, "down", "--remove-orphans", "--rmi", "local", "--timeout", "15")
+    try:
+        comando(orden, entorno=entorno, plazo=90)
+    except subprocess.TimeoutExpired:
+        comando(orden, entorno=entorno, plazo=90)
     etiqueta = f"label=com.docker.compose.project={proyecto}"
     for args in (("ps", "-aq"), ("network", "ls", "-q"),
                  ("volume", "ls", "-q"), ("image", "ls", "-q")):
@@ -213,14 +232,16 @@ def integrar(puerto):
             datos = json.loads((SALIDA / "00-entorno.json").read_text(encoding="utf-8"))
             datos.update({"imagenes": procedencia(entorno), "proyecto": proyecto, "puerto_web": puerto})
             json_archivo(temporal / "00-entorno.json", datos)
-            ejecutar_caso(reporte, "escaneo", temporal, entorno,
-                          ("bash", "guiones/escanear_imagenes.sh", str(temporal)), 660)
             for servicio in ("aplicacion", "motor"):
                 comando(("docker", "run", "--rm", "--network", "none", "--read-only",
                          "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
                          "--entrypoint", "/bin/sh", datos["imagenes"][servicio],
                          "-ec", "test ! -e /run/secrets/motor"), entorno=entorno)
+            ejecutar_caso(reporte, "detener_servicios", temporal, entorno,
+                          (*COMPOSE, "stop", "--timeout", "15"), 90)
             (temporal / "servicios.txt").write_bytes(comando((*COMPOSE, "logs", "--no-color"), entorno=entorno))
+            ejecutar_caso(reporte, "escaneo", temporal, entorno,
+                          ("bash", "guiones/escanear_imagenes.sh", str(temporal)), 660)
             verificar_politica(temporal, datos["imagenes"])
         except (OSError, ValueError, subprocess.SubprocessError, InterruptedError) as fallo:
             error = fallo
