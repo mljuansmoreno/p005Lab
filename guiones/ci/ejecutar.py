@@ -94,6 +94,10 @@ def preflight():
     if shutil.disk_usage(RAIZ).free < 3 * 1024**3:
         raise ValueError("Se requieren al menos 3 GiB libres para el checkout y las pruebas")
     verificar_fuentes()
+    for fuente in ("aplicacion/web.py", "aplicacion/probar_compose.py",
+                   "guiones/datos_sinteticos.py", "motor_r/trabajador.R"):
+        if not Path(fuente).stat().st_mode & 0o004:
+            raise ValueError(f"El usuario del contenedor debe poder leer {fuente}. Revise la umask del agente.")
     return {"docker": docker, "compose": compose, "python": sys.version.split()[0],
             "git": texto(("git", "--version")), "arquitectura": arquitectura}
 
@@ -105,14 +109,24 @@ def preparar():
     for ruta in [*(SALIDA / n for n in ARCHIVOS), SALIDA / "manifest.json",
                  *(SALIDA / "reportes" / f"{n}.xml" for n in REPORTES)]:
         ruta.unlink(missing_ok=True)
-    json_archivo(SALIDA / "00-entorno.json", {
+    ruta = SALIDA / "00-entorno.json"
+    datos = {
         "revision": revision(),
         "fecha_utc": datetime.now(timezone.utc).isoformat(),
         "build": os.getenv("BUILD_NUMBER"),
         "build_url": os.getenv("BUILD_URL"),
         "causa": os.getenv("RUTA_CI_CAUSA", "Ejecución local"),
-        "plataforma": preflight(),
-    })
+        "estado_entorno": "en comprobación",
+    }
+    json_archivo(ruta, datos)
+    try:
+        datos["plataforma"] = preflight()
+    except (OSError, ValueError, subprocess.SubprocessError):
+        datos["estado_entorno"] = "fallo"
+        json_archivo(ruta, datos)
+        raise
+    datos["estado_entorno"] = "verificado"
+    json_archivo(ruta, datos)
 
 
 def entorno_compose(proyecto, secreto, puerto):
@@ -207,6 +221,12 @@ def integrar(puerto):
             verificar_politica(temporal, datos["imagenes"])
         except (OSError, ValueError, subprocess.SubprocessError, InterruptedError) as fallo:
             error = fallo
+            if str(fallo).startswith("arranque:"):
+                try:
+                    (temporal / "02-arranque.txt").write_bytes(
+                        comando((*COMPOSE, "ps", "--all"), entorno=entorno, plazo=15))
+                except (OSError, subprocess.SubprocessError):
+                    print("CI: no se pudo recuperar el estado de los contenedores.", file=sys.stderr)
         finally:
             # Evitar que un segundo SIGTERM interrumpa el desmontaje acotado.
             anterior = signal.signal(signal.SIGTERM, signal.SIG_IGN)

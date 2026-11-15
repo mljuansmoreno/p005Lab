@@ -99,6 +99,32 @@ class PruebasEjecucion(unittest.TestCase):
             self.assertEqual(reporte.get("failures"), "1")
             self.assertTrue((ruta / "09-limpieza.txt").exists())
 
+    def test_dependencia_ausente_deja_revision_y_estado(self):
+        with TemporaryDirectory() as directorio, patch.object(ejecutar, "SALIDA", Path(directorio)):
+            with patch.object(ejecutar, "preflight", side_effect=ValueError("Falta el programa jq")):
+                with self.assertRaisesRegex(ValueError, "Falta el programa jq"):
+                    ejecutar.preparar()
+            datos = json.loads((Path(directorio) / "00-entorno.json").read_text(encoding="utf-8"))
+            self.assertRegex(datos["revision"], "[0-9a-f]{40}")
+            self.assertEqual(datos["estado_entorno"], "fallo")
+            self.assertNotIn("plataforma", datos)
+
+    def test_preflight_rechaza_falta_de_jq(self):
+        def buscar(programa):
+            return None if programa == "jq" else programa
+
+        with patch.object(ejecutar.sys, "platform", "linux"), patch.object(ejecutar.shutil, "which", buscar):
+            with self.assertRaisesRegex(ValueError, "Falta el programa jq"):
+                ejecutar.preflight()
+
+    def test_limpieza_falla_si_queda_recurso_etiquetado(self):
+        with (patch.object(ejecutar, "comando") as ejecutar_docker,
+              patch.object(ejecutar, "texto", return_value="contenedor-fixture") as listar):
+            with self.assertRaisesRegex(ValueError, "Quedan recursos"):
+                ejecutar.limpiar({"COMPOSE_PROJECT_NAME": "ruta-ci-prueba"}, "ruta-ci-prueba")
+        self.assertIn("--remove-orphans", ejecutar_docker.call_args.args[0])
+        self.assertIn("label=com.docker.compose.project=ruta-ci-prueba", listar.call_args.args[0])
+
     def test_escaneo_rechaza_coincidencias_y_reporte_sin_base(self):
         with TemporaryDirectory() as directorio:
             ruta = Path(directorio)
