@@ -3,6 +3,10 @@ set -euo pipefail
 
 accion="${1:?Indique la comprobación Compose}"
 web="http://127.0.0.1:${RUTA_ESTADISTICA_PUERTO_WEB:-8080}"
+politica_privilegios='def sin_nuevos_privilegios:
+  map(select(test("^no-new-privileges([=:]|$)"))) as $opciones |
+  ($opciones | length) > 0 and all($opciones[];
+    . == "no-new-privileges" or . == "no-new-privileges:true" or . == "no-new-privileges=true");'
 http() {
   curl --noproxy '*' --fail --silent --show-error --max-time 5 "$@"
 }
@@ -11,7 +15,7 @@ case "$accion" in
   configuracion)
     docker compose config --quiet
     docker compose config --format json |
-      jq -e --arg puerto "${RUTA_ESTADISTICA_PUERTO_WEB:-8080}" '
+      jq -e --arg puerto "${RUTA_ESTADISTICA_PUERTO_WEB:-8080}" "$politica_privilegios"'
         (.services | keys) == ["aplicacion", "motor"] and
         (.networks | keys) == ["analisis", "entrada"] and
         .networks.analisis.driver == "bridge" and .networks.analisis.internal and
@@ -24,8 +28,8 @@ case "$accion" in
         (.services.aplicacion.ports[0].published | tostring) == $puerto and
         .services.aplicacion.environment.RUTA_ESTADISTICA_MOTOR_URL == "http://motor:8787" and
         all(.services[];
-          .read_only and (.cap_drop | index("ALL")) != null and
-          (.security_opt | any(startswith("no-new-privileges"))) and
+          .read_only == true and (.privileged != true) and (.cap_drop | index("ALL")) != null and
+          (.security_opt | sin_nuevos_privilegios) and
           ([.secrets[].source] == ["motor"])) and
         (.services.motor.tmpfs | any(startswith("/tmp:")))
       '
@@ -49,12 +53,12 @@ case "$accion" in
     aplicacion="$(docker compose ps -q aplicacion)"
     motor="$(docker compose ps -q motor)"
     docker inspect "$aplicacion" "$motor" |
-      jq -e '
+      jq -e "$politica_privilegios"'
         if length == 2 and all(.[];
           .Config.User == "1654:1654" and .State.Health.Status == "healthy" and
           .HostConfig.ReadonlyRootfs and (.HostConfig.Privileged | not) and
           (.HostConfig.CapDrop | map(ascii_downcase) | index("all")) != null and
-          (.HostConfig.SecurityOpt | any(startswith("no-new-privileges"))) and
+          (.HostConfig.SecurityOpt | sin_nuevos_privilegios) and
           .HostConfig.Memory > 0 and .HostConfig.PidsLimit > 0 and
           .HostConfig.LogConfig.Type == "local" and
           ([.Mounts[] | select(.Destination == "/run/secrets/motor" and (.RW | not))] | length) == 1 and
