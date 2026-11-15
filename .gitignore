@@ -17,6 +17,17 @@ salidas/
 *.p12
 **/credenciales/
 **/secrets/
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+*.kdbx
+.netrc
+_netrc
+.npmrc
+.pypirc
+.Renviron
 __pycache__/
 dotnet-install.ps1
 versiones-winui.json
