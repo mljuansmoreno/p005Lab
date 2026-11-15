@@ -19,6 +19,11 @@ $recursos = Join-Path $raiz 'salidas/recursos'
 New-Item -ItemType Directory -Force "$recursos/runtime/R", "$recursos/runtime/biblioteca", "$recursos/motor_r" | Out-Null
 Copy-Item -Path "$RutaR/*" -Destination "$recursos/runtime/R" -Recurse -Force
 Copy-Item -Path "$biblioteca/*" -Destination "$recursos/runtime/biblioteca" -Recurse -Force
+$ejemplosJson = Join-Path $recursos 'runtime/biblioteca/jsonlite/doc'
+if (Test-Path -LiteralPath $ejemplosJson -PathType Container) {
+    Get-ChildItem -LiteralPath $ejemplosJson -Filter 'json-apis.*' -File |
+        Remove-Item -Force
+}
 Copy-Item "$raiz/motor_r/trabajador.R" "$recursos/motor_r/trabajador.R" -Force
 Get-ChildItem "$recursos/runtime" -File -Recurse | ForEach-Object { [pscustomobject]@{ archivo = [IO.Path]::GetRelativePath($recursos, $_.FullName); sha256 = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() } } | ConvertTo-Json -Depth 4 | Set-Content "$recursos/integridad.json" -Encoding utf8
 Write-Output "Recursos nativos preparados en $recursos"
