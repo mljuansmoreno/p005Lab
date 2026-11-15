@@ -50,7 +50,10 @@ pipeline {
         }
         stage('Construir y verificar con Docker') {
             steps {
-                sh 'python3 guiones/ci/ejecutar.py docker'
+                script {
+                    def opciones = params.RUTA_CI_SIN_CACHE ? ' --sin-cache' : ''
+                    sh "python3 guiones/ci/ejecutar.py docker${opciones}"
+                }
             }
         }
     }

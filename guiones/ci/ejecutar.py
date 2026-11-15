@@ -247,20 +247,24 @@ def publicar(temporal, llave):
             (SALIDA / ruta.name).write_bytes(contenido)
 
 
-def integrar(puerto):
+def integrar(puerto, sin_cache=False):
     puerto = puerto_web(puerto)
     PRIVADO.mkdir(parents=True, exist_ok=True)
     sufijo = secrets.token_hex(8)
     proyecto = f"ruta-ci-{sufijo}"
     metadatos = SALIDA / "00-entorno.json"
     datos = json.loads(metadatos.read_text(encoding="utf-8"))
-    datos.update({"proyecto": proyecto, "puerto_web": puerto})
+    datos.update({"proyecto": proyecto, "puerto_web": puerto,
+                  "modo_compilacion": "sin_cache" if sin_cache else "cache_permitida"})
     json_archivo(metadatos, datos)
     print(f"Proyecto aislado {proyecto}, web 127.0.0.1:{puerto}", flush=True)
     reporte = Reporte("integracion")
+    compilacion = (*COMPOSE, "--progress", "plain", "build")
+    if sin_cache:
+        compilacion += ("--no-cache",)
     pasos = (
         ("configuracion", (), (*COMPROBAR, "configuracion"), 30),
-        ("compilacion", ("01-compilacion.txt",), (*COMPOSE, "--progress", "plain", "build"), 1440),
+        ("compilacion", ("01-compilacion.txt",), compilacion, 1440),
         ("arranque", ("02-arranque.txt",), (*COMPOSE, "up", "-d", "--wait", "--wait-timeout", ESPERA_SALUD), 220),
         ("estado", ("03-docker-ps.txt",), (*COMPOSE, "ps", "--all"), 30),
         ("red", ("04-red.txt",), (*COMPROBAR, "red"), 30),
@@ -402,9 +406,12 @@ def main():
                                         "local", "recuperar-limpieza", "procedencia"))
     parser.add_argument("--puerto", default=os.getenv("RUTA_CI_PUERTO_WEB", "0"))
     parser.add_argument("--proyecto", help="Identificador del build terminado al recuperar su limpieza")
+    parser.add_argument("--sin-cache", action="store_true", help="Reconstruye ambas imágenes sin caché de capas")
     args = parser.parse_args()
     if bool(args.proyecto) != (args.fase == "recuperar-limpieza"):
         parser.error("Use --proyecto únicamente con recuperar-limpieza")
+    if args.sin_cache and args.fase not in ("local", "docker"):
+        parser.error("Use --sin-cache con local o docker")
     os.chdir(RAIZ)
     signal.signal(signal.SIGTERM, interrumpir)
     try:
@@ -415,7 +422,7 @@ def main():
         if args.fase in ("web", "local") and not probar_web(SALIDA / "reportes/web.xml"):
             return 1
         if args.fase in ("docker", "local"):
-            integrar(args.puerto)
+            integrar(args.puerto, sin_cache=args.sin_cache)
             manifestar(exigir=True)
         if args.fase == "finalizar":
             manifestar(exigir=False)

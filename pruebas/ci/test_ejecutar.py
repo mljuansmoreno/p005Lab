@@ -181,6 +181,21 @@ class PruebasEjecucion(unittest.TestCase):
                 ejecutar.procedencia_actual()
             docker.assert_not_called()
 
+    def test_compilacion_sin_cache_registra_modo_y_envia_la_opcion(self):
+        with TemporaryDirectory() as directorio, redirect_stdout(io.StringIO()):
+            ruta = Path(directorio)
+            (ruta / "reportes").mkdir()
+            metadatos = ruta / "00-entorno.json"
+            metadatos.write_text("{}", encoding="utf-8")
+            with (patch.object(ejecutar, "SALIDA", ruta), patch.object(ejecutar, "PRIVADO", ruta / "privado"),
+                  patch.object(ejecutar, "puerto_web", return_value=8181), patch.object(Path, "chmod"),
+                  patch.object(ejecutar, "entorno_compose", return_value={}), patch.object(ejecutar, "limpiar"),
+                  patch.object(ejecutar, "ejecutar_caso", side_effect=[None, InterruptedError("fixture")]) as pasos):
+                with self.assertRaises(InterruptedError):
+                    ejecutar.integrar("0", sin_cache=True)
+            self.assertEqual(json.loads(metadatos.read_text(encoding="utf-8"))["modo_compilacion"], "sin_cache")
+            self.assertEqual(pasos.call_args.args[4], ("docker", "compose", "--progress", "plain", "build", "--no-cache"))
+
     def test_preflight_rechaza_falta_de_jq(self):
         def buscar(programa):
             return None if programa == "jq" else programa
