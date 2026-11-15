@@ -23,6 +23,10 @@ Los informes quedan bajo `salidas/jenkins-ci/`. Por defecto el agente comprueba 
 
 El agente reutiliza los paquetes de Gitleaks, Syft y Grype desde su directorio privado. Conserva un paquete por herramienta y comprueba la huella SHA-256 antes de extraerlo en cada build. Un paquete inválido se descarga de nuevo. La base de avisos se actualiza y los escaneos se ejecutan en cada verificación. Cada informe de seguridad liga el ID canónico de la imagen y la base de avisos con la huella SHA-256 y la cantidad de componentes del SBOM CycloneDX usado por Grype. El SBOM íntegro se analiza en un directorio temporal porque puede contener metadatos y rutas de archivos.
 
+## Verificar coexistencia con una demo
+
+Ejecute `python3 guiones/ci/probar_coexistencia.py` desde Linux. El ensayo construye un solo par de imágenes de la revisión del checkout con la caché habitual de Docker. Lo usa para una demo descartable y dos proyectos CI en puertos de loopback distintos. Comprueba red, autenticación y cálculo real en los tres. Retira uno de los proyectos CI, verifica otro cálculo en los dos restantes y desmonta sus propios recursos. Esta comprobación se registra aparte del build de aceptación de Jenkins.
+
 ## Diagnosticar y apagar
 
 - **Agente fuera de línea.** Desde Linux pruebe `curl --noproxy '*' --fail http://127.0.0.1:9090/login -o /dev/null`, `java -version` y `docker info --format '{{.OSType}}/{{.Architecture}}'`. Compruebe la URL de Jenkins, el modo `0600` de la credencial y vuelva a ejecutar el [lanzador](../jenkins/iniciar_agente.sh).
