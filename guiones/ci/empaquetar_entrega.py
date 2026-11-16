@@ -12,7 +12,7 @@ from auditar_entrega import EVIDENCIAS_OBLIGATORIAS, auditar_build, auditar_paqu
 
 def empaquetar(bitacora, destino):
     manifiesto = bitacora / "manifiesto-cierre.json"
-    cierre = datos(manifiesto)
+    cierre = {**datos(manifiesto), "version_formato_anexo": 2}
     prefijo = "artifact-salidas-jenkins-ci-"
     with NamedTemporaryFile(dir=destino.parent, prefix=".evidencias-", suffix=".zip", delete=False) as archivo:
         temporal = Path(archivo.name)
@@ -27,7 +27,11 @@ def empaquetar(bitacora, destino):
                 api = datos(origen / "build.json")
                 resumen = {campo: api[campo] for campo in ("number", "url", "result", "building", "duration")}
                 resumen["causes"] = [c["_class"] for a in api["actions"] for c in a.get("causes", [])]
+                if build.get("sin_artefactos"):
+                    resumen.update(artifacts=api["artifacts"], revision_checkout=build["revision"])
                 paquete.writestr(f"{origen.name}/jenkins-api-resumen.json", json.dumps(resumen, indent=2) + "\n")
+                if build.get("sin_artefactos"):
+                    continue
                 nombres = build["artefactos_con_huella_verificada"]
                 if not set(nombres) <= EVIDENCIAS_OBLIGATORIAS:
                     raise ValueError(f"Hay artefactos fuera de la lista publicable en {origen.name}")

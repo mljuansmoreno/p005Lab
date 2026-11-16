@@ -88,3 +88,28 @@ class PruebasAuditoria(unittest.TestCase):
         next(j for j in jobs if j["name"] == "verificar")["conclusion"] = "skipped"
         with self.assertRaisesRegex(ValueError, "Falta evidencia exitosa"):
             acciones_finales(run, revision)
+
+    def test_cancelacion_sin_archivos_requiere_api_y_consola_coherentes(self):
+        carpeta, _, _ = self.preparar("ABORTED")
+        for archivo in carpeta.glob("artifact-*"):
+            archivo.unlink()
+        api = carpeta / "build.json"
+        build = json.loads(api.read_text(encoding="utf-8"))
+        build["artifacts"] = []
+        api.write_text(json.dumps(build), encoding="utf-8")
+        consola = carpeta / "consoleText"
+        revision = "a" * 40
+        consola.write_text(f"[2026-01-01T00:00:00.000Z] Checking out Revision {revision} (main)\n"
+                           "Finished: ABORTED\n", encoding="utf-8")
+        registro = auditar_build(carpeta)
+        self.assertTrue(registro["sin_artefactos"])
+        self.assertEqual(registro["revision"], revision)
+        self.assertEqual(registro["artefactos_con_huella_verificada"], [])
+        consola.write_text("Finished: FAILURE\n", encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "No coinciden API y consola"):
+            auditar_build(carpeta)
+        build["result"] = "SUCCESS"
+        api.write_text(json.dumps(build), encoding="utf-8")
+        consola.write_text("Finished: SUCCESS\n", encoding="utf-8")
+        with self.assertRaises(FileNotFoundError):
+            auditar_build(carpeta)

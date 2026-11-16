@@ -72,19 +72,31 @@ def auditar_git(carpeta):
 
 def auditar_build(carpeta):
     build = datos(carpeta / "build.json")
+    if build["building"] or not build["result"]:
+        raise ValueError(f"El build de {carpeta.name} sigue en ejecución")
+    causa_jenkins = ", ".join(causa["_class"].rsplit(".", 1)[-1]
+                             for accion in build["actions"] for causa in accion.get("causes", []))
+    resumen = {"numero": build["number"], "url": build["url"], "resultado": build["result"],
+               "duracion_ms": build["duration"], "causa": causa_jenkins}
     artefacto = "artifact-salidas-jenkins-ci-"
+    if (build["result"] in {"FAILURE", "ABORTED", "NOT_BUILT"} and build.get("artifacts") == [] and
+            not any(carpeta.glob(f"{artefacto}*"))):
+        consola = (carpeta / "consoleText").read_text(encoding="utf-8", errors="replace")
+        revisiones = set(re.findall(r"(?m)^(?:\[[^\r\n]+\] )?Checking out Revision ([0-9a-f]{40})\b", consola))
+        if (not causa_jenkins or len(revisiones) > 1 or
+                not consola.rstrip().endswith(f"Finished: {build['result']}")):
+            raise ValueError(f"No coinciden API y consola en {carpeta.name}")
+        return {**resumen, "revision": next(iter(revisiones), None), "sin_artefactos": True,
+                "artefactos_con_huella_verificada": [], "artefactos_declarados_sin_archivar": []}
+
     entorno = datos(carpeta / f"{artefacto}00-entorno.json")
     manifiesto = datos(carpeta / f"{artefacto}manifest.json")
     revision = sha(entorno["revision"])
-    causa_jenkins = ", ".join(causa["_class"].rsplit(".", 1)[-1]
-                             for accion in build["actions"] for causa in accion.get("causes", []))
     autoprueba = carpeta.name.startswith("autoprueba-")
     if (revision != manifiesto["revision"] or str(entorno["build"]) != str(build["number"]) or
             entorno["build_url"] != build["url"] or not causa_jenkins or
             (not autoprueba and entorno["causa"] != causa_jenkins)):
         raise ValueError(f"No coinciden metadatos en {carpeta.name}")
-    if build["building"] or not build["result"]:
-        raise ValueError(f"El build de {carpeta.name} sigue en ejecución")
     archivados = {archivo["relativePath"] for archivo in build.get("artifacts", [])}
     comprobados = []
     no_archivados = []
@@ -111,9 +123,7 @@ def auditar_build(carpeta):
     if build["result"] == "SUCCESS" and faltantes:
         raise ValueError(f"Build exitoso con evidencia incompleta en {carpeta.name}: {', '.join(sorted(faltantes))}")
     return {
-        "numero": build["number"], "revision": revision, "url": build["url"],
-        "resultado": build["result"], "duracion_ms": build["duration"],
-        "causa": causa_jenkins, "artefactos_con_huella_verificada": comprobados,
+        **resumen, "revision": revision, "artefactos_con_huella_verificada": comprobados,
         "artefactos_declarados_sin_archivar": no_archivados,
         **({"descripcion_autoprueba": entorno["causa"]} if autoprueba else {}),
     }
@@ -136,15 +146,31 @@ def auditar_paquete(ruta):
         for build in cierre["jenkins"]:
             tipo = "autoprueba" if "/ruta-estadistica-autoprueba/" in build["url"] else "build"
             carpeta = f"{tipo}-{build['numero']}"
-            if f"{carpeta}/manifest.json" not in nombres:
-                continue
-            evidencia = json.loads(paquete.read(f"{carpeta}/manifest.json"))
-            api = json.loads(paquete.read(f"{carpeta}/jenkins-api-resumen.json"))
-            entorno = json.loads(paquete.read(f"{carpeta}/00-entorno.json"))
+            entrada_api = f"{carpeta}/jenkins-api-resumen.json"
+            entrada_manifiesto = f"{carpeta}/manifest.json"
+            if ("version_formato_anexo" not in cierre and not build.get("sin_artefactos") and
+                    entrada_api not in nombres and entrada_manifiesto not in nombres):
+                continue  # Los anexos anteriores podían citar builds históricos sin incluirlos.
+            if entrada_api in esperados:
+                raise ValueError(f"Build duplicado en {carpeta}")
+            api = json.loads(paquete.read(entrada_api))
+            esperados.add(entrada_api)
             causas = ", ".join(causa.rsplit(".", 1)[-1] for causa in api["causes"])
-            if (evidencia["revision"] != build["revision"] or api["number"] != build["numero"] or
+            if (api["number"] != build["numero"] or
                     api["url"] != build["url"] or api["result"] != build["resultado"] or
-                    api["duration"] != build["duracion_ms"] or api["building"] or causas != build["causa"] or
+                    api["duration"] != build["duracion_ms"] or api["building"] or not causas or causas != build["causa"]):
+                raise ValueError(f"Metadatos incoherentes en {carpeta}")
+            if build.get("sin_artefactos"):
+                if (api["result"] not in {"FAILURE", "ABORTED", "NOT_BUILT"} or api["artifacts"] != [] or
+                        api["revision_checkout"] != build["revision"] or build["artefactos_con_huella_verificada"] or
+                        build["artefactos_declarados_sin_archivar"]):
+                    raise ValueError(f"Registro sin artefactos incoherente en {carpeta}")
+                if build["revision"] is not None:
+                    sha(build["revision"])
+                continue
+            evidencia = json.loads(paquete.read(entrada_manifiesto))
+            entorno = json.loads(paquete.read(f"{carpeta}/00-entorno.json"))
+            if (evidencia["revision"] != build["revision"] or
                     entorno["revision"] != build["revision"] or str(entorno["build"]) != str(api["number"]) or
                     entorno["build_url"] != api["url"] or (tipo == "build" and entorno["causa"] != causas)):
                 raise ValueError(f"Metadatos incoherentes en {carpeta}")
@@ -153,7 +179,7 @@ def auditar_paquete(ruta):
                 raise ValueError(f"Artefacto fuera de la lista publicable en {carpeta}")
             if api["result"] == "SUCCESS" and not EVIDENCIAS_OBLIGATORIAS <= archivos:
                 raise ValueError(f"Build exitoso con evidencia incompleta en {carpeta}")
-            esperados.update((f"{carpeta}/manifest.json", f"{carpeta}/jenkins-api-resumen.json"))
+            esperados.add(entrada_manifiesto)
             for nombre in archivos:
                 entrada = f"{carpeta}/{nombre}"
                 verificar_huella(paquete.read(entrada), evidencia["archivos"][nombre], entrada)
