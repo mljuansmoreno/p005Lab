@@ -5,6 +5,7 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 from pathlib import Path
 import re
 import subprocess
@@ -23,6 +24,7 @@ ARCHIVOS_SEGURIDAD = {f"seguridad-{servicio}.json": servicio for servicio in ("a
 EVIDENCIAS_OBLIGATORIAS = {*ARCHIVOS, *ARCHIVOS_JUNIT}
 TRABAJOS_ACTIONS = {"verificar", "Docker Linux y cálculo entre contenedores", "Credenciales y archivos comprimidos"}
 META_COMMITS = 84
+REGISTRO_COEXISTENCIA = "coexistencia-local.txt"
 
 
 def git(*args):
@@ -123,6 +125,27 @@ def comprobar_seguridad(informes, entorno):
     if version not in (1, 2):
         raise ValueError("Versión de informe de seguridad desconocida")
     comprobar_politica(informes, imagenes, exigir_sbom=version == 2)
+
+
+def comprobar_coexistencia(contenido):
+    lineas = contenido.decode("utf-8-sig").splitlines()
+    if (len(lineas) != 8 or lineas[0] != "Construyendo un solo par de imágenes para todo el ensayo." or
+            lineas[4] != "El primer proyecto se retiró. Se comprueba la demo y el segundo proyecto." or
+            lineas[7] != "Proyectos del ensayo retirados."):
+        raise ValueError("El registro de coexistencia no contiene el ensayo completo")
+    ejecuciones = []
+    for indice in (1, 2, 3, 5, 6):
+        dato = re.fullmatch(r"(ruta-(?:demo-ensayo|ci)-[0-9a-f]{16}) en ([0-9]{1,5}): "
+                            r"completado, 6 filas, media ([0-9]+\.[0-9]+)", lineas[indice])
+        if dato is None or not (0 < int(dato[2]) < 65536) or not math.isclose(float(dato[3]), 25 / 6, rel_tol=1e-10):
+            raise ValueError("Un cálculo de coexistencia no corresponde al ejemplo")
+        ejecuciones.append((dato[1], int(dato[2])))
+    demo, ensayo_uno, ensayo_dos, demo_repetida, ensayo_repetido = ejecuciones
+    if (not demo[0].startswith("ruta-demo-ensayo-") or
+            any(not re.fullmatch(PATRON_PROYECTO_CI, registro[0]) for registro in (ensayo_uno, ensayo_dos)) or
+            len({p for p, _ in ejecuciones[:3]}) != 3 or len({puerto for _, puerto in ejecuciones[:3]}) != 3 or
+            (demo_repetida, ensayo_repetido) != (demo, ensayo_dos)):
+        raise ValueError("El registro no acredita tres proyectos aislados y la continuidad posterior")
 
 
 def auditar_git(carpeta):
@@ -331,6 +354,12 @@ def auditar_paquete(ruta, *, estricto=False):
             comprobar_capturas(visual, builds[carpeta_build], lambda archivo: paquete.read(ruta_visual + archivo))
             esperados.update(ruta_visual + dato["archivo"] for dato in visual["capturas"])
             verificados += len(visual["capturas"])
+        if "coexistencia_local" in cierre:
+            coexistencia = paquete.read(REGISTRO_COEXISTENCIA)
+            verificar_huella(coexistencia, cierre["coexistencia_local"], REGISTRO_COEXISTENCIA)
+            comprobar_coexistencia(coexistencia)
+            esperados.add(REGISTRO_COEXISTENCIA)
+            verificados += 1
         if nombres != esperados:
             raise ValueError("El anexo contiene archivos fuera del inventario")
         if not any(b["revision"] == revision and b["resultado"] == "SUCCESS"

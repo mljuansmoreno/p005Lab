@@ -1,6 +1,7 @@
 """Empaqueta los artefactos auditados de semana 5 sin incluir consolas crudas."""
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import sys
@@ -8,12 +9,19 @@ from tempfile import NamedTemporaryFile
 from zipfile import BadZipFile, ZIP_DEFLATED, ZipFile
 
 from auditar_capturas import auditar_capturas
-from auditar_entrega import EVIDENCIAS_OBLIGATORIAS, auditar_build, auditar_paquete, datos
+from auditar_entrega import EVIDENCIAS_OBLIGATORIAS, REGISTRO_COEXISTENCIA, auditar_build, auditar_paquete
+from auditar_entrega import comprobar_coexistencia, datos
 
 
 def empaquetar(bitacora, destino, *, capturas=None):
     manifiesto = bitacora / "manifiesto-cierre.json"
     cierre = {**datos(manifiesto), "version_formato_anexo": 2}
+    registro_coexistencia = bitacora / REGISTRO_COEXISTENCIA
+    coexistencia = None
+    if registro_coexistencia.is_file():
+        coexistencia = registro_coexistencia.read_bytes()
+        comprobar_coexistencia(coexistencia)
+        cierre["coexistencia_local"] = {"bytes": len(coexistencia), "sha256": hashlib.sha256(coexistencia).hexdigest()}
     if capturas is not None:
         numero = datos(capturas / "capturas.json")["build"]
         build_visual = next((b for b in cierre["jenkins"] if b["numero"] == numero and "origen_actions" in b), None)
@@ -26,6 +34,8 @@ def empaquetar(bitacora, destino, *, capturas=None):
     try:
         with ZipFile(temporal, "w", compression=ZIP_DEFLATED) as paquete:
             paquete.writestr("manifiesto-cierre.json", json.dumps(cierre, ensure_ascii=False, indent=2) + "\n")
+            if coexistencia is not None:
+                paquete.writestr(REGISTRO_COEXISTENCIA, coexistencia)
             if capturas is not None:
                 for dato in cierre["capturas"]["capturas"]:
                     nombre = dato["archivo"]

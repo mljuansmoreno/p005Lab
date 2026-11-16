@@ -7,7 +7,7 @@ import sys
 from zipfile import BadZipFile
 
 from auditar_capturas import auditar_capturas
-from auditar_entrega import auditar_build, auditar_paquete, datos, exigir_cierre
+from auditar_entrega import REGISTRO_COEXISTENCIA, auditar_build, auditar_paquete, comprobar_coexistencia, datos, exigir_cierre
 from empaquetar_entrega import empaquetar
 
 DOCUMENTACION = Path(__file__).resolve().parents[2] / "documentacion"
@@ -77,12 +77,12 @@ def generar(bitacora, salida, numero, *, capturas=None, estricto=True):
         verificacion += " Jenkins reconstruyó ambas imágenes desde un checkout limpio con `--no-cache`."
     if visual:
         verificacion += " El apéndice visual y el ZIP incluyen las tres capturas del mismo build."
-    coexistencia = bitacora / "coexistencia-local.txt"
+    coexistencia = bitacora / REGISTRO_COEXISTENCIA
     if coexistencia.is_file():
-        prueba = coexistencia.read_text(encoding="utf-8-sig")
-        if "Proyectos del ensayo retirados." in prueba and prueba.count("completado, 6 filas") == 5:
-            verificacion += (" La demo y dos proyectos CI completaron el cálculo en puertos distintos. "
-                             "La demo y el segundo proyecto volvieron a calcular tras retirar el primero.")
+        comprobar_coexistencia(coexistencia.read_bytes())
+        verificacion += (" La demo y dos proyectos CI completaron el cálculo en puertos distintos. "
+                         "La demo y el segundo proyecto volvieron a calcular tras retirar el primero. "
+                         "El ZIP incluye el registro de este ensayo local.")
 
     salida.mkdir(parents=True, exist_ok=True)
     informe = (DOCUMENTACION / "entrega_semana5.md").read_text(encoding="utf-8").rstrip()
