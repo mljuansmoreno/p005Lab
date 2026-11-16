@@ -1,0 +1,130 @@
+Started by user <operador>
+Obtained Jenkinsfile from git https://github.com/mljuansmoreno/p005Lab.git
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on linux-docker in <workspace>
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] timeout
+[2026-11-15T19:42:00.905Z] Timeout set to expire in 45 min
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Obtener código)
+[Pipeline] deleteDir
+[Pipeline] checkout
+[2026-11-15T19:42:02.185Z] Selected Git installation does not exist. Using Default
+[2026-11-15T19:42:02.186Z] The recommended git tool is: NONE
+[2026-11-15T19:42:03.535Z] No credentials specified
+[2026-11-15T19:42:03.581Z] Cloning the remote Git repository
+[2026-11-15T19:42:03.672Z] Cloning repository https://github.com/mljuansmoreno/p005Lab.git
+[2026-11-15T19:42:03.698Z]  > git init <workspace> # timeout=10
+[2026-11-15T19:42:03.853Z] Fetching upstream changes from https://github.com/mljuansmoreno/p005Lab.git
+[2026-11-15T19:42:03.854Z]  > git --version # timeout=10
+[2026-11-15T19:42:03.868Z]  > git --version # 'git version 2.53.0'
+[2026-11-15T19:42:03.870Z]  > git fetch --tags --force --progress -- https://github.com/mljuansmoreno/p005Lab.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-11-15T19:42:07.854Z] Avoid second fetch
+[2026-11-15T19:42:07.906Z] Checking out Revision d51e911bd5ab3a23d70b5c1e230acbee16b30205 (refs/remotes/origin/main)
+[2026-11-15T19:42:07.764Z]  > git config remote.origin.url https://github.com/mljuansmoreno/p005Lab.git # timeout=10
+[2026-11-15T19:42:07.780Z]  > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-11-15T19:42:07.864Z]  > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+[2026-11-15T19:42:07.930Z]  > git config core.sparsecheckout # timeout=10
+[2026-11-15T19:42:07.947Z]  > git checkout -f d51e911bd5ab3a23d70b5c1e230acbee16b30205 # timeout=10
+[2026-11-15T19:42:08.216Z] Commit message: "ci(agente): reutiliza paquetes verificados de los escáneres"
+[2026-11-15T19:42:08.231Z]  > git rev-list --no-walk d51e911bd5ab3a23d70b5c1e230acbee16b30205 # timeout=10
+[Pipeline] script
+[Pipeline] {
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] sh
+[2026-11-15T19:42:09.231Z] + git rev-parse HEAD
+[2026-11-15T19:42:09.232Z] d51e911bd5ab3a23d70b5c1e230acbee16b30205
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Validar entorno)
+[Pipeline] sh
+[2026-11-15T19:42:09.915Z] + python3 guiones/ci/ejecutar.py preparar
+[2026-11-15T19:42:33.053Z] Fuentes fijadas y 4 contratos JSON comprobados.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Analizar secretos)
+[Pipeline] sh
+[2026-11-15T19:42:33.801Z] + python3 guiones/ci/ejecutar.py secretos
+[2026-11-15T19:42:42.623Z] [90m2:42PM[0m [32mINF[0m [1mscanned ~2984842 bytes (2.98 MB) in 3.7s[0m
+[2026-11-15T19:42:42.624Z] [90m2:42PM[0m [32mINF[0m [1mno leaks found[0m
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Probar web)
+[Pipeline] sh
+[2026-11-15T19:42:43.917Z] + python3 -m unittest discover -s pruebas/ci
+[2026-11-15T19:42:45.312Z] .............
+[2026-11-15T19:42:45.313Z] ----------------------------------------------------------------------
+[2026-11-15T19:42:45.313Z] Ran 13 tests in 0.456s
+[2026-11-15T19:42:45.313Z] 
+[2026-11-15T19:42:45.313Z] OK
+[Pipeline] sh
+[2026-11-15T19:42:45.867Z] + python3 guiones/ci/ejecutar.py web
+[2026-11-15T19:42:46.545Z] {"evento": "analisis_web", "estado_http": 503, "duracion_ms": 0}
+[2026-11-15T19:42:46.545Z] {"evento": "analisis_web", "estado_http": 502, "duracion_ms": 0}
+[2026-11-15T19:42:46.545Z] Web: 6 ejecutadas, 6 correctas
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Construir y verificar con Docker)
+[Pipeline] sh
+[2026-11-15T19:43:06.483Z] + python3 guiones/ci/ejecutar.py docker
+[2026-11-15T19:43:06.484Z] Proyecto aislado ruta-ci-63028cda8ac53fc9, web 127.0.0.1:35761
+[2026-11-15T19:43:06.484Z] Compose: configuracion
+[2026-11-15T19:43:06.484Z] Compose: compilacion
+[2026-11-15T19:43:13.915Z] Compose: arranque
+[2026-11-15T19:43:32.912Z] Compose: estado
+[2026-11-15T19:43:32.913Z] Compose: red
+[2026-11-15T19:43:36.208Z] Compose: aislamiento
+[2026-11-15T19:43:40.792Z] Compose: acceso
+[2026-11-15T19:43:40.792Z] Compose: autenticacion
+[2026-11-15T19:43:43.740Z] Compose: calculo
+[2026-11-15T19:43:50.590Z] Compose: recuperacion
+[2026-11-15T19:44:05.877Z] Compose: pruebas_r
+[2026-11-15T19:44:14.340Z] Compose: detener_servicios
+[2026-11-15T19:44:16.375Z] Compose: escaneo
+[2026-11-15T19:45:25.158Z] CI: escaneo: código de salida 1
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] fileExists
+[Pipeline] sh
+[2026-11-15T19:45:28.323Z] + python3 guiones/ci/ejecutar.py finalizar
+[Pipeline] archiveArtifacts
+[2026-11-15T19:45:28.622Z] Archiving artifacts
+[2026-11-15T19:45:28.970Z] Recording fingerprints
+[Pipeline] fileExists
+[Pipeline] junit
+[2026-11-15T19:45:30.279Z] Recording test results
+[2026-11-15T19:45:30.745Z] [Checks API] No suitable checks publisher found.
+[Pipeline] fileExists
+[Pipeline] junit
+[2026-11-15T19:45:30.916Z] Recording test results
+[2026-11-15T19:45:31.101Z] [Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[Pipeline] // timestamps
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+ERROR: script returned exit code 1
+Finished: FAILURE
