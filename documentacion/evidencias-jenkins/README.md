@@ -19,4 +19,3 @@
 El cambio entre #8 y #9 hizo que el escáner normalizara los identificadores devueltos por Compose y comprobara el ID canónico de cada imagen. La fase que falló en #8 terminó en #9 y se obtuvo el informe del motor. [Cambio de código](https://github.com/mljuansmoreno/p005Lab/commit/911f2cb).
 
 Los archivos `consola.txt` conservan la secuencia completa de mensajes del build. Se retiraron anotaciones de presentación propias de Jenkins y se redactaron el operador manual y los directorios locales de trabajo. `hitos.txt` conserva la selección histórica de mensajes que exportó el runner #11001. La captura de ese build ilustra el pipeline agrupado anterior. El [resultado del escaneo histórico de secretos](secretos-historial.json) contiene solo metadatos.
-

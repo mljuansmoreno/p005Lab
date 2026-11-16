@@ -1,0 +1,9 @@
+Python en Ubuntu WSL2, con PYTHONPATH=aplicacion:guiones.
+La suite de CI se ejecutó con el cambio del pipeline en 7a819f6.
+
+$ python3 -m unittest discover -s pruebas/ci
+Ran 54 tests in 1.914s
+OK (skipped=6)
+
+$ python3 guiones/ci/ejecutar.py web
+Web: 6 ejecutadas, 6 correctas
