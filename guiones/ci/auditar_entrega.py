@@ -71,14 +71,27 @@ def comprobar_calculo(contenido, nombre):
         raise ValueError(f"El cálculo archivado no coincide con el ejemplo en {nombre}")
 
 
-def comprobar_recuperacion(contenido, nombre):
+def comprobar_recuperacion(contenido, nombre, version):
     registro, separador, resultado = contenido.rpartition(b"\n{")
-    if not separador or b"Disponibilidad con motor detenido: HTTP 503" not in registro.splitlines():
+    observaciones = registro.splitlines()
+    if not separador or b"Disponibilidad con motor detenido: HTTP 503" not in observaciones:
         raise ValueError(f"La recuperación archivada carece del HTTP 503 y el recálculo en {nombre}")
+    if version == 2:
+        anterior = re.findall(rb"(?m)^ID del motor antes ([0-9a-f]{64})\r?$", registro)
+        nuevo = re.findall(rb"(?m)^ID del motor recuperado ([0-9a-f]{64})\r?$", registro)
+        estados = {b"Vida web con motor detenido HTTP 200", b"Disponibilidad recuperada HTTP 200"}
+        if len(anterior) != 1 or len(nuevo) != 1 or anterior == nuevo or not estados.issubset(observaciones):
+            raise ValueError(f"La recuperación archivada no acredita HTTP 200 y un motor nuevo en {nombre}")
+    elif version != 1:
+        raise ValueError(f"Versión de recuperación desconocida en {nombre}")
     comprobar_calculo(b"{" + resultado, nombre)
 
 
-COMPROBACIONES_COMPOSE = {"05-calculo.txt": comprobar_calculo, "06-recuperacion.txt": comprobar_recuperacion}
+def comprobar_compose(contenido, nombre, entorno):
+    if nombre.endswith("05-calculo.txt"):
+        comprobar_calculo(contenido, nombre)
+    elif nombre.endswith("06-recuperacion.txt"):
+        comprobar_recuperacion(contenido, nombre, entorno.get("version_registro_recuperacion", 1))
 
 
 def auditar_git(carpeta):
@@ -168,8 +181,8 @@ def auditar_build(carpeta):
         verificar_huella(contenido, registro, nombre_local)
         if build["result"] == "SUCCESS" and nombre in ARCHIVOS_JUNIT:
             pruebas_junit[nombre] = comprobar_junit(contenido, nombre)
-        if build["result"] == "SUCCESS" and nombre in COMPROBACIONES_COMPOSE:
-            COMPROBACIONES_COMPOSE[nombre](contenido, nombre)
+        if build["result"] == "SUCCESS":
+            comprobar_compose(contenido, nombre, entorno)
         comprobados.append(nombre)
     faltantes = EVIDENCIAS_OBLIGATORIAS.difference(comprobados)
     if build["result"] == "SUCCESS" and faltantes:
@@ -247,8 +260,8 @@ def auditar_paquete(ruta):
                 verificar_huella(contenido, evidencia["archivos"][nombre], entrada)
                 if api["result"] == "SUCCESS" and nombre in ARCHIVOS_JUNIT:
                     pruebas_junit[nombre] = comprobar_junit(contenido, entrada)
-                if api["result"] == "SUCCESS" and nombre in COMPROBACIONES_COMPOSE:
-                    COMPROBACIONES_COMPOSE[nombre](contenido, entrada)
+                if api["result"] == "SUCCESS":
+                    comprobar_compose(contenido, entrada, entorno)
                 esperados.add(entrada)
                 verificados += 1
             if build.get("pruebas_junit", pruebas_junit) != pruebas_junit:

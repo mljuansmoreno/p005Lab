@@ -88,6 +88,28 @@ class PruebasAuditoria(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "recuperación archivada"):
             auditar_build(carpeta)
 
+    def test_formato_nuevo_exige_dos_respuestas_200_y_un_motor_nuevo(self):
+        carpeta, ruta, manifiesto = self.preparar("SUCCESS")
+        prefijo = "artifact-salidas-jenkins-ci-"
+        entorno = json.loads((carpeta / f"{prefijo}00-entorno.json").read_bytes())
+        entorno["version_registro_recuperacion"] = 2
+        registro = (carpeta / f"{prefijo}06-recuperacion.txt").read_bytes()
+        cabecera = (b"Vida web con motor detenido HTTP 200\nDisponibilidad recuperada HTTP 200\n"
+                    b"ID del motor antes " + b"a" * 64 + b"\nID del motor recuperado ")
+        for nuevo in (b"a" * 64, b"b" * 64):
+            contenidos = {"00-entorno.json": json.dumps(entorno).encode(),
+                          "06-recuperacion.txt": cabecera + nuevo + b"\n" + registro}
+            for nombre, contenido in contenidos.items():
+                (carpeta / f"{prefijo}{nombre}").write_bytes(contenido)
+                manifiesto["archivos"][nombre] = {"sha256": hashlib.sha256(contenido).hexdigest(),
+                                                "bytes": len(contenido)}
+            ruta.write_text(json.dumps(manifiesto), encoding="utf-8")
+            if nuevo.startswith(b"a"):
+                with self.assertRaisesRegex(ValueError, "un motor nuevo"):
+                    auditar_build(carpeta)
+            else:
+                self.assertEqual(auditar_build(carpeta)["resultado"], "SUCCESS")
+
     def test_coteja_causa_con_api_de_jenkins(self):
         carpeta, ruta, manifiesto = self.preparar("SUCCESS")
         ruta.write_text(json.dumps(manifiesto), encoding="utf-8")
