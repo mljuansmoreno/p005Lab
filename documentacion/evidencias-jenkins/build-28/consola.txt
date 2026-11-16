@@ -1,0 +1,136 @@
+Started by an SCM change
+Obtained Jenkinsfile from git https://github.com/mljuansmoreno/p005Lab.git
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on linux-docker in <workspace>
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] timeout
+[2026-11-16T12:20:22.174Z] Timeout set to expire in 1 hr 5 min
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Obtener código)
+[Pipeline] deleteDir
+[Pipeline] script
+[Pipeline] {
+[Pipeline] checkout
+[2026-11-16T12:20:22.758Z] Selected Git installation does not exist. Using Default
+[2026-11-16T12:20:22.758Z] The recommended git tool is: NONE
+[2026-11-16T12:20:22.927Z] No credentials specified
+[2026-11-16T12:20:22.941Z] Cloning the remote Git repository
+[2026-11-16T12:20:22.991Z] Cloning repository https://github.com/mljuansmoreno/p005Lab.git
+[2026-11-16T12:20:23.035Z]  > git init <workspace> # timeout=10
+[2026-11-16T12:20:23.130Z] Fetching upstream changes from https://github.com/mljuansmoreno/p005Lab.git
+[2026-11-16T12:20:23.130Z]  > git --version # timeout=10
+[2026-11-16T12:20:23.142Z]  > git --version # 'git version 2.53.0'
+[2026-11-16T12:20:23.148Z]  > git fetch --tags --force --progress -- https://github.com/mljuansmoreno/p005Lab.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-11-16T12:20:24.890Z]  > git config remote.origin.url https://github.com/mljuansmoreno/p005Lab.git # timeout=10
+[2026-11-16T12:20:24.907Z]  > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-11-16T12:20:25.108Z] Avoid second fetch
+[2026-11-16T12:20:25.163Z] Checking out Revision ea13a12e6ad174589757efeba6ac62584f68b679 (refs/remotes/origin/main)
+[2026-11-16T12:20:25.691Z] Commit message: "Revisión de ciberseguridad: red-miembros-esperados"
+[2026-11-16T12:20:25.123Z]  > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+[2026-11-16T12:20:25.182Z]  > git config core.sparsecheckout # timeout=10
+[2026-11-16T12:20:25.208Z]  > git checkout -f ea13a12e6ad174589757efeba6ac62584f68b679 # timeout=10
+[2026-11-16T12:20:25.702Z]  > git rev-list --no-walk 295325ff7fc09725f8f046741bf3932a2fd5cf2b # timeout=10
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] sh
+[2026-11-16T12:20:26.711Z] + git rev-parse HEAD
+[2026-11-16T12:20:26.712Z] ea13a12e6ad174589757efeba6ac62584f68b679
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Validar entorno)
+[Pipeline] sh
+[2026-11-16T12:20:27.918Z] + python3 guiones/ci/ejecutar.py preparar
+[2026-11-16T12:21:18.393Z] Fuentes fijadas y 4 contratos JSON comprobados.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Analizar secretos)
+[Pipeline] sh
+[2026-11-16T12:21:29.754Z] + python3 guiones/ci/ejecutar.py secretos
+[2026-11-16T12:22:07.639Z] [90m7:22AM[0m [32mINF[0m [1mscanned ~3136450 bytes (3.14 MB) in 14.4s[0m
+[2026-11-16T12:22:07.640Z] [90m7:22AM[0m [32mINF[0m [1mno leaks found[0m
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Probar web)
+[Pipeline] sh
+[2026-11-16T12:22:09.908Z] + python3 -m unittest discover -s pruebas/ci
+[2026-11-16T12:22:17.187Z] .....................................................
+[2026-11-16T12:22:17.187Z] ----------------------------------------------------------------------
+[2026-11-16T12:22:17.187Z] Ran 53 tests in 5.041s
+[2026-11-16T12:22:17.187Z] 
+[2026-11-16T12:22:17.187Z] OK
+[Pipeline] sh
+[2026-11-16T12:22:17.827Z] + python3 guiones/ci/ejecutar.py web
+[2026-11-16T12:22:18.967Z] {"evento": "analisis_web", "estado_http": 503, "duracion_ms": 0}
+[2026-11-16T12:22:18.967Z] {"evento": "analisis_web", "estado_http": 502, "duracion_ms": 0}
+[2026-11-16T12:22:18.967Z] Web: 6 ejecutadas, 6 correctas
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Construir y verificar con Docker)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-11-16T12:22:20.755Z] + python3 guiones/ci/ejecutar.py docker
+[2026-11-16T12:22:21.050Z] Proyecto aislado ruta-ci-8ee0160ed631e6c8, web 127.0.0.1:36797
+[2026-11-16T12:22:21.050Z] Compose: configuracion
+[2026-11-16T12:22:22.071Z] Compose: compilacion
+[2026-11-16T12:23:09.595Z] Compose: arranque
+[2026-11-16T12:24:01.210Z] Compose: estado
+[2026-11-16T12:24:01.230Z] Compose: red
+[2026-11-16T12:24:01.230Z] Compose: aislamiento
+[2026-11-16T12:24:04.116Z] Compose: acceso
+[2026-11-16T12:24:04.538Z] Compose: autenticacion
+[2026-11-16T12:24:09.343Z] Compose: calculo
+[2026-11-16T12:24:19.711Z] Compose: recuperacion
+[2026-11-16T12:24:57.818Z] Compose: pruebas_r
+[2026-11-16T12:25:10.819Z] Compose: detener_servicios
+[2026-11-16T12:25:12.417Z] Compose: escaneo
+[2026-11-16T12:50:47.528Z] CI: escaneo: TimeoutExpired (inventario-motor)
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] fileExists
+[Pipeline] sh
+[2026-11-16T12:50:52.717Z] + python3 guiones/ci/ejecutar.py finalizar
+[Pipeline] sh
+[2026-11-16T12:50:54.097Z] + python3 guiones/ci/ejecutar.py archivos
+[Pipeline] archiveArtifacts
+[2026-11-16T12:50:55.288Z] Archiving artifacts
+[2026-11-16T12:50:55.946Z] Recording fingerprints
+[Pipeline] fileExists
+[Pipeline] junit
+[2026-11-16T12:50:56.960Z] Recording test results
+[2026-11-16T12:50:57.954Z] [Checks API] No suitable checks publisher found.
+[Pipeline] fileExists
+[Pipeline] junit
+[2026-11-16T12:50:58.190Z] Recording test results
+[2026-11-16T12:50:59.168Z] [Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[Pipeline] // timestamps
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+ERROR: script returned exit code 1
+Finished: FAILURE
