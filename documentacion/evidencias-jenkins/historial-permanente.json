@@ -1,0 +1,75 @@
+{
+  "job": "ruta-estadistica-main",
+  "builds": [
+    {
+      "build": 20,
+      "revision": "9dde39deec0dd1f1fce37fc5452701955bb12a9b",
+      "resultado": "FAILURE",
+      "causa": "",
+      "fecha_utc": "2026-11-16T03:13:30.659000+00:00"
+    },
+    {
+      "build": 21,
+      "revision": "5ae9ff3e01448b0708235c7c0e575f3d4b5733ce",
+      "resultado": "SUCCESS",
+      "causa": "",
+      "fecha_utc": "2026-11-16T03:52:14.551000+00:00"
+    },
+    {
+      "build": 22,
+      "revision": "7032e82417b20b778fb02b24f71238a34fbe1d37",
+      "resultado": "SUCCESS",
+      "causa": "",
+      "fecha_utc": "2026-11-16T04:15:11.700000+00:00"
+    },
+    {
+      "build": 23,
+      "revision": "1cde7fa59859326f9f27da018ae0a5db926d45b5",
+      "resultado": "SUCCESS",
+      "causa": "",
+      "fecha_utc": "2026-11-16T04:30:18.711000+00:00"
+    },
+    {
+      "build": 24,
+      "revision": "487f977942c5a8fe43e24d020b72027fc6042bfd",
+      "resultado": "SUCCESS",
+      "causa": "",
+      "fecha_utc": "2026-11-16T04:47:20.873000+00:00"
+    },
+    {
+      "build": 25,
+      "revision": "5598eaad1d3ced80b13273fa479c34ecd9b9681e",
+      "resultado": "SUCCESS",
+      "causa": "",
+      "fecha_utc": "2026-11-16T05:07:57.722000+00:00"
+    },
+    {
+      "build": 26,
+      "revision": "b334ba9a0f3f04a6308e6981623bfa5e850b1764",
+      "resultado": "SUCCESS",
+      "causa": "",
+      "fecha_utc": "2026-11-16T05:25:56.814000+00:00"
+    },
+    {
+      "build": 27,
+      "revision": "295325ff7fc09725f8f046741bf3932a2fd5cf2b",
+      "resultado": "SUCCESS",
+      "causa": "",
+      "fecha_utc": "2026-11-16T05:43:07.419000+00:00"
+    },
+    {
+      "build": 28,
+      "revision": "ea13a12e6ad174589757efeba6ac62584f68b679",
+      "resultado": "FAILURE",
+      "causa": "",
+      "fecha_utc": "2026-11-16T12:20:16.492000+00:00"
+    },
+    {
+      "build": 29,
+      "revision": "1da71972ecea1768d7609238eb26b5fb81a1ec4b",
+      "resultado": "SUCCESS",
+      "causa": "",
+      "fecha_utc": "2026-11-16T13:04:15.747000+00:00"
+    }
+  ]
+}
