@@ -30,6 +30,9 @@ def empaquetar(bitacora, destino):
                 if build.get("sin_artefactos"):
                     resumen.update(artifacts=api["artifacts"], revision_checkout=build["revision"])
                 paquete.writestr(f"{origen.name}/jenkins-api-resumen.json", json.dumps(resumen, indent=2) + "\n")
+                if "origen_actions" in build:
+                    paquete.writestr(f"{origen.name}/origen-actions.json",
+                                     json.dumps(build["origen_actions"], indent=2) + "\n")
                 if build.get("sin_artefactos"):
                     continue
                 nombres = build["artefactos_con_huella_verificada"]

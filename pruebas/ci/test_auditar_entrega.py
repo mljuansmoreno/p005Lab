@@ -132,3 +132,16 @@ class PruebasAuditoria(unittest.TestCase):
         commits[-1]["publicado"] = False
         with self.assertRaisesRegex(ValueError, "84 incrementos"):
             exigir_cierre(resultado)
+
+    def test_origen_alojado_debe_identificar_el_checkout(self):
+        carpeta, ruta, manifiesto = self.preparar("SUCCESS")
+        ruta.write_text(json.dumps(manifiesto), encoding="utf-8")
+        archivo = carpeta / "origen-actions.json"
+        origen = {"url": "https://github.com/mljuansmoreno/p005Lab/actions/runs/42",
+                  "revision_esperada": manifiesto["revision"]}
+        archivo.write_text(json.dumps(origen), encoding="utf-8")
+        self.assertEqual(auditar_build(carpeta)["origen_actions"], origen)
+        origen["revision_esperada"] = "b" * 40
+        archivo.write_text(json.dumps(origen), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "origen alojado"):
+            auditar_build(carpeta)

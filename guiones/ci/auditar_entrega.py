@@ -32,6 +32,14 @@ def sha(valor):
     return valor
 
 
+def validar_origen_actions(origen, revision):
+    url = origen["url"]
+    if (not re.fullmatch(r"https://github\.com/mljuansmoreno/p005Lab/actions/runs/[1-9][0-9]*", url) or
+            sha(origen["revision_esperada"]) != revision):
+        raise ValueError("El origen alojado no acredita la revisión de Jenkins")
+    return {"url": url, "revision_esperada": revision}
+
+
 def verificar_huella(contenido, registro, nombre):
     if (hashlib.sha256(contenido).hexdigest() != registro.get("sha256") or
             len(contenido) != registro.get("bytes")):
@@ -98,6 +106,8 @@ def auditar_build(carpeta):
             entorno["build_url"] != build["url"] or not causa_jenkins or
             (not autoprueba and entorno["causa"] != causa_jenkins)):
         raise ValueError(f"No coinciden metadatos en {carpeta.name}")
+    origen = carpeta / "origen-actions.json"
+    procedencia = {"origen_actions": validar_origen_actions(datos(origen), revision)} if origen.is_file() else {}
     archivados = {archivo["relativePath"] for archivo in build.get("artifacts", [])}
     comprobados = []
     no_archivados = []
@@ -126,6 +136,7 @@ def auditar_build(carpeta):
     return {
         **resumen, "revision": revision, "artefactos_con_huella_verificada": comprobados,
         "artefactos_declarados_sin_archivar": no_archivados,
+        **procedencia,
         **({"descripcion_autoprueba": entorno["causa"]} if autoprueba else {}),
     }
 
@@ -161,6 +172,12 @@ def auditar_paquete(ruta):
                     api["url"] != build["url"] or api["result"] != build["resultado"] or
                     api["duration"] != build["duracion_ms"] or api["building"] or not causas or causas != build["causa"]):
                 raise ValueError(f"Metadatos incoherentes en {carpeta}")
+            if "origen_actions" in build:
+                entrada_origen = f"{carpeta}/origen-actions.json"
+                origen = json.loads(paquete.read(entrada_origen))
+                if validar_origen_actions(origen, build["revision"]) != build["origen_actions"]:
+                    raise ValueError(f"Origen alojado incoherente en {carpeta}")
+                esperados.add(entrada_origen)
             if build.get("sin_artefactos"):
                 if (api["result"] not in {"FAILURE", "ABORTED", "NOT_BUILT"} or api["artifacts"] != [] or
                         api["revision_checkout"] != build["revision"] or build["artefactos_con_huella_verificada"] or
