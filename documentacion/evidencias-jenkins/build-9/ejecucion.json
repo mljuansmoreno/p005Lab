@@ -1,0 +1,20 @@
+{
+  "job": "ruta-estadistica-main",
+  "build": 9,
+  "revision": "911f2cb8ed92cf6400d58da24e9f9435ca9789f1",
+  "causa": "SCMTrigger$SCMTriggerCause",
+  "resultado": "SUCCESS",
+  "fecha_utc": "2026-11-15T19:50:29.675689+00:00",
+  "modo_compilacion": null,
+  "imagenes_oci": {
+    "aplicacion": "sha256:672e88a41b4f5cdb5d46da868ccea58d85e0912e12265da71f3f2351131aff7b",
+    "motor": "sha256:ae208a92e56dd5d0fc425efd7efb231e14562e05dc8d12b13292eccfe464aae6"
+  },
+  "plataforma": {
+    "docker": "29.9.3",
+    "compose": "5.7.0",
+    "python": "3.14.4",
+    "git": "git version 2.53.0",
+    "arquitectura": "x86_64"
+  }
+}
