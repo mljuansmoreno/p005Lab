@@ -11,6 +11,21 @@ Proyecto de Integración Continua del Politécnico Grancolombiano, por Juan Seba
 
 Los resultados de esta guía corresponden a las revisiones, fechas y ejecuciones indicadas. Los pasos de reproducción explican qué esperar al ejecutarlos en otro equipo. Para ver los cambios consolidados, consulte la [evolución de la entrega](#evolución-de-la-entrega).
 
+## Arquitectura y alcance
+
+| Componente | Responsabilidad |
+| --- | --- |
+| `aplicacion/` | Web Python de la demo. Sirve el formulario, envía un CSV sintético, consulta el trabajo y presenta el resultado. |
+| `codigo/RutaEstadistica.ServidorLocal` y `motor_r/` | API .NET y trabajador R. La API admite el trabajo y devuelve su estado y resultado; R calcula las cifras. |
+| `codigo/RutaEstadistica.Escritorio` | Cliente WinUI en español. Usa R local o, por elección, el adaptador a un motor Docker. |
+| `codigo/` (capas compartidas) y `contratos/` | Validación, coordinación, persistencia, exportación y esquemas de entrada y salida. |
+| `codigo/RutaEstadistica.ServidorMcp` | Servidor stdio con permisos concedidos desde el escritorio por proyecto y por sesión. |
+| `pruebas/`, `guiones/`, `jenkins/` y `.github/workflows/` | Datos sintéticos, compilación, pruebas, CI y recolección de evidencias. |
+
+La demo usa [`docker-compose.yml`](docker-compose.yml) en la raíz y publica la web en `127.0.0.1:8080`. La web conecta también con la red bridge interna `analisis`, donde resuelve `motor:8787` por DNS y usa HTTP autenticado. El motor de la demo carece de puerto publicado. La opción Docker de WinUI usa [otro Compose](contenedores/compose.yaml): publica solo el motor en `127.0.0.1:8787`. Jenkins tiene [su propio Compose](jenkins/compose.yaml) para el controlador.
+
+[Arquitectura](documentacion/arquitectura.md) · [Mapa del código](documentacion/mapa_codigo.md) · [API y contratos](documentacion/contratos_y_api.md) · [Métodos en R](documentacion/motor_r_y_metodos.md).
+
 ## Demostración de dos servicios con Docker
 
 Requiere Git, Docker con contenedores Linux, Compose con soporte para `up --wait` y capacidad de ejecutar imágenes `linux/amd64`. En Linux, la preparación de abajo usa Bash y OpenSSL.
