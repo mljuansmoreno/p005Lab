@@ -11,7 +11,12 @@ if [[ ! -f conexion.secreto ]] || [[ "$(stat -c %a conexion.secreto)" != 600 ]];
   exit 1
 fi
 
-curl --noproxy '*' --fail --silent --show-error --max-time 30 \
+autenticacion=()
+if [[ -n "${RUTA_CI_AGENTE_NETRC:-}" ]]; then
+  autenticacion=(--netrc-file "$RUTA_CI_AGENTE_NETRC" --retry 6 --retry-connrefused)
+  unset RUTA_CI_AGENTE_NETRC
+fi
+curl --noproxy '*' --fail --silent --show-error --max-time 30 "${autenticacion[@]}" \
   "$jenkins/jnlpJars/agent.jar" --output agent.jar
 # El workspace queda bajo un directorio privado. Docker debe copiar fuentes legibles por UID 1654.
 export RUTA_CI_CACHE_HERRAMIENTAS="$PWD/cache-herramientas"
