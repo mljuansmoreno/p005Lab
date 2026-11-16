@@ -2,6 +2,12 @@
 
 Use capturas de la instancia y de la revisión observadas. Para cada figura anote fecha, número de build y SHA si aplican. Revise el recorte para excluir credenciales, rutas personales y datos de configuración ajenos. Las capturas del artículo anterior son antecedentes de GitHub Actions y Compose.
 
+## Capturas del runner alojado
+
+La ejecución Jenkins #10801 del 16 de noviembre de 2026 a las 05:04 UTC capturó el estado del build, Stage View y las 20 pruebas JUnit aprobadas sobre `ac755189c6356f54018c277a4ecb216d12106dfd`. Descargue `jenkins-capturas-SHA-INTENTO` desde la ejecución. `capturas.json` conserva la hora, el build y la huella SHA-256 de cada vista. [Capturas y evidencia de Jenkins #10801](https://github.com/mljuansmoreno/p005Lab/actions/runs/43807515338).
+
+Para obtener las mismas vistas de otra revisión, ejecute `gh workflow run jenkins-alojado.yaml --ref main -f capturas=true`. Una vez descargado el artefacto visual e importada la evidencia del build, ejecute `python3 guiones/ci/auditar_capturas.py RUTA_CAPTURAS RUTA_BUILD` para cotejar el origen, la revisión y las huellas.
+
 | Figura | Vista o evidencia | Criterio |
 | --- | --- | --- |
 | 1 | Diagrama del informe | Controlador en loopback, WebSocket, GitHub, agente y red interna del producto |
