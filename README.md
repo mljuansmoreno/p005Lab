@@ -122,6 +122,21 @@ Se espera HTTP 200 en `/salud` y HTTP 503 en `/listo` durante la caída; luego H
 
 [Operación y diagnóstico de Compose](documentacion/operacion_compose.md).
 
+## Pruebas de Docker realizadas
+
+| Ejecución | Resultado observado |
+| --- | --- |
+| [GitHub Actions 42566314429](https://github.com/mljuansmoreno/p005Lab/actions/runs/42566314429) | Docker Linux pasó. Windows quedó sin ejecutar las pruebas nativas porque la descarga de R devolvió HTTP 504. |
+| [GitHub Actions 42755729490](https://github.com/mljuansmoreno/p005Lab/actions/runs/42755729490), rama del PR #1 `4c173dc` | Pasaron Windows con siete rutas HTTP usando R real y Docker Linux con seis filas y media de 25/6. |
+| [GitHub Actions 42844551193](https://github.com/mljuansmoreno/p005Lab/actions/runs/42844551193), rama `abc71d6`, fusión de prueba `deb14c0` | Pasaron Windows y Docker Linux. El anexo registra la construcción de ambas imágenes, los dos servicios sanos, el puerto web en loopback, la red y el cálculo. |
+| [GitHub Actions 43754604687](https://github.com/mljuansmoreno/p005Lab/actions/runs/43754604687), `911f2cb`; [43801811485](https://github.com/mljuansmoreno/p005Lab/actions/runs/43801811485), `48d8a4e` | Pasaron los trabajos Windows, Docker y secretos en las revisiones indicadas. |
+| [GitHub Actions 43810516949](https://github.com/mljuansmoreno/p005Lab/actions/runs/43810516949), `295325f` | Windows, Docker Linux y secretos aprobaron el mismo SHA de cierre. |
+| [Jenkins alojado #10501](https://github.com/mljuansmoreno/p005Lab/actions/runs/43805486879) | Tras detener el motor se observaron HTTP 200 en vida y HTTP 503 en disponibilidad. Se registraron IDs distintos antes y después de recrearlo, HTTP 200 en disponibilidad y otro cálculo válido. |
+
+En el [workflow de verificación](.github/workflows/verificacion.yaml), busque `docker-linux-<SHA>` bajo **Artifacts**. `00-entorno.json` distingue la revisión ejecutada de la rama o fusión de prueba, y registra versiones e imágenes; `01-compilacion.txt` a `05-calculo.txt` muestran construcción, arranque, procesos, red y cálculo. Las ejecuciones que incluyen recuperación publican `06-recuperacion.txt`. GitHub Actions y Jenkins comparten comprobaciones de Compose, pero cada artefacto acredita su propia ejecución.
+
+[Evidencias paso a paso](documentacion/evidencias_compose.md) · [Artículo en PDF](documentacion/ruta-estadistica-articulo.pdf) · [Artículo en DOCX](documentacion/ruta-estadistica-articulo.docx).
+
 ## Aplicación de escritorio
 
 Aplicación Windows en español para recorrer pregunta, datos, preparación, ruta, resultados, interpretación y evidencia. Los cálculos los realiza el paquete R `rutaanalitica`; no se necesita una cuenta ni un modelo de lenguaje.
