@@ -168,11 +168,18 @@ En **Inicio** pulse **Probar ejemplo**, conserve el motor **Local** y pulse **Ca
 
 [Instalación de desarrollo](documentacion/instalacion_desarrollo.md) · [Recorrido reproducible](documentacion/recorrido_completo.md) · [Errores y soluciones](documentacion/errores_y_soluciones.md).
 
-Para sus datos: cree un proyecto, escriba la pregunta, seleccione archivo, confirme opciones de lectura y luego roles. No se infiere el significado a partir del nombre. CSV/TSV UTF-8 y XLSX sin fórmulas: 50 MiB, 100.000 registros sin contar encabezado, 200 columnas. Los límites se aplican sin truncamiento silencioso. La vista previa contiene hasta 200 filas.
+### Analizar sus datos y guardar evidencia
 
-Las funciones disponibles incluyen descriptivos, frecuencias de respuesta única, Welch, mediciones pareadas confirmadas, Pearson/Spearman y relación lineal simple. La inferencia está desactivada inicialmente. PDF, regresión múltiple y respuestas múltiples no están implementados.
+1. En **Inicio**, cree o abra un proyecto. Escriba la pregunta y el contexto. Puede renombrar, duplicar o importar proyectos desde esa pantalla.
+2. En **Datos**, importe CSV o TSV en UTF-8, o seleccione una hoja de un XLSX sin fórmulas, macros ni vínculos externos. Confirme el separador, decimales, encabezado, fechas y marcador de faltantes. Los límites generales son 50 MiB, 100.000 filas de datos y 200 columnas. La vista previa de hasta 200 filas no recorta la entrada al cálculo.
+3. En **Preparación**, confirme los roles y revise faltantes, duplicados candidatos y constantes. Los identificadores conservan ceros iniciales. La exclusión por faltantes exige confirmación y queda registrada; la aplicación no elimina automáticamente valores atípicos.
+4. En **Ruta**, elija descriptivos, frecuencias de respuesta única, Welch, pares confirmados, Pearson/Spearman o regresión lineal simple. Seleccione las variables en el orden que indique el método. Confirme las condiciones antes de activar la inferencia y pulse **Calcular**.
+5. En **Resultados** e **Interpretación**, revise cifras, gráfico, procedencia y límites. La pantalla separa el redondeo de presentación de los valores guardados. En **Evidencia** puede abrir un cálculo guardado; la aplicación coteja la solicitud y el hash del CSV antes de mostrarlo.
+6. En **Evidencia**, exporte a una carpeta nueva. Puede abrir `informe.html` sin conexión y, con el paquete R instalado, ejecutar `Rscript --vanilla reproducir.R` desde la carpeta exportada. Compare las cifras; la fecha y duración pueden variar. La exportación incluye CSV, PNG, solicitud, entrada normalizada y resultado. Use la opción CSV seguro al compartir texto que se abrirá en una hoja de cálculo.
 
-Los proyectos se guardan en `%LOCALAPPDATA%/RutaEstadistica/proyectos`, sin cifrado propio. Eliminar conserva un respaldo portátil. HTML, CSV, PNG y un guion R se exportan a una carpeta nueva. Los archivos portátiles contienen datos privados: revise antes de compartir.
+Los proyectos se guardan en `%LOCALAPPDATA%\RutaEstadistica\proyectos`, sin cifrado propio. La exportación portátil `.rutaestadistica` conserva datos y hashes; importar crea otro proyecto, y eliminar deja un respaldo. Revise el contenido antes de compartirlo.
+
+La aplicación abre con tema claro; en **Apariencia** puede cambiar a **Oscuro** o **Según Windows**. La preferencia se guarda por perfil y la interfaz contempla el contraste del sistema. La actualización también organizó los títulos, botones, tablas, avisos y superficies de resultados de WinUI y de la demo. [Manual](documentacion/manual_usuario.md) · [Datos y persistencia](documentacion/datos_y_persistencia.md).
 
 ### Opciones avanzadas
 
