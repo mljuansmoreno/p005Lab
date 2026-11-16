@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="web" tests="6" time="0.076948" failures="0" errors="0" skipped="0">
+  <testcase name="test_destino" classname="test_aplicacion_web.ConfiguracionWeb" time="0.000603" />
+  <testcase name="test_secreto" classname="test_aplicacion_web.ConfiguracionWeb" time="0.004634" />
+  <testcase name="test_cabeceras" classname="test_aplicacion_web.InterfazWeb" time="0.020844" />
+  <testcase name="test_capacidad_ocupada" classname="test_aplicacion_web.InterfazWeb" time="0.014037" />
+  <testcase name="test_error_json" classname="test_aplicacion_web.InterfazWeb" time="0.014603" />
+  <testcase name="test_vida_y_disponibilidad" classname="test_aplicacion_web.InterfazWeb" time="0.021562" />
+</testsuite>

@@ -1,0 +1,28 @@
+{
+  "fuente": "Pipeline Stage View REST /wfapi/describe",
+  "build": 90001,
+  "revision": "f4d4f5ddf019606d1703d464ae686b3d2ffe35a2",
+  "status": "SUCCESS",
+  "stages": [
+    {
+      "name": "Checkout",
+      "status": "SUCCESS",
+      "durationMillis": 26071
+    },
+    {
+      "name": "Build",
+      "status": "SUCCESS",
+      "durationMillis": 62173
+    },
+    {
+      "name": "Test",
+      "status": "SUCCESS",
+      "durationMillis": 419069
+    },
+    {
+      "name": "Declarative: Post Actions",
+      "status": "SUCCESS",
+      "durationMillis": 13584
+    }
+  ]
+}

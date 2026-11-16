@@ -1,0 +1,3 @@
+NAME                                    IMAGE                                 COMMAND                  SERVICE      CREATED          STATUS                    PORTS
+ruta-ci-c48c1757126197f8-aplicacion-1   ruta-ci-c48c1757126197f8-aplicacion   "python web.py"          aplicacion   21 seconds ago   Up 10 seconds (healthy)   127.0.0.1:60395->8080/tcp
+ruta-ci-c48c1757126197f8-motor-1        ruta-ci-c48c1757126197f8-motor        "/aplicacion/RutaEst…"   motor        22 seconds ago   Up 19 seconds (healthy)   8787/tcp

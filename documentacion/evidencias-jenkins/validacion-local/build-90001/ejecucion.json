@@ -1,0 +1,15 @@
+{
+  "job": "ruta-estadistica-main",
+  "controlador": "Jenkins desechable en Ubuntu WSL2",
+  "fuente_scm": "copia Git local de main",
+  "build": 90001,
+  "revision": "f4d4f5ddf019606d1703d464ae686b3d2ffe35a2",
+  "resultado": "SUCCESS",
+  "causa": "Cause$UserIdCause",
+  "fecha_utc": "2026-11-16T18:27:51.857499+00:00",
+  "modo_compilacion": "cache_permitida",
+  "imagenes_oci": {
+    "aplicacion": "sha256:c93ee3d5f549b3a7a09164f61f9adb0236ba1e090aa6914a5f70f18946e6e28a",
+    "motor": "sha256:a627492ce13ada2e9a11b58eb31c0c49474f2ab2e74e7c9b1d15391cae301e43"
+  }
+}

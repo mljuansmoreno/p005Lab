@@ -1,0 +1,152 @@
+ Image ruta-ci-c48c1757126197f8-motor Building
+ Image ruta-ci-c48c1757126197f8-aplicacion Building
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.56kB done
+#1 DONE 0.0s
+
+#2 [aplicacion internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.40kB 0.1s done
+#2 DONE 0.1s
+
+#3 [motor internal] load build definition from Dockerfile
+#3 transferring dockerfile: 2.17kB 0.1s done
+#3 DONE 0.1s
+
+#4 [motor internal] load metadata for mcr.microsoft.com/dotnet/sdk:10.0.403@sha256:de4fe90a98845d75910b9769662465c84de1a934665c431279d1382b2bddc02b
+#4 ...
+
+#5 [motor internal] load metadata for docker.io/rocker/r-ver:4.5.2@sha256:fd4ccdd3a4a6f7ef805e2daeee2a0fe3bf126bc231f36351223baecf5a595a4c
+#5 DONE 3.2s
+
+#4 [motor internal] load metadata for mcr.microsoft.com/dotnet/sdk:10.0.403@sha256:de4fe90a98845d75910b9769662465c84de1a934665c431279d1382b2bddc02b
+#4 DONE 3.2s
+
+#6 [aplicacion internal] load metadata for docker.io/library/python:3.13.18-alpine3.23@sha256:bf88c40985006a79ca25458159a4da1dffc457f9ae234e948b2d6df56ca5ebd2
+#6 DONE 3.3s
+
+#7 [aplicacion internal] load metadata for docker.io/library/alpine:3.23@sha256:469c9ea410b9215eaee7976ba6c0639039b444be8e5d638f7abbada189971eb2
+#7 DONE 3.3s
+
+#8 [motor internal] load .dockerignore
+#8 transferring context: 597B 0.0s done
+#8 DONE 0.0s
+
+#9 [motor internal] load build context
+#9 DONE 0.0s
+
+#10 [aplicacion internal] load build context
+#10 transferring context: 15.40kB 0.1s done
+#10 DONE 0.1s
+
+#11 [motor compilacion 1/5] FROM mcr.microsoft.com/dotnet/sdk:10.0.403@sha256:de4fe90a98845d75910b9769662465c84de1a934665c431279d1382b2bddc02b
+#11 resolve mcr.microsoft.com/dotnet/sdk:10.0.403@sha256:de4fe90a98845d75910b9769662465c84de1a934665c431279d1382b2bddc02b 0.2s done
+#11 DONE 0.2s
+
+#9 [motor internal] load build context
+#9 ...
+
+#12 [motor stage-1 1/7] FROM docker.io/rocker/r-ver:4.5.2@sha256:fd4ccdd3a4a6f7ef805e2daeee2a0fe3bf126bc231f36351223baecf5a595a4c
+#12 resolve docker.io/rocker/r-ver:4.5.2@sha256:fd4ccdd3a4a6f7ef805e2daeee2a0fe3bf126bc231f36351223baecf5a595a4c 0.8s done
+#12 DONE 0.8s
+
+#13 [aplicacion stage-0 1/2] FROM docker.io/library/python:3.13.18-alpine3.23@sha256:bf88c40985006a79ca25458159a4da1dffc457f9ae234e948b2d6df56ca5ebd2
+#13 resolve docker.io/library/python:3.13.18-alpine3.23@sha256:bf88c40985006a79ca25458159a4da1dffc457f9ae234e948b2d6df56ca5ebd2 0.8s done
+#13 DONE 0.8s
+
+#14 [aplicacion stage-1 1/6] FROM docker.io/library/alpine:3.23@sha256:469c9ea410b9215eaee7976ba6c0639039b444be8e5d638f7abbada189971eb2
+#14 resolve docker.io/library/alpine:3.23@sha256:469c9ea410b9215eaee7976ba6c0639039b444be8e5d638f7abbada189971eb2 0.8s done
+#14 DONE 0.9s
+
+#9 [motor internal] load build context
+#9 transferring context: 1.23MB 0.7s done
+#9 DONE 0.7s
+
+#15 [aplicacion stage-1 3/6] RUN set -eu -o pipefail;     apk add --no-cache --virtual .detector-runtime pax-utils;     dependencias="$(scanelf --needed --nobanner --format '%n#p' --recursive /usr/local         | tr ',' '\n' | sort -u         | awk 'NF && system("[ -e /usr/local/lib/" $1 " ]") != 0 { print "so:" $1 }')";     test -n "$dependencias";     apk add --no-cache --virtual .python-rundeps $dependencias;     apk del --no-network .detector-runtime;     if apk info -e sqlite-libs; then exit 1; fi;     python -c 'import importlib.util, ssl, zlib; assert importlib.util.find_spec("sqlite3") is None'
+#15 CACHED
+
+#16 [aplicacion stage-0 2/2] RUN rm -rf /usr/local/lib/python3.13/sqlite3     && find /usr/local/lib/python3.13/lib-dynload -name '_sqlite3*.so' -delete
+#16 CACHED
+
+#17 [aplicacion stage-1 2/6] COPY --from=0 /usr/local/ /usr/local/
+#17 CACHED
+
+#18 [aplicacion stage-1 4/6] RUN apk upgrade --no-cache
+#18 CACHED
+
+#19 [aplicacion stage-1 5/6] WORKDIR /aplicacion
+#19 CACHED
+
+#20 [aplicacion stage-1 6/6] COPY aplicacion/web.py aplicacion/probar_compose.py guiones/datos_sinteticos.py ./
+#20 CACHED
+
+#21 [aplicacion] exporting to image
+#21 exporting layers 0.0s done
+#21 exporting manifest sha256:a6da235e1aa56b95eef188da9814081458d64215b972a15224a466566dc4c2e9
+#21 ...
+
+#22 [motor stage-1 2/7] RUN apt-get update     && apt-get install -y --no-install-recommends apt libapt-pkg6.0t64 libbrotli1 libicu74 libssl3t64 libgssapi-krb5-2 curl     && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' apt)" ge 2.8.4ubuntu0.1     && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' libapt-pkg6.0t64)" ge 2.8.4ubuntu0.1     && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' libbrotli1)" ge 1.1.0-2ubuntu0.1     && rm -rf /var/lib/apt/lists/*
+#22 CACHED
+
+#23 [motor compilacion 2/5] WORKDIR /fuente
+#23 CACHED
+
+#24 [motor compilacion 3/5] COPY global.json Directory.Build.props Directory.Packages.props ./
+#24 CACHED
+
+#25 [motor compilacion 4/5] COPY codigo ./codigo
+#25 CACHED
+
+#26 [motor stage-1 3/7] WORKDIR /aplicacion
+#26 CACHED
+
+#27 [motor compilacion 5/5] RUN dotnet publish codigo/RutaEstadistica.ServidorLocal -c Release -r linux-x64 --self-contained true -o /publicado
+#27 CACHED
+
+#28 [motor stage-1 4/7] COPY --from=compilacion /publicado/ ./
+#28 CACHED
+
+#29 [motor stage-1 5/7] COPY motor_r ./motor_r
+#29 CACHED
+
+#30 [motor stage-1 6/7] COPY distribucion/fuentes/jsonlite_2.0.0.tar.gz /tmp/jsonlite_2.0.0.tar.gz
+#30 CACHED
+
+#31 [motor stage-1 7/7] RUN printf 'a8bc820eb8d0f0b0d86e0b732d6f76d64a512de67849f2c1d233cac03220b407  /tmp/jsonlite_2.0.0.tar.gz\n' | sha256sum -c - && mkdir -p runtime/biblioteca runtime/R/bin && ln -s /usr/local/bin/Rscript runtime/R/bin/Rscript && Rscript --vanilla -e "install.packages('/tmp/jsonlite_2.0.0.tar.gz',repos=NULL,lib='runtime/biblioteca',INSTALL_opts='--no-docs')" && R_LIBS_USER=/aplicacion/runtime/biblioteca R CMD INSTALL -l runtime/biblioteca motor_r/rutaanalitica && rm /tmp/jsonlite_2.0.0.tar.gz && useradd -u 1654 -m analista
+#31 CACHED
+
+#21 [aplicacion] exporting to image
+#21 exporting manifest sha256:a6da235e1aa56b95eef188da9814081458d64215b972a15224a466566dc4c2e9 0.1s done
+#21 exporting config sha256:eeeee64fc795bb0f33151b9625342c80f3fe74a3f4c552f8e0351fda332c5516
+#21 exporting config sha256:eeeee64fc795bb0f33151b9625342c80f3fe74a3f4c552f8e0351fda332c5516 0.1s done
+#21 exporting attestation manifest sha256:4b857d6925119c2ca50284dc199381a99ca9f82c0e2c1355e85261c04f160f8b
+#21 exporting attestation manifest sha256:4b857d6925119c2ca50284dc199381a99ca9f82c0e2c1355e85261c04f160f8b 0.1s done
+#21 exporting manifest list sha256:c93ee3d5f549b3a7a09164f61f9adb0236ba1e090aa6914a5f70f18946e6e28a 0.1s done
+#21 naming to docker.io/library/ruta-ci-c48c1757126197f8-aplicacion:latest 0.0s done
+#21 unpacking to docker.io/library/ruta-ci-c48c1757126197f8-aplicacion:latest
+#21 ...
+
+#32 [motor] exporting to image
+#32 exporting layers 0.0s done
+#32 exporting manifest sha256:6efbf43ea995a97691e1e374d24684b09be14bcf3e8ae4d70254c129788bfa2e 0.1s done
+#32 exporting config sha256:38cdf65f6d0dfc3dbbd7499139417cf9ae822c8c1cb37c60cd763dfc03657316 0.1s done
+#32 exporting attestation manifest sha256:9a10555e467679346696eb1a23bdea0e923ad218045ec90c54cbde0e79fc5b82 0.1s done
+#32 exporting manifest list sha256:a627492ce13ada2e9a11b58eb31c0c49474f2ab2e74e7c9b1d15391cae301e43 0.1s done
+#32 naming to docker.io/library/ruta-ci-c48c1757126197f8-motor:latest 0.0s done
+#32 unpacking to docker.io/library/ruta-ci-c48c1757126197f8-motor:latest
+#32 ...
+
+#21 [aplicacion] exporting to image
+#21 unpacking to docker.io/library/ruta-ci-c48c1757126197f8-aplicacion:latest 10.2s done
+#21 DONE 11.2s
+
+#32 [motor] exporting to image
+#32 unpacking to docker.io/library/ruta-ci-c48c1757126197f8-motor:latest 10.7s done
+#32 DONE 11.6s
+
+#33 [aplicacion] resolving provenance for metadata file
+#33 DONE 0.2s
+
+#34 [motor] resolving provenance for metadata file
+#34 DONE 0.3s
+ Image ruta-ci-c48c1757126197f8-aplicacion Built
+ Image ruta-ci-c48c1757126197f8-motor Built
