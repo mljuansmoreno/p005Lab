@@ -1,0 +1,85 @@
+Started by user <operador>
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Still waiting to schedule task
+Waiting for next available executor on ‘linux-docker’
+Running on linux-docker in <workspace>
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timeout
+Timeout set to expire in 30 min
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Checkout para autoprueba)
+[Pipeline] deleteDir
+[Pipeline] git
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+Cloning the remote Git repository
+Cloning repository https://github.com/mljuansmoreno/p005Lab.git
+ > git init <workspace> # timeout=10
+Fetching upstream changes from https://github.com/mljuansmoreno/p005Lab.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.53.0'
+ > git fetch --tags --force --progress -- https://github.com/mljuansmoreno/p005Lab.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+ > git config remote.origin.url https://github.com/mljuansmoreno/p005Lab.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 59ff28e11e2834d49305a8ac79f16e9b2e015b72 (refs/remotes/origin/main)
+Commit message: "ci(compose): amplía el margen de la sonda web bajo carga"
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 59ff28e11e2834d49305a8ac79f16e9b2e015b72 # timeout=10
+ > git branch -a -v --no-abbrev # timeout=10
+ > git checkout -b main 59ff28e11e2834d49305a8ac79f16e9b2e015b72 # timeout=10
+ > git rev-list --no-walk 932f8b723ed6a297002fd97f5953b800d9ed9cce # timeout=10
+[Pipeline] sh
++ python3 guiones/ci/ejecutar.py preparar
+Fuentes fijadas y 4 contratos JSON comprobados.
+[Pipeline] sh
++ python3 guiones/ci/ejecutar.py secretos
+[90m11:21AM[0m [32mINF[0m [1mscanned ~2981583 bytes (2.98 MB) in 8.7s[0m
+[90m11:21AM[0m [32mINF[0m [1mno leaks found[0m
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Fallo controlado del cálculo real)
+[Pipeline] sh
++ cat
++ python3 -
+Proyecto aislado ruta-ci-951ddff17f1c5dd5, web 127.0.0.1:50279
+Compose: configuracion
+Compose: compilacion
+Compose: arranque
+Compose: estado
+Compose: red
+Compose: aislamiento
+Compose: acceso
+Compose: autenticacion
+Compose: calculo
+CI: calculo: código de salida 1
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] sh
++ python3 guiones/ci/ejecutar.py finalizar
+[Pipeline] archiveArtifacts
+Archiving artifacts
+Recording fingerprints
+[Pipeline] junit
+Recording test results
+[Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+ERROR: script returned exit code 1
+Finished: FAILURE

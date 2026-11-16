@@ -1,0 +1,17 @@
+{
+  "job": "ruta-estadistica-autoprueba",
+  "build": 3,
+  "revision": "59ff28e11e2834d49305a8ac79f16e9b2e015b72",
+  "causa": "Fixture aislado: destino de cálculo intencionalmente distinto",
+  "resultado": "FAILURE",
+  "fecha_utc": "2026-11-15T16:19:42.598855+00:00",
+  "modo_compilacion": null,
+  "imagenes_oci": null,
+  "plataforma": {
+    "docker": "29.9.3",
+    "compose": "5.7.0",
+    "python": "3.14.4",
+    "git": "git version 2.53.0",
+    "arquitectura": "x86_64"
+  }
+}
