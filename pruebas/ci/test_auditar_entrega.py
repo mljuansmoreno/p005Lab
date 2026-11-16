@@ -229,10 +229,16 @@ class PruebasAuditoria(unittest.TestCase):
         anterior = {"url": url, "causa": "SCMTrigger$SCMTriggerCause", "revision": "a" * 40,
                     "resultado": "FAILURE"}
         final = {**anterior, "url": url.replace("/1/", "/2/"), "revision": "b" * 40, "resultado": "SUCCESS"}
-        resultado = {"commits": commits, "jenkins": [anterior, final], "jenkins_revision_final": [final],
+        manual = {**final, "causa": "Cause$UserIdCause"}
+        aislada = {**anterior, "url": url.replace("-main/", "-autoprueba/"), "fallo_controlado": True}
+        resultado = {"commits": commits, "jenkins": [anterior, final, manual, aislada], "jenkins_revision_final": [final],
                      "publicados": 84, "meta": 84, "deficit": 0,
                      "final_local": final["revision"], "final_remoto": final["revision"]}
         exigir_cierre(resultado)
+        with self.assertRaisesRegex(ValueError, "fallo controlado"):
+            exigir_cierre({**resultado, "jenkins": [anterior, final, manual]})
+        with self.assertRaisesRegex(ValueError, "manual exitosa"):
+            exigir_cierre({**resultado, "jenkins": [anterior, final, aislada]})
         with self.assertRaisesRegex(ValueError, "totales inconsistentes"):
             exigir_cierre({**resultado, "deficit": 1})
         resultado["jenkins_revision_final"] = []

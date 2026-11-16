@@ -127,6 +127,22 @@ def comprobar_seguridad(informes, entorno):
     comprobar_politica(informes, imagenes, exigir_sbom=version == 2)
 
 
+def acredita_fallo_controlado(entorno, archivos, leer):
+    if (not entorno["causa"].startswith("Fixture aislado:") or
+            not {"reportes/integracion.xml", "09-limpieza.txt"} <= set(archivos)):
+        return False
+    try:
+        suite = ET.fromstring(leer("reportes/integracion.xml"))
+    except ET.ParseError as error:
+        raise ValueError("XML inválido en la autoprueba aislada") from error
+    caso = suite.find("testcase[@name='calculo'][@classname='compose']/failure")
+    if caso is None:
+        return False
+    patron = re.escape(REGISTRO_LIMPIEZA).replace(r"\{\}", PATRON_PROYECTO_CI)
+    limpieza = leer("09-limpieza.txt").decode("utf-8").splitlines()
+    return sum(re.fullmatch(patron, linea) is not None for linea in limpieza) == 1
+
+
 def comprobar_coexistencia(contenido):
     lineas = contenido.decode("utf-8-sig").splitlines()
     if (len(lineas) != 8 or lineas[0] != "Construyendo un solo par de imágenes para todo el ensayo." or
@@ -260,11 +276,14 @@ def auditar_build(carpeta):
     if build["result"] == "SUCCESS":
         comprobar_seguridad(informes_seguridad, entorno)
         comprobar_modo_alojado(procedencia.get("origen_actions", {}), entorno)
+    fallo_controlado = autoprueba and build["result"] == "FAILURE" and acredita_fallo_controlado(
+        entorno, comprobados, lambda nombre: (carpeta / f"{artefacto}{nombre.replace('/', '-')}").read_bytes())
     return {
         **resumen, "revision": revision, "artefactos_con_huella_verificada": comprobados,
         "artefactos_declarados_sin_archivar": no_archivados,
         **procedencia,
         **({"pruebas_junit": pruebas_junit} if pruebas_junit else {}),
+        **({"fallo_controlado": True} if fallo_controlado else {}),
         **({"descripcion_autoprueba": entorno["causa"]} if autoprueba else {}),
     }
 
@@ -346,7 +365,11 @@ def auditar_paquete(ruta, *, estricto=False):
             if api["result"] == "SUCCESS":
                 comprobar_seguridad(informes_seguridad, entorno)
                 comprobar_modo_alojado(build.get("origen_actions", {}), entorno)
-            builds[carpeta] = build
+            fallo_controlado = tipo == "autoprueba" and api["result"] == "FAILURE" and acredita_fallo_controlado(
+                entorno, archivos, lambda nombre: paquete.read(f"{carpeta}/{nombre}"))
+            if build.get("fallo_controlado", fallo_controlado) != fallo_controlado:
+                raise ValueError(f"La autoprueba declarada difiere de sus artefactos en {carpeta}")
+            builds[carpeta] = {**build, "fallo_controlado": True} if fallo_controlado else build
         if "capturas" in cierre:
             visual = cierre["capturas"]
             carpeta_build = f"build-{visual['build']}"
@@ -407,6 +430,11 @@ def exigir_cierre(resultado):
                 b["revision"] and "SCMTrigger$SCMTriggerCause" in b["causa"].split(", ")]
     if len({b["revision"] for b in disparos}) < 2 or not any(b["resultado"] == "SUCCESS" for b in disparos):
         raise ValueError("Faltan dos disparos SCM con SHA distinto en main y al menos uno exitoso")
+    if not any("/ruta-estadistica-main/" in b["url"] and b["resultado"] == "SUCCESS" and
+               "Cause$UserIdCause" in b["causa"].split(", ") for b in resultado["jenkins"]):
+        raise ValueError("Falta una ejecución manual exitosa de Jenkins en main")
+    if not any(b.get("fallo_controlado") for b in resultado["jenkins"]):
+        raise ValueError("Falta el fallo controlado del cálculo y su limpieza en la autoprueba aislada")
 
 
 def main():

@@ -27,6 +27,8 @@ def registro_ejecuciones(ejecuciones):
         resultado = f"{build['resultado']} en {build['duracion_ms'] / 1000:.1f} s"
         if build.get("sin_artefactos"):
             resultado += ". La API y la consola acreditan el estado terminal"
+        elif build.get("fallo_controlado"):
+            resultado += ". Falló el cálculo deliberado y Jenkins archivó el desmontaje"
         elif "09-limpieza.txt" in build["artefactos_con_huella_verificada"]:
             resultado += ". Desmontaje archivado"
         filas.append(f"- [{trabajo} #{build['numero']}]({url}), {revision}, {causa}. {resultado}.")
