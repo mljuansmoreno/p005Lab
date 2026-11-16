@@ -1,5 +1,7 @@
 # Ruta Estadística · p005Lab
 
+[Rúbrica de Jenkins y evidencias](Rubrica.md)
+
 Proyecto de Integración Continua del Politécnico Grancolombiano, por Juan Sebastián Moreno Díaz. Ruta Estadística guía un análisis desde la pregunta y los datos hasta los resultados, su interpretación y la evidencia reproducible. Los cálculos los realiza el paquete R `rutaanalitica`; la aplicación no requiere una cuenta ni un modelo de lenguaje.
 
 | Si quiere… | Empiece aquí |
