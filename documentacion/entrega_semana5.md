@@ -80,6 +80,8 @@ El build manual de Jenkins #10201 ejecutó `48d8a4ec2ce56572d8fac59001ffff957daa
 
 Windows, Docker y secretos también aprobaron su workflow habitual en `48d8a4e`. El disparo SCM automático quedó acreditado antes en el controlador permanente mediante el build #9. [Verificaciones de Actions para 48d8a4e](https://github.com/mljuansmoreno/p005Lab/actions/runs/43801811485).
 
+El build #10501 conservó los HTTP observados antes y después de recrear el motor. Con el motor detenido, `/salud` respondió HTTP 200 y `/listo`, HTTP 503. El ID del motor cambió al recrearlo, `/listo` volvió a responder HTTP 200 y el cálculo repitió las seis filas y la media de referencia. El anexo permite cotejar el resultado con la huella del CSV y comprobar el registro de limpieza para el mismo proyecto Compose. [Evidencia del build #10501](https://github.com/mljuansmoreno/p005Lab/actions/runs/43805486879).
+
 ## 5. Evaluación, límites y conclusiones
 
 La [matriz de aceptación](matriz_semana5.md) identifica el origen y la evidencia de cada criterio. Los archivos disponibles incluyen el artículo de la primera entrega y sus capturas. La guía institucional aporta el alcance académico. Entre los archivos disponibles no se encontró una rúbrica auténtica de semana 5. La matriz aplica criterios técnicos de aceptación sin asignar calificaciones.
