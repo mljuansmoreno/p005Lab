@@ -1,6 +1,7 @@
 """Renderiza el informe académico Markdown de semana 5 a Word."""
 
 import argparse
+import json
 import re
 from pathlib import Path
 from urllib.parse import urljoin
@@ -17,6 +18,7 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("carpeta", type=Path, help="Carpeta con entrega_semana5.md y matriz_semana5.md")
 parser.add_argument("--destino", type=Path, help="Ruta del documento DOCX")
 parser.add_argument("--revision", default="main", help="SHA al que apuntan los enlaces relativos")
+parser.add_argument("--capturas", type=Path, help="Carpeta de capturas del build del informe")
 argumentos = parser.parse_args()
 if argumentos.revision != "main" and not re.fullmatch(r"[0-9a-f]{40}", argumentos.revision):
     parser.error("La revisión debe ser main o un SHA completo")
@@ -207,5 +209,23 @@ if matriz:
     encabezado = doc.add_heading("Matriz de aceptación", 2)
     encabezado.paragraph_format.keep_with_next = True
     tabla([linea for linea in matriz if linea.startswith("|")], espaciado=(2, 2))
+
+if argumentos.capturas is not None:
+    evidencia = json.loads((argumentos.capturas / "capturas.json").read_bytes())
+    if evidencia["revision"] != argumentos.revision:
+        parser.error("Las figuras deben corresponder al SHA del informe")
+    figuras = (
+        ("estado-build.png", "Estado del build y artefactos"),
+        ("etapas-pipeline.png", "Stage View del pipeline"),
+        ("resultado-junit.png", "Resultados JUnit"),
+    )
+    for indice, (archivo, titulo) in enumerate(figuras, 1):
+        encabezado = doc.add_heading(f"Figura A{indice}. {titulo}", 2)
+        encabezado.paragraph_format.page_break_before = True
+        figura = doc.add_picture(str(argumentos.capturas / archivo), width=Cm(16.5))
+        figura._inline.docPr.set("descr", titulo)
+        nota = doc.add_paragraph(f"Jenkins #{evidencia['build']} · {evidencia['fecha_utc']} · "
+                                 f"{evidencia['revision']}. ")
+        vinculo(nota, "Ejecución de origen", evidencia["acciones"])
 
 doc.save(SALIDA)
