@@ -1,0 +1,140 @@
+Started by an SCM change
+Obtained Jenkinsfile from git https://github.com/mljuansmoreno/p005Lab.git
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on linux-docker in <workspace>
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] timeout
+[2026-11-16T03:13:44.812Z] Timeout set to expire in 1 hr 5 min
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Obtener código)
+[Pipeline] deleteDir
+[Pipeline] script
+[Pipeline] {
+[Pipeline] checkout
+[2026-11-16T03:13:46.536Z] Selected Git installation does not exist. Using Default
+[2026-11-16T03:13:46.546Z] The recommended git tool is: NONE
+[2026-11-16T03:13:46.873Z] No credentials specified
+[2026-11-16T03:13:46.948Z] Cloning the remote Git repository
+[2026-11-16T03:13:47.036Z] Cloning repository https://github.com/mljuansmoreno/p005Lab.git
+[2026-11-16T03:13:47.134Z]  > git init <workspace> # timeout=10
+[2026-11-16T03:13:47.366Z] Fetching upstream changes from https://github.com/mljuansmoreno/p005Lab.git
+[2026-11-16T03:13:47.367Z]  > git --version # timeout=10
+[2026-11-16T03:13:47.419Z]  > git --version # 'git version 2.53.0'
+[2026-11-16T03:13:47.443Z]  > git fetch --tags --force --progress -- https://github.com/mljuansmoreno/p005Lab.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-11-16T03:13:54.613Z] Avoid second fetch
+[2026-11-16T03:13:54.701Z] Checking out Revision 9dde39deec0dd1f1fce37fc5452701955bb12a9b (refs/remotes/origin/main)
+[2026-11-16T03:13:54.221Z]  > git config remote.origin.url https://github.com/mljuansmoreno/p005Lab.git # timeout=10
+[2026-11-16T03:13:54.251Z]  > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-11-16T03:13:54.638Z]  > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+[2026-11-16T03:13:54.718Z]  > git config core.sparsecheckout # timeout=10
+[2026-11-16T03:13:54.773Z]  > git checkout -f 9dde39deec0dd1f1fce37fc5452701955bb12a9b # timeout=10
+[2026-11-16T03:13:57.470Z] Commit message: "ci(escaneo): lee el estado anidado del informe de Grype"
+[2026-11-16T03:13:57.488Z]  > git rev-list --no-walk 87ed18348e99f57ae6a61658ecd1e3c2ab90b982 # timeout=10
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] sh
+[2026-11-16T03:14:00.267Z] + git rev-parse HEAD
+[2026-11-16T03:14:00.268Z] 9dde39deec0dd1f1fce37fc5452701955bb12a9b
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Validar entorno)
+[Pipeline] sh
+[2026-11-16T03:14:01.790Z] + python3 guiones/ci/ejecutar.py preparar
+[2026-11-16T03:16:00.250Z] Fuentes fijadas y 4 contratos JSON comprobados.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Analizar secretos)
+[Pipeline] sh
+[2026-11-16T03:16:04.930Z] + python3 guiones/ci/ejecutar.py secretos
+[2026-11-16T03:16:46.326Z] [90m10:16PM[0m [32mINF[0m [1mscanned ~3038666 bytes (3.04 MB) in 17.2s[0m
+[2026-11-16T03:16:46.326Z] [90m10:16PM[0m [32mINF[0m [1mno leaks found[0m
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Probar web)
+[Pipeline] sh
+[2026-11-16T03:16:49.192Z] + python3 -m unittest discover -s pruebas/ci
+[2026-11-16T03:16:55.685Z] .....................................
+[2026-11-16T03:16:55.685Z] ----------------------------------------------------------------------
+[2026-11-16T03:16:55.685Z] Ran 37 tests in 4.222s
+[2026-11-16T03:16:55.685Z] 
+[2026-11-16T03:16:55.685Z] OK
+[Pipeline] sh
+[2026-11-16T03:16:56.828Z] + python3 guiones/ci/ejecutar.py web
+[2026-11-16T03:16:59.280Z] {"evento": "analisis_web", "estado_http": 503, "duracion_ms": 0}
+[2026-11-16T03:16:59.729Z] {"evento": "analisis_web", "estado_http": 502, "duracion_ms": 0}
+[2026-11-16T03:16:59.742Z] Web: 6 ejecutadas, 6 correctas
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Construir y verificar con Docker)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-11-16T03:17:06.907Z] + python3 guiones/ci/ejecutar.py docker
+[2026-11-16T03:17:09.197Z] Proyecto aislado ruta-ci-a41913ffbf531d0d, web 127.0.0.1:35451
+[2026-11-16T03:17:09.197Z] Compose: configuracion
+[2026-11-16T03:17:13.311Z] Compose: compilacion
+[2026-11-16T03:19:01.659Z] Compose: arranque
+[2026-11-16T03:20:44.967Z] Compose: estado
+[2026-11-16T03:20:44.967Z] Compose: red
+[2026-11-16T03:20:44.967Z] Compose: aislamiento
+[2026-11-16T03:20:50.901Z] Compose: acceso
+[2026-11-16T03:20:50.901Z] Compose: autenticacion
+[2026-11-16T03:21:02.651Z] Compose: calculo
+[2026-11-16T03:22:15.315Z] Compose: recuperacion
+[2026-11-16T03:23:05.251Z] Compose: pruebas_r
+[2026-11-16T03:23:51.244Z] linux-docker seems to be removed or offline (java.lang.InterruptedException); will wait for 5 min 0 sec for it to come back online
+[2026-11-16T03:23:51.798Z] linux-docker is back online
+[2026-11-16T03:24:39.569Z] Compose: detener_servicios
+[2026-11-16T03:24:51.413Z] Compose: escaneo
+[2026-11-16T03:28:59.297Z] linux-docker seems to be removed or offline (java.lang.InterruptedException); will wait for 5 min 0 sec for it to come back online
+[2026-11-16T03:28:59.825Z] linux-docker is back online
+[2026-11-16T03:50:34.955Z] CI: escaneo: TimeoutExpired (avisos-motor)
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] fileExists
+[Pipeline] sh
+[2026-11-16T03:50:41.030Z] + python3 guiones/ci/ejecutar.py finalizar
+[Pipeline] sh
+[2026-11-16T03:50:44.950Z] + python3 guiones/ci/ejecutar.py archivos
+[Pipeline] archiveArtifacts
+[2026-11-16T03:50:47.291Z] Archiving artifacts
+[2026-11-16T03:50:48.364Z] Recording fingerprints
+[Pipeline] fileExists
+[Pipeline] junit
+[2026-11-16T03:50:49.927Z] Recording test results
+[2026-11-16T03:50:51.276Z] [Checks API] No suitable checks publisher found.
+[Pipeline] fileExists
+[Pipeline] junit
+[2026-11-16T03:50:51.833Z] Recording test results
+[2026-11-16T03:50:53.349Z] [Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[Pipeline] // timestamps
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+ERROR: script returned exit code 1
+Finished: FAILURE
