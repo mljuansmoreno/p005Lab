@@ -14,6 +14,9 @@ from zipfile import BadZipFile, ZipFile
 
 from ejecutar import ARCHIVOS, REPORTES
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from datos_sinteticos import coincide_resultado_e2e
+
 ARCHIVOS_JUNIT = {f"reportes/{nombre}.xml" for nombre in REPORTES}
 EVIDENCIAS_OBLIGATORIAS = {*ARCHIVOS, *ARCHIVOS_JUNIT}
 TRABAJOS_ACTIONS = {"verificar", "Docker Linux y cálculo entre contenedores", "Credenciales y archivos comprimidos"}
@@ -61,6 +64,11 @@ def comprobar_junit(contenido, nombre):
     if cantidades["failures"] or cantidades["errors"] or cantidades["tests"] <= cantidades["skipped"]:
         raise ValueError(f"JUnit no acredita un resultado exitoso en {nombre}")
     return cantidades
+
+
+def comprobar_calculo(contenido, nombre):
+    if not coincide_resultado_e2e(json.loads(contenido)):
+        raise ValueError(f"El cálculo archivado no coincide con el ejemplo en {nombre}")
 
 
 def auditar_git(carpeta):
@@ -150,6 +158,8 @@ def auditar_build(carpeta):
         verificar_huella(contenido, registro, nombre_local)
         if build["result"] == "SUCCESS" and nombre in ARCHIVOS_JUNIT:
             pruebas_junit[nombre] = comprobar_junit(contenido, nombre)
+        if build["result"] == "SUCCESS" and nombre == "05-calculo.txt":
+            comprobar_calculo(contenido, nombre)
         comprobados.append(nombre)
     faltantes = EVIDENCIAS_OBLIGATORIAS.difference(comprobados)
     if build["result"] == "SUCCESS" and faltantes:
@@ -227,6 +237,8 @@ def auditar_paquete(ruta):
                 verificar_huella(contenido, evidencia["archivos"][nombre], entrada)
                 if api["result"] == "SUCCESS" and nombre in ARCHIVOS_JUNIT:
                     pruebas_junit[nombre] = comprobar_junit(contenido, entrada)
+                if api["result"] == "SUCCESS" and nombre == "05-calculo.txt":
+                    comprobar_calculo(contenido, entrada)
                 esperados.add(entrada)
                 verificados += 1
             if build.get("pruebas_junit", pruebas_junit) != pruebas_junit:

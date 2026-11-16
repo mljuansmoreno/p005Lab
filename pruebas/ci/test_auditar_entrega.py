@@ -10,6 +10,7 @@ from zipfile import ZipFile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "guiones/ci"))
 from auditar_entrega import acciones_finales, auditar_build, EVIDENCIAS_OBLIGATORIAS, exigir_cierre, TRABAJOS_ACTIONS
+from datos_sinteticos import CSV_SINTETICO
 from descargar_jenkins_alojado import extraer
 
 
@@ -30,6 +31,11 @@ class PruebasAuditoria(unittest.TestCase):
         archivos = {}
         for nombre in EVIDENCIAS_OBLIGATORIAS:
             contenido = json.dumps(entorno).encode() if nombre == "00-entorno.json" else b"fixture\n"
+            if nombre == "05-calculo.txt":
+                contenido = json.dumps({"destino": "motor:8787", "trabajo_id": "a" * 32,
+                                        "solicitud_id": "b" * 32, "estado": "completado",
+                                        "sha256": hashlib.sha256(CSV_SINTETICO.encode()).hexdigest(),
+                                        "filas_analizadas": 6, "media": 25 / 6}).encode()
             if nombre.endswith(".xml"):
                 contenido = (b'<testsuite tests="1" failures="0" errors="0" skipped="0">'
                              b'<testcase name="prueba"/></testsuite>')
@@ -54,6 +60,18 @@ class PruebasAuditoria(unittest.TestCase):
         del manifiesto["archivos"]["reportes/integracion.xml"]
         ruta.write_text(json.dumps(manifiesto), encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "evidencia incompleta"):
+            auditar_build(carpeta)
+
+    def test_exito_rechaza_calculo_incorrecto_aunque_la_huella_coincida(self):
+        carpeta, ruta, manifiesto = self.preparar("SUCCESS")
+        archivo = carpeta / "artifact-salidas-jenkins-ci-05-calculo.txt"
+        resultado = json.loads(archivo.read_bytes())
+        resultado["filas_analizadas"] = 5
+        contenido = json.dumps(resultado).encode()
+        archivo.write_bytes(contenido)
+        manifiesto["archivos"]["05-calculo.txt"] = {"sha256": hashlib.sha256(contenido).hexdigest(), "bytes": len(contenido)}
+        ruta.write_text(json.dumps(manifiesto), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "cálculo archivado"):
             auditar_build(carpeta)
 
     def test_coteja_causa_con_api_de_jenkins(self):
