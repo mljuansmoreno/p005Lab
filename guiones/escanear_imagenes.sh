@@ -2,6 +2,8 @@
 set -euo pipefail
 
 evidencias="$1"
+fase="$evidencias/.fase-escaneo"
+printf '%s\n' herramientas > "$fase"
 temporal="$(mktemp -d)"
 trap 'rm -rf "$temporal"' EXIT
 
@@ -14,6 +16,7 @@ obtener_herramienta_ci grype \
   https://github.com/anchore/grype/releases/download/v0.121.3/grype_0.121.3_linux_amd64.tar.gz \
   e9da18cc1429e786722e32161288103600efffd8e483c90761f90485bd1bec85 "$temporal"
 
+printf '%s\n' base-de-avisos > "$fase"
 "$temporal/grype" db update
 base_avisos="$("$temporal/grype" db status -o json | jq -er 'select(.valid) | .built | strings')"
 export GRYPE_DB_AUTO_UPDATE=false
@@ -26,10 +29,12 @@ for servicio in aplicacion motor; do
   fi
   imagen="$(docker image inspect --format '{{.Id}}' "$referencia")"
   [[ "$imagen" =~ ^sha256:[0-9a-f]{64}$ ]]
+  printf 'inventario-%s\n' "$servicio" > "$fase"
   "$temporal/syft" "docker:$imagen" -o cyclonedx-json > "$temporal/sbom.json"
   componentes="$(jq -er 'select(.bomFormat == "CycloneDX") | .components |
     select(type == "array" and length > 0) | length' "$temporal/sbom.json")"
   huella="$(sha256sum "$temporal/sbom.json")"
+  printf 'avisos-%s\n' "$servicio" > "$fase"
   "$temporal/grype" "sbom:$temporal/sbom.json" -o json > "$temporal/grype.json"
   jq --arg imagen "$imagen" --arg base "$base_avisos" \
      --arg huella "${huella%% *}" --argjson componentes "$componentes" '
@@ -47,3 +52,4 @@ for servicio in aplicacion motor; do
     end
   ' "$temporal/grype.json" | tee "$evidencias/seguridad-$servicio.json"
 done
+rm -f -- "$fase"

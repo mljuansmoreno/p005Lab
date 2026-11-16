@@ -26,7 +26,7 @@ PRIVADO = RAIZ / "salidas/credenciales"
 COMPOSE = ("docker", "compose")
 COMPROBAR = ("bash", "guiones/ci/comprobar_compose.sh")
 ESPERA_SALUD = "180"
-PLAZO_ESCANEO = 18 * 60
+PLAZO_ESCANEO = 25 * 60
 PATRON_PROYECTO_CI = r"ruta-ci-[0-9a-f]{16}"
 REPORTES = ("web", "integracion")
 ARCHIVOS = (
@@ -341,11 +341,11 @@ def ejecutar_caso(reporte, nombre, temporal, entorno, orden, plazo, archivos=())
         with borrador.open("wb") as salida:
             comando(orden, entorno=entorno, salida=salida, plazo=plazo)
     except subprocess.CalledProcessError as fallo:
-        mensaje = f"{nombre}: código de salida {fallo.returncode}"
+        mensaje = f"{nombre}: código de salida {fallo.returncode}{detalle_escaneo(nombre, temporal)}"
         reporte.caso(nombre, "compose", monotonic() - inicio, "failure", mensaje)
         raise ValueError(mensaje) from None
     except (OSError, subprocess.TimeoutExpired) as fallo:
-        mensaje = f"{nombre}: {type(fallo).__name__}"
+        mensaje = f"{nombre}: {type(fallo).__name__}{detalle_escaneo(nombre, temporal)}"
         reporte.caso(nombre, "compose", monotonic() - inicio, "error", mensaje)
         if isinstance(fallo, InterruptedError):
             raise
@@ -356,6 +356,19 @@ def ejecutar_caso(reporte, nombre, temporal, entorno, orden, plazo, archivos=())
             borrador.replace(temporal / archivos[0])
     finally:
         borrador.unlink(missing_ok=True)
+
+
+def detalle_escaneo(nombre, temporal):
+    if nombre != "escaneo":
+        return ""
+    try:
+        with (temporal / ".fase-escaneo").open("rb") as fase:
+            ultimo = fase.read(40).decode("ascii", errors="replace").strip()
+    except OSError:
+        return ""
+    if re.fullmatch(r"herramientas|base-de-avisos|(?:inventario|avisos)-(?:aplicacion|motor)", ultimo):
+        return f" ({ultimo})"
+    return ""
 
 
 def verificar_politica(temporal, imagenes):

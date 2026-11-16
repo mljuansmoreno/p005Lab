@@ -5,7 +5,7 @@ pipeline {
         skipDefaultCheckout()
         disableConcurrentBuilds()
         timestamps()
-        timeout(time: 55, unit: 'MINUTES')
+        timeout(time: 65, unit: 'MINUTES')
     }
 
     triggers {

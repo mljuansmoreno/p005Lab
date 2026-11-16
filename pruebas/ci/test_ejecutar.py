@@ -290,3 +290,14 @@ class PruebasEjecucion(unittest.TestCase):
             informe.write_text(json.dumps(datos), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "procedencia del SBOM"):
                 ejecutar.verificar_politica(ruta, {"motor": imagen})
+class PruebasDiagnosticoEscaneo(unittest.TestCase):
+    def test_solo_publica_fases_declaradas(self):
+        with TemporaryDirectory() as directorio:
+            temporal = Path(directorio)
+            fase = temporal / ".fase-escaneo"
+            self.assertEqual(ejecutar.detalle_escaneo("escaneo", temporal), "")
+            fase.write_text("inventario-motor\n", encoding="ascii")
+            self.assertEqual(ejecutar.detalle_escaneo("escaneo", temporal), " (inventario-motor)")
+            self.assertEqual(ejecutar.detalle_escaneo("compilacion", temporal), "")
+            fase.write_text("texto ajeno\n", encoding="ascii")
+            self.assertEqual(ejecutar.detalle_escaneo("escaneo", temporal), "")
