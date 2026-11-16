@@ -97,13 +97,30 @@ docker compose exec -T aplicacion python probar_compose.py
 
 `/salud` comprueba que la web vive; `/listo` comprueba la disponibilidad del motor. El cliente de prueba usa la misma ruta de cálculo que el formulario y comprueba el estado `completado`, el destino `motor:8787`, los identificadores del trabajo y la solicitud, la huella SHA-256 del CSV, las seis filas y la media. Los identificadores son propios de cada ejecución.
 
-### Servicios y evidencias
+### 6. Diagnosticar, recuperar y detener
 
-- **`aplicacion`** publica la interfaz web en loopback. Envía el CSV y el trabajo por HTTP autenticado, consulta el estado y descarga el resultado.
-- **`motor`** aloja la API .NET, ejecuta R y devuelve el cálculo. Compose conecta los servicios por la red bridge interna `analisis`. Solo la web también se conecta a `entrada`. La aplicación resuelve el motor por DNS y el puerto del motor queda dentro de Docker.
-- El [modo Docker del escritorio](documentacion/docker.md) usa `contenedores/compose.yaml`. El [inicio nativo de WinUI](LEEME.md#inicio-de-desarrollo) usa R local.
+```console
+docker compose ps -a
+docker compose logs --tail=80 aplicacion motor
+docker network inspect ruta-estadistica-demo_analisis
+```
 
-GitHub Actions ejecuta la prueba en Linux y las comprobaciones nativas en Windows. El trabajo Linux publica la compilación, el arranque, la red, el cálculo y su repetición después de recrear el motor, junto con la revisión y las versiones del entorno. [Workflow](https://github.com/mljuansmoreno/p005Lab/actions/workflows/verificacion.yaml) · [Evidencias paso a paso](documentacion/evidencias_compose.md) · [Operación y diagnóstico](documentacion/operacion_compose.md) · [Artículo en PDF](documentacion/ruta-estadistica-articulo.pdf) · [Artículo en DOCX](documentacion/ruta-estadistica-articulo.docx).
+La red de ese nombre corresponde al nombre de proyecto predeterminado. En la inspección espere una red `bridge` interna con ambos servicios; sus IP pueden cambiar. Si el puerto está ocupado, cambie `RUTA_ESTADISTICA_PUERTO_WEB` en `.env` y vuelva a levantar Compose. Si el motor no está sano, compruebe primero el modo Linux del daemon, la ruta del secreto y que ambos procesos puedan leer el montaje. Un fallo de compilación requiere revisar la salida de la construcción; si falla el arranque, revise los estados y logs de ambos servicios.
+
+Para comprobar la recuperación en su propia demo, detenga el motor, mantenga la web en marcha y confirme los códigos HTTP con `curl -i` (o `curl.exe -i`). Después recréelo y repita el cálculo:
+
+```bash
+docker compose stop motor
+curl -i http://127.0.0.1:8080/salud
+curl -i http://127.0.0.1:8080/listo
+docker compose up -d --force-recreate --no-deps --wait --wait-timeout 90 motor
+curl -i http://127.0.0.1:8080/listo
+docker compose exec -T aplicacion python probar_compose.py
+```
+
+Se espera HTTP 200 en `/salud` y HTTP 503 en `/listo` durante la caída; luego HTTP 200 en `/listo` y un nuevo cálculo válido. Para terminar, ejecute `docker compose down --remove-orphans` desde la misma carpeta y con el mismo nombre de proyecto. Puede conservar el secreto para volver a arrancar o eliminar el archivo local después de desmontar los servicios.
+
+[Operación y diagnóstico de Compose](documentacion/operacion_compose.md).
 
 ## Aplicación de escritorio
 
