@@ -1,0 +1,24 @@
+{
+  "job": "ruta-estadistica-main",
+  "build": 11001,
+  "revision": "295325ff7fc09725f8f046741bf3932a2fd5cf2b",
+  "causa": "Cause$UserIdCause",
+  "resultado": "SUCCESS",
+  "fecha_utc": "2026-11-16T05:30:00.528210+00:00",
+  "modo_compilacion": "sin_cache",
+  "imagenes_oci": {
+    "aplicacion": "sha256:4e3b1408e08e33f27dae9b167f6f4a5a0cc37c9aebea3732a417c43b19701621",
+    "motor": "sha256:88c299ed69f52ea07ad1a217e5950737d9e5f4195a7276ec88918a664ca2a358"
+  },
+  "plataforma": {
+    "git": "git version 2.56.1",
+    "jq": "jq-1.7",
+    "curl": "curl 8.5.0 (x86_64-pc-linux-gnu) libcurl/8.5.0 OpenSSL/3.0.13 zlib/1.3 brotli/1.1.0 zstd/1.5.5 libidn2/2.3.7 libpsl/0.21.2 (+libidn2/2.3.7) libssh/0.10.6/openssl/zlib nghttp2/1.59.0 librtmp/2.3 OpenLDAP/2.6.10",
+    "openssl": "OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)",
+    "docker": "28.0.4",
+    "compose": "2.38.2",
+    "python": "3.12.3",
+    "arquitectura": "x86_64",
+    "espacio_checkout_bytes": 94080770048
+  }
+}
