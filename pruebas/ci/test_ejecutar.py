@@ -262,7 +262,7 @@ class PruebasEjecucion(unittest.TestCase):
         with TemporaryDirectory() as directorio:
             ruta = Path(directorio)
             informe = ruta / "seguridad-aplicacion.json"
-            datos = {"imagen": "sha256:" + "a" * 64, "base_avisos": "fecha", "altas": 1, "criticas": 0,
+            datos = {"imagen": "sha256:" + "a" * 64, "base_avisos": "fecha", "altas": 1, "criticas": 0, "pendientes": [],
                      "sbom": {"formato": "CycloneDX", "sha256": "b" * 64, "componentes": 12}}
             informe.write_text(json.dumps(datos), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "1 altas"):
@@ -277,7 +277,7 @@ class PruebasEjecucion(unittest.TestCase):
             ruta = Path(directorio)
             informe = ruta / "seguridad-motor.json"
             imagen = "sha256:" + "a" * 64
-            datos = {"imagen": imagen, "base_avisos": "fecha", "altas": 0, "criticas": 0,
+            datos = {"imagen": imagen, "base_avisos": "fecha", "altas": 0, "criticas": 0, "pendientes": [],
                      "sbom": {"formato": "CycloneDX", "sha256": "b" * 64, "componentes": 12}}
             informe.write_text(json.dumps(datos), encoding="utf-8")
             ejecutar.verificar_politica(ruta, {"motor": imagen})
@@ -290,6 +290,20 @@ class PruebasEjecucion(unittest.TestCase):
             informe.write_text(json.dumps(datos), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "procedencia del SBOM"):
                 ejecutar.verificar_politica(ruta, {"motor": imagen})
+
+    def test_escaneo_rechaza_bases_distintas_y_totales_incoherentes(self):
+        imagenes = {"aplicacion": "sha256:" + "a" * 64, "motor": "sha256:" + "b" * 64}
+        informes = {servicio: {"imagen": imagen, "base_avisos": "fecha", "altas": 0, "criticas": 0,
+                               "pendientes": [], "sbom": {"formato": "CycloneDX", "sha256": "c" * 64,
+                                                          "componentes": 12}}
+                    for servicio, imagen in imagenes.items()}
+        ejecutar.comprobar_politica(informes, imagenes)
+        informes["motor"]["base_avisos"] = "otra fecha"
+        with self.assertRaisesRegex(ValueError, "misma base"):
+            ejecutar.comprobar_politica(informes, imagenes)
+        informes["motor"]["altas"] = False
+        with self.assertRaisesRegex(ValueError, "no son enteros"):
+            ejecutar.comprobar_politica(informes, imagenes)
 class PruebasDiagnosticoEscaneo(unittest.TestCase):
     def test_solo_publica_fases_declaradas(self):
         with TemporaryDirectory() as directorio:

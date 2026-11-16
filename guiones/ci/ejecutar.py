@@ -373,17 +373,33 @@ def detalle_escaneo(nombre, temporal):
 
 
 def verificar_politica(temporal, imagenes):
+    informes = {servicio: json.loads((temporal / f"seguridad-{servicio}.json").read_text(encoding="utf-8"))
+                for servicio in imagenes}
+    comprobar_politica(informes, imagenes)
+
+
+def comprobar_politica(informes, imagenes, *, exigir_sbom=True):
+    bases = set()
     for servicio, imagen in imagenes.items():
-        datos = json.loads((temporal / f"seguridad-{servicio}.json").read_text(encoding="utf-8"))
-        if datos["imagen"] != imagen or not datos["base_avisos"]:
+        datos = informes[servicio]
+        base = datos.get("base_avisos")
+        if datos["imagen"] != imagen or not isinstance(base, str) or not base:
             raise ValueError(f"El escaneo de {servicio} no corresponde a la imagen construida")
+        bases.add(base)
         sbom = datos.get("sbom", {})
-        if (not isinstance(sbom, dict) or sbom.get("formato") != "CycloneDX"
+        if ((exigir_sbom or "sbom" in datos) and
+                (not isinstance(sbom, dict) or sbom.get("formato") != "CycloneDX"
                 or not isinstance(sbom.get("sha256"), str) or not re.fullmatch(r"[0-9a-f]{64}", sbom["sha256"])
-                or type(sbom.get("componentes")) is not int or sbom["componentes"] <= 0):
+                or type(sbom.get("componentes")) is not int or sbom["componentes"] <= 0)):
             raise ValueError(f"Falta la procedencia del SBOM de {servicio}")
+        if type(datos["altas"]) is not int or type(datos["criticas"]) is not int:
+            raise ValueError(f"Los totales de seguridad de {servicio} no son enteros")
         if datos["altas"] != 0 or datos["criticas"] != 0:
             raise ValueError(f"{servicio}: {datos['altas']} altas y {datos['criticas']} críticas")
+        if datos.get("pendientes") != []:
+            raise ValueError(f"El informe de {servicio} contiene hallazgos pendientes")
+    if len(bases) > 1:
+        raise ValueError("Los escaneos no utilizaron la misma base de avisos")
 
 
 def rutas_evidencia():
