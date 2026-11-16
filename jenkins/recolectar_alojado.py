@@ -8,7 +8,7 @@ from pathlib import Path
 import re
 import time
 from urllib.error import HTTPError, URLError
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 from urllib.request import ProxyHandler, Request, build_opener
 
 from auditar_entrega import EVIDENCIAS_OBLIGATORIAS, auditar_build, sha
@@ -53,7 +53,8 @@ class Jenkins:
 
 def ejecutar(jenkins, numero, revision):
     jenkins.esperar_json("computer/linux-docker/api/json?tree=offline", lambda datos: not datos["offline"], 120)
-    jenkins.pedir(TRABAJO + "build?delay=0sec", cuerpo=b"")
+    parametros = urlencode({"RUTA_CI_SIN_CACHE": "false"}).encode("ascii")
+    jenkins.pedir(TRABAJO + "buildWithParameters?delay=0sec", cuerpo=parametros)
     ruta = f"{TRABAJO}{numero}/"
     build = jenkins.esperar_json(ruta + f"api/json?tree={quote(CAMPOS)}",
                                  lambda datos: not datos["building"] and bool(datos["result"]), 37 * 60)
