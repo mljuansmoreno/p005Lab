@@ -28,14 +28,17 @@ class PruebasAuditoria(unittest.TestCase):
                  "actions": [{"causes": [{"_class": f"hudson.triggers.{causa}"}]}]}
         entorno = {"revision": revision, "build": "1", "build_url": url, "causa": causa}
         (carpeta / "build.json").write_text(json.dumps(build), encoding="utf-8")
+        calculo = json.dumps({"destino": "motor:8787", "trabajo_id": "a" * 32,
+                              "solicitud_id": "b" * 32, "estado": "completado",
+                              "sha256": hashlib.sha256(CSV_SINTETICO.encode()).hexdigest(),
+                              "filas_analizadas": 6, "media": 25 / 6}).encode()
         archivos = {}
         for nombre in EVIDENCIAS_OBLIGATORIAS:
             contenido = json.dumps(entorno).encode() if nombre == "00-entorno.json" else b"fixture\n"
             if nombre == "05-calculo.txt":
-                contenido = json.dumps({"destino": "motor:8787", "trabajo_id": "a" * 32,
-                                        "solicitud_id": "b" * 32, "estado": "completado",
-                                        "sha256": hashlib.sha256(CSV_SINTETICO.encode()).hexdigest(),
-                                        "filas_analizadas": 6, "media": 25 / 6}).encode()
+                contenido = calculo
+            if nombre == "06-recuperacion.txt":
+                contenido = b"Disponibilidad con motor detenido: HTTP 503\n" + calculo
             if nombre.endswith(".xml"):
                 contenido = (b'<testsuite tests="1" failures="0" errors="0" skipped="0">'
                              b'<testcase name="prueba"/></testsuite>')
@@ -72,6 +75,17 @@ class PruebasAuditoria(unittest.TestCase):
         manifiesto["archivos"]["05-calculo.txt"] = {"sha256": hashlib.sha256(contenido).hexdigest(), "bytes": len(contenido)}
         ruta.write_text(json.dumps(manifiesto), encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "cálculo archivado"):
+            auditar_build(carpeta)
+
+    def test_exito_requiere_la_caida_controlada_en_el_registro_de_recuperacion(self):
+        carpeta, ruta, manifiesto = self.preparar("SUCCESS")
+        archivo = carpeta / "artifact-salidas-jenkins-ci-06-recuperacion.txt"
+        contenido = archivo.read_bytes().replace(b"HTTP 503", b"HTTP 200")
+        archivo.write_bytes(contenido)
+        manifiesto["archivos"]["06-recuperacion.txt"] = {"sha256": hashlib.sha256(contenido).hexdigest(),
+                                                        "bytes": len(contenido)}
+        ruta.write_text(json.dumps(manifiesto), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "recuperación archivada"):
             auditar_build(carpeta)
 
     def test_coteja_causa_con_api_de_jenkins(self):

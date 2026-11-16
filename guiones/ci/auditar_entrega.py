@@ -71,6 +71,16 @@ def comprobar_calculo(contenido, nombre):
         raise ValueError(f"El cálculo archivado no coincide con el ejemplo en {nombre}")
 
 
+def comprobar_recuperacion(contenido, nombre):
+    registro, separador, resultado = contenido.rpartition(b"\n{")
+    if not separador or b"Disponibilidad con motor detenido: HTTP 503" not in registro.splitlines():
+        raise ValueError(f"La recuperación archivada carece del HTTP 503 y el recálculo en {nombre}")
+    comprobar_calculo(b"{" + resultado, nombre)
+
+
+COMPROBACIONES_COMPOSE = {"05-calculo.txt": comprobar_calculo, "06-recuperacion.txt": comprobar_recuperacion}
+
+
 def auditar_git(carpeta):
     base = sha((carpeta / "base.txt").read_text(encoding="ascii").strip())
     local = sha(git("rev-parse", "HEAD"))
@@ -158,8 +168,8 @@ def auditar_build(carpeta):
         verificar_huella(contenido, registro, nombre_local)
         if build["result"] == "SUCCESS" and nombre in ARCHIVOS_JUNIT:
             pruebas_junit[nombre] = comprobar_junit(contenido, nombre)
-        if build["result"] == "SUCCESS" and nombre == "05-calculo.txt":
-            comprobar_calculo(contenido, nombre)
+        if build["result"] == "SUCCESS" and nombre in COMPROBACIONES_COMPOSE:
+            COMPROBACIONES_COMPOSE[nombre](contenido, nombre)
         comprobados.append(nombre)
     faltantes = EVIDENCIAS_OBLIGATORIAS.difference(comprobados)
     if build["result"] == "SUCCESS" and faltantes:
@@ -237,8 +247,8 @@ def auditar_paquete(ruta):
                 verificar_huella(contenido, evidencia["archivos"][nombre], entrada)
                 if api["result"] == "SUCCESS" and nombre in ARCHIVOS_JUNIT:
                     pruebas_junit[nombre] = comprobar_junit(contenido, entrada)
-                if api["result"] == "SUCCESS" and nombre == "05-calculo.txt":
-                    comprobar_calculo(contenido, entrada)
+                if api["result"] == "SUCCESS" and nombre in COMPROBACIONES_COMPOSE:
+                    COMPROBACIONES_COMPOSE[nombre](contenido, entrada)
                 esperados.add(entrada)
                 verificados += 1
             if build.get("pruebas_junit", pruebas_junit) != pruebas_junit:
