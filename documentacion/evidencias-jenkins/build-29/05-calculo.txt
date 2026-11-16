@@ -1,0 +1,9 @@
+{
+  "destino": "motor:8787",
+  "trabajo_id": "830bd88be38649d3af63b4616a2ec2ca",
+  "solicitud_id": "78b06fff1ddc40aca9e15a66ec8cfc4c",
+  "estado": "completado",
+  "sha256": "4c4bcaecdea0a6f5169163dbd34fc0c82d8982148e354f92d4431d6114120499",
+  "filas_analizadas": 6,
+  "media": 4.16666666666667
+}
