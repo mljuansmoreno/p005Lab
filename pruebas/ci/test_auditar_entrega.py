@@ -26,7 +26,8 @@ class PruebasAuditoria(unittest.TestCase):
         causa = "SCMTrigger$SCMTriggerCause"
         build = {"number": 1, "url": url, "building": False, "result": resultado, "duration": 531,
                  "actions": [{"causes": [{"_class": f"hudson.triggers.{causa}"}]}]}
-        entorno = {"revision": revision, "build": "1", "build_url": url, "causa": causa}
+        imagenes = {"aplicacion": "sha256:" + "c" * 64, "motor": "sha256:" + "d" * 64}
+        entorno = {"revision": revision, "build": "1", "build_url": url, "causa": causa, "imagenes": imagenes}
         (carpeta / "build.json").write_text(json.dumps(build), encoding="utf-8")
         calculo = json.dumps({"destino": "motor:8787", "trabajo_id": "a" * 32,
                               "solicitud_id": "b" * 32, "estado": "completado",
@@ -39,6 +40,10 @@ class PruebasAuditoria(unittest.TestCase):
                 contenido = calculo
             if nombre == "06-recuperacion.txt":
                 contenido = b"Disponibilidad con motor detenido: HTTP 503\n" + calculo
+            if nombre.startswith("seguridad-"):
+                servicio = nombre.removeprefix("seguridad-").removesuffix(".json")
+                contenido = json.dumps({"imagen": imagenes[servicio], "base_avisos": "2026-11-15T06:19:39Z",
+                                        "altas": 0, "criticas": 0, "pendientes": []}).encode()
             if nombre.endswith(".xml"):
                 contenido = (b'<testsuite tests="1" failures="0" errors="0" skipped="0">'
                              b'<testcase name="prueba"/></testsuite>')
@@ -86,6 +91,19 @@ class PruebasAuditoria(unittest.TestCase):
                                                         "bytes": len(contenido)}
         ruta.write_text(json.dumps(manifiesto), encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "recuperación archivada"):
+            auditar_build(carpeta)
+
+    def test_exito_rechaza_el_escaneo_de_una_imagen_ajena(self):
+        carpeta, ruta, manifiesto = self.preparar("SUCCESS")
+        archivo = carpeta / "artifact-salidas-jenkins-ci-seguridad-motor.json"
+        informe = json.loads(archivo.read_bytes())
+        informe["imagen"] = "sha256:" + "f" * 64
+        contenido = json.dumps(informe).encode()
+        archivo.write_bytes(contenido)
+        manifiesto["archivos"]["seguridad-motor.json"] = {"sha256": hashlib.sha256(contenido).hexdigest(),
+                                                        "bytes": len(contenido)}
+        ruta.write_text(json.dumps(manifiesto), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "no corresponde a la imagen construida"):
             auditar_build(carpeta)
 
     def test_formato_nuevo_exige_dos_respuestas_200_y_un_motor_nuevo(self):

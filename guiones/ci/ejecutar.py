@@ -256,7 +256,7 @@ def integrar(puerto, sin_cache=False):
     datos = json.loads(metadatos.read_text(encoding="utf-8"))
     datos.update({"proyecto": proyecto, "puerto_web": puerto,
                   "modo_compilacion": "sin_cache" if sin_cache else "cache_permitida",
-                  "version_registro_recuperacion": 2})
+                  "version_registro_recuperacion": 2, "version_informe_seguridad": 2})
     json_archivo(metadatos, datos)
     print(f"Proyecto aislado {proyecto}, web 127.0.0.1:{puerto}", flush=True)
     reporte = Reporte("integracion")

@@ -12,12 +12,13 @@ import sys
 import xml.etree.ElementTree as ET
 from zipfile import BadZipFile, ZipFile
 
-from ejecutar import ARCHIVOS, REPORTES
+from ejecutar import ARCHIVOS, REPORTES, comprobar_politica
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from datos_sinteticos import coincide_resultado_e2e
 
 ARCHIVOS_JUNIT = {f"reportes/{nombre}.xml" for nombre in REPORTES}
+ARCHIVOS_SEGURIDAD = {f"seguridad-{servicio}.json": servicio for servicio in ("aplicacion", "motor")}
 EVIDENCIAS_OBLIGATORIAS = {*ARCHIVOS, *ARCHIVOS_JUNIT}
 TRABAJOS_ACTIONS = {"verificar", "Docker Linux y cálculo entre contenedores", "Credenciales y archivos comprimidos"}
 META_COMMITS = 84
@@ -94,6 +95,18 @@ def comprobar_compose(contenido, nombre, entorno):
         comprobar_recuperacion(contenido, nombre, entorno.get("version_registro_recuperacion", 1))
 
 
+def comprobar_seguridad(informes, entorno):
+    imagenes = entorno.get("imagenes", {})
+    if (not isinstance(imagenes, dict) or set(imagenes) != set(ARCHIVOS_SEGURIDAD.values()) or
+            any(not isinstance(imagen, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", imagen)
+                for imagen in imagenes.values())):
+        raise ValueError("Faltan los identificadores de las imágenes construidas")
+    version = entorno.get("version_informe_seguridad", 1)
+    if version not in (1, 2):
+        raise ValueError("Versión de informe de seguridad desconocida")
+    comprobar_politica(informes, imagenes, exigir_sbom=version == 2)
+
+
 def auditar_git(carpeta):
     base = sha((carpeta / "base.txt").read_text(encoding="ascii").strip())
     local = sha(git("rev-parse", "HEAD"))
@@ -161,6 +174,7 @@ def auditar_build(carpeta):
     no_archivados = []
     nombres_locales = set()
     pruebas_junit = {}
+    informes_seguridad = {}
     for nombre, registro in manifiesto["archivos"].items():
         # La descarga local usa un prefijo fijo y sustituye las barras por guiones.
         nombre_local = nombre.replace("/", "-")
@@ -183,10 +197,14 @@ def auditar_build(carpeta):
             pruebas_junit[nombre] = comprobar_junit(contenido, nombre)
         if build["result"] == "SUCCESS":
             comprobar_compose(contenido, nombre, entorno)
+            if nombre in ARCHIVOS_SEGURIDAD:
+                informes_seguridad[ARCHIVOS_SEGURIDAD[nombre]] = json.loads(contenido)
         comprobados.append(nombre)
     faltantes = EVIDENCIAS_OBLIGATORIAS.difference(comprobados)
     if build["result"] == "SUCCESS" and faltantes:
         raise ValueError(f"Build exitoso con evidencia incompleta en {carpeta.name}: {', '.join(sorted(faltantes))}")
+    if build["result"] == "SUCCESS":
+        comprobar_seguridad(informes_seguridad, entorno)
     return {
         **resumen, "revision": revision, "artefactos_con_huella_verificada": comprobados,
         "artefactos_declarados_sin_archivar": no_archivados,
@@ -254,6 +272,7 @@ def auditar_paquete(ruta):
                 raise ValueError(f"Build exitoso con evidencia incompleta en {carpeta}")
             esperados.add(entrada_manifiesto)
             pruebas_junit = {}
+            informes_seguridad = {}
             for nombre in archivos:
                 entrada = f"{carpeta}/{nombre}"
                 contenido = paquete.read(entrada)
@@ -262,10 +281,14 @@ def auditar_paquete(ruta):
                     pruebas_junit[nombre] = comprobar_junit(contenido, entrada)
                 if api["result"] == "SUCCESS":
                     comprobar_compose(contenido, entrada, entorno)
+                    if nombre in ARCHIVOS_SEGURIDAD:
+                        informes_seguridad[ARCHIVOS_SEGURIDAD[nombre]] = json.loads(contenido)
                 esperados.add(entrada)
                 verificados += 1
             if build.get("pruebas_junit", pruebas_junit) != pruebas_junit:
                 raise ValueError(f"Totales JUnit distintos al anexo en {carpeta}")
+            if api["result"] == "SUCCESS":
+                comprobar_seguridad(informes_seguridad, entorno)
             builds[carpeta] = build
         if nombres != esperados:
             raise ValueError("El anexo contiene archivos fuera del inventario")
