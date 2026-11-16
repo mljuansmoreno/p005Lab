@@ -1,6 +1,15 @@
 # Ruta Estadística · p005Lab
 
-Proyecto de Integración Continua del Politécnico Grancolombiano, por Juan Sebastián Moreno Díaz. La demostración web envía un conjunto de datos sintéticos a un motor estadístico R en otro contenedor y muestra el resultado en el navegador.
+Proyecto de Integración Continua del Politécnico Grancolombiano, por Juan Sebastián Moreno Díaz. Ruta Estadística guía un análisis desde la pregunta y los datos hasta los resultados, su interpretación y la evidencia reproducible. Los cálculos los realiza el paquete R `rutaanalitica`; la aplicación no requiere una cuenta ni un modelo de lenguaje.
+
+| Si quiere… | Empiece aquí |
+| --- | --- |
+| Ver un cálculo real en el navegador, sin instalar R ni .NET en el host | [Demostración web con Docker](#demostración-de-dos-servicios-con-docker) |
+| Abrir proyectos, analizar sus archivos y exportar evidencia | [Aplicación de escritorio en Windows](#aplicación-de-escritorio) |
+| Construir y comprobar la entrega con CI | [Jenkins](#integración-continua-con-jenkins) y [Docker en GitHub Actions](#pruebas-de-docker-realizadas) |
+| Revisar qué controles de seguridad se ejecutaron | [Ciberseguridad: verificaciones realizadas](#ciberseguridad-verificaciones-realizadas) |
+
+Los resultados de esta guía corresponden a las revisiones, fechas y ejecuciones indicadas. Los pasos de reproducción explican qué esperar al ejecutarlos en otro equipo. Para ver los cambios consolidados, consulte la [evolución de la entrega](#evolución-de-la-entrega).
 
 ## Demostración de dos servicios con Docker
 
