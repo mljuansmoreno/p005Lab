@@ -299,3 +299,23 @@ Después de los hallazgos se migró la imagen web a Alpine, se mantuvo Python 3.
 El registro del 16 enlaza los escaneos de [Actions 43863992759](https://github.com/mljuansmoreno/p005Lab/actions/runs/43863992759): la base de avisos de ese escaneo fue `2026-11-16T06:30:54Z`; Syft inventarió **1.423** componentes para la web y **8.828** para el motor. La evidencia vincula por imagen el ID canónico y la huella del SBOM CycloneDX con los resultados de Grype. El build #11001 usó su propia base y se documenta por separado. Los números de severidad son coincidencias de aviso y paquete para esas imágenes y esa base, no una garantía de seguridad futura o una certificación del producto.
 
 En Windows también quedaron registrados [los controles HTTP del servicio](documentacion/informes/api_seguridad.json), [la consulta NuGet de dependencias directas y transitivas](documentacion/informes/vulnerabilidades.json) y [la revisión de permisos MCP](documentacion/informes/mcp_stdio.json). El registro de NuGet no devolvió paquetes vulnerables para el escritorio en esa consulta; los informes Windows no sustituyen el análisis de capas Linux.
+
+## Evolución de la entrega
+
+| Etapa | Cambios incorporados |
+| --- | --- |
+| Escritorio y cálculo local | WinUI en español, importación CSV/TSV/XLSX, roles y exclusiones explícitas, paquete R con métodos estadísticos, persistencia local, exportación reproducible y MSIX de desarrollo. |
+| API y continuidad de Windows | API revisión 2 por trabajos con carga, consulta, resultado ZIP y cancelación; adaptador Docker; tablas nativas y reapertura de resultados por identidad y hash; límites adicionales en XLSX y restauración bloqueada de dependencias. |
+| Demo Docker y GitHub Actions | Dos servicios, puertos y redes separados, sondas de vida y disponibilidad, cálculo cruzado y recuperación. Se añadieron metadatos OCI, verificación de fuentes, huella de revisión, informes por intento y limpieza de recursos. En paralelo se conservó el trabajo nativo de Windows. |
+| Interfaz y seguridad | Tema claro predeterminado, selector de apariencia persistente y ajustes de contraste; formularios, tablas y avisos revisados. Se incorporaron controles de aislamiento, autenticación, publicación de secretos, SBOM y bloqueo por coincidencias altas o críticas. |
+| Jenkins y trazabilidad | Controlador y agente WebSocket, sondeo SCM, runner alojado y autoprueba aislada. Se ampliaron los plazos de arranque y escaneo a partir de fallos observados, se verificó la caché de herramientas y se agregó recuperación de limpieza por proyecto. JUnit, huellas, capturas autenticadas, evidencia de coexistencia y exportación a Word/PDF quedaron vinculados al build y a la revisión. |
+| Revisión de cierre y auditorías | El lote de Jenkins abarcó 84 commits desde `0b0a87d` hasta `295325f`, según la bitácora de cierre y el rango Git. Las revisiones de seguridad por control se registraron aparte. Los commits de este README documentan esa evidencia histórica. |
+
+Para ver los cambios de Jenkins en orden y abrir cualquier revisión desde el checkout:
+
+```console
+git log --reverse --oneline 0b0a87d..295325f
+git log --oneline -- documentacion/informes/revisiones-seguridad
+```
+
+Consulte el [plan de incrementos](documentacion/plan_commits_semana5.md), la [guía de mantenimiento](documentacion/guia_mantenimiento.md), la [compatibilidad](documentacion/versiones_y_compatibilidad.md) y las [licencias y fuentes](documentacion/licencias_y_dependencias.md).
