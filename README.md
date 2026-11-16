@@ -181,19 +181,20 @@ Los proyectos se guardan en `%LOCALAPPDATA%\RutaEstadistica\proyectos`, sin cifr
 
 La aplicación abre con tema claro; en **Apariencia** puede cambiar a **Oscuro** o **Según Windows**. La preferencia se guarda por perfil y la interfaz contempla el contraste del sistema. La actualización también organizó los títulos, botones, tablas, avisos y superficies de resultados de WinUI y de la demo. [Manual](documentacion/manual_usuario.md) · [Datos y persistencia](documentacion/datos_y_persistencia.md).
 
-### Opciones avanzadas
+### Opciones del escritorio: Docker y MCP
 
-Docker: [preparación voluntaria](documentacion/docker.md), `./guiones/iniciar_contenedores.ps1 -Construir`; seleccione Docker en Configuración. No se instala Docker ni se modifican características de Windows automáticamente.
+**Usar Docker como motor.** Arranque el motor de escritorio con Docker en modo Linux. En PowerShell, desde la raíz:
 
-MCP: [consentimiento y lanzador](documentacion/mcp.md). La aplicación debe estar abierta; autorice un proyecto en Configuración y revoque allí mismo. No active con un cliente que no sea de confianza.
+```powershell
+./guiones/iniciar_contenedores.ps1 -Construir
+docker ps --filter label=com.docker.compose.project=ruta-estadistica
+```
 
-### Repositorio
+Abra la aplicación nativa, seleccione **Docker** en Configuración y calcule. Este modo usa `127.0.0.1:8787`; el guion administra la credencial en el perfil local y el motor no monta los proyectos. Para volver al motor nativo, seleccione **Local**; para detener el motor de escritorio ejecute `./guiones/detener_contenedores.ps1`. Véase [configuración del motor Docker del escritorio](documentacion/docker.md).
 
-`codigo`: escritorio y capas .NET; `motor_r`: cálculos; `pruebas`: comprobaciones sintéticas; `contratos`: esquemas; `contenedores`: motor Linux; `empaquetado`: manifiesto MSIX; `guiones`: preparación, compilación y verificación.
+**Usar MCP.** Abra el escritorio, autorice el proyecto en Configuración y lance el servidor stdio desde un cliente de confianza con la [configuración MCP del repositorio](documentacion/mcp.md). Revocar el acceso o cerrar la aplicación elimina las concesiones de sesión. El protocolo y sus nueve herramientas se verificaron con un cliente sintético propio; falta una prueba con un cliente externo.
 
-[Manual](documentacion/manual_usuario.md) · [Desarrollo](documentacion/instalacion_desarrollo.md) · [Mapa del código](documentacion/mapa_codigo.md) · [Depuración](documentacion/depuracion.md) · [Limitaciones](documentacion/limitaciones_y_pendientes.md).
-
-No se incluyen capturas de una interfaz que no haya sido ejecutada. Las capturas verificadas, cuando existan, se conservan en `salidas/informes`.
+**Alcance de la entrega.** La publicación y el arranque de WinUI tienen evidencia, pero el recorrido gráfico completo y la validación de accesibilidad siguen pendientes. Las pruebas Docker de la demo tampoco acreditan por sí solas la paridad completa del escritorio entre motores. El MSIX de desarrollo documentado se creó sin firma; no acredita instalación limpia, actualización, WACK ni aprobación de Microsoft Store. No incluye exportación directa de resultados a PDF, regresión múltiple ni cuestionarios de respuesta múltiple. [Estado](documentacion/estado_entrega.md) · [Continuidad](documentacion/continuidad.md) · [Limitaciones](documentacion/limitaciones_y_pendientes.md) · [Empaquetado](documentacion/empaquetado_y_publicacion.md).
 
 ## Integración continua con Jenkins
 
