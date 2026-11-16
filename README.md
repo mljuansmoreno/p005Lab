@@ -28,14 +28,20 @@ La demo usa [`docker-compose.yml`](docker-compose.yml) en la raíz y publica la 
 
 ## Demostración de dos servicios con Docker
 
-Requiere Git, Docker con contenedores Linux, Compose con soporte para `up --wait` y capacidad de ejecutar imágenes `linux/amd64`. En Linux, la preparación de abajo usa Bash y OpenSSL.
+### 1. Preparar el entorno y clonar
+
+Necesita Git, un daemon Docker activo en modo Linux y Docker Compose V2 con soporte para `up --wait` y `--wait-timeout`. El motor requiere `linux/amd64`; compruebe que su entorno admite esa plataforma. En Windows puede usar Docker Desktop en modo Linux, desde PowerShell o desde una distribución WSL2 con la integración de Docker habilitada. En Linux use Bash y tenga OpenSSL para generar el secreto. La primera construcción necesita acceso a los registros de imágenes y repositorios de paquetes.
 
 ```console
 git clone https://github.com/mljuansmoreno/p005Lab.git
 cd p005Lab
-docker info --format '{{.OSType}}'
+git switch main
+git rev-parse --short HEAD
+docker info --format '{{.OSType}}/{{.Architecture}}'
 docker compose version
 ```
+
+`docker info` debe responder desde el servidor y mostrar `linux` como tipo. Si ya tiene el checkout, entre a la carpeta que contiene `README.md`, `docker-compose.yml` y `Jenkinsfile` y omita la clonación. Ejecute los pasos siguientes desde esa raíz.
 
 ### Preparar el secreto
 
