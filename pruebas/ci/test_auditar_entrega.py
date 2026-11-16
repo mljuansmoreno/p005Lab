@@ -252,11 +252,12 @@ class PruebasAuditoria(unittest.TestCase):
             respuestas = {
                 ("rev-parse", "HEAD"): ultimo, ("rev-parse", "origin/main"): ultimo,
                 ("rev-list", "--reverse", "--topo-order", f"{base}..{ultimo}"): "\n".join((primero, ajeno, ultimo)),
+                ("show", "--no-patch", "--no-walk=unsorted",
+                 "--format=%H%x00%s%x00%(trailers:key=Entrega-S5,valueonly,separator=%x1f)", primero, ultimo):
+                    "\n".join(f"{r['sha']}\0{r['mensaje']}\0{r['id'][3:]}" for r in registros),
             }
             for r in registros:
                 respuestas["merge-base", "--is-ancestor", base, r["sha"]] = ""
-                respuestas["show", "-s", "--format=%(trailers:key=Entrega-S5,valueonly)", r["sha"]] = r["id"][3:]
-                respuestas["show", "-s", "--format=%s", r["sha"]] = r["mensaje"]
                 respuestas["diff-tree", "--no-commit-id", "--name-only", "-r", r["sha"]] = "Jenkinsfile"
             with patch("auditar_entrega.git", side_effect=lambda *args: respuestas[args]):
                 archivo.write_text("\n".join(map(json.dumps, registros)), encoding="utf-8")

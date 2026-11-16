@@ -130,14 +130,23 @@ def auditar_git(carpeta):
             raise ValueError(f"Incremento no válido o duplicado: {identificador}")
         ids.add(identificador)
         revisiones.add(commit)
+        registros.append({**cambio, "publicado": commit in alcanzables})
+    metadatos = {}
+    if revisiones:
+        formato = "--format=%H%x00%s%x00%(trailers:key=Entrega-S5,valueonly,separator=%x1f)"
+        filas = git("show", "--no-patch", "--no-walk=unsorted", formato, *sorted(revisiones))
+        for fila in filas.split("\n"):
+            commit, asunto, trailer = fila.split("\0")
+            metadatos[commit] = (asunto, trailer)
+    for cambio in registros:
+        commit = cambio["sha"]
+        identificador = cambio["id"]
         git("merge-base", "--is-ancestor", base, commit)
-        trailer = git("show", "-s", "--format=%(trailers:key=Entrega-S5,valueonly)", commit)
-        asunto = git("show", "-s", "--format=%s", commit)
+        asunto, trailer = metadatos[commit]
         if trailer != identificador[3:] or asunto != cambio["mensaje"]:
             raise ValueError(f"Metadatos distintos al commit {identificador}")
         if not git("diff-tree", "--no-commit-id", "--name-only", "-r", commit):
             raise ValueError(f"Commit sin cambio de contenido: {identificador}")
-        registros.append({**cambio, "publicado": commit in alcanzables})
     orden_bitacora = [c["sha"] for c in registros if c["publicado"]]
     if orden_bitacora != [commit for commit in orden_remoto if commit in revisiones]:
         raise ValueError("El orden de la bitácora no coincide con el historial publicado")
