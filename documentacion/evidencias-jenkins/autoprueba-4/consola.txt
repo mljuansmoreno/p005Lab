@@ -1,0 +1,94 @@
+Started by user <operador>
+Obtained jenkins/Jenkinsfile.autoprueba from git https://github.com/mljuansmoreno/p005Lab.git
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on linux-docker in <workspace>
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] timeout
+[2026-11-15T21:49:41.064Z] Timeout set to expire in 35 min
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Preparar la autoprueba)
+[Pipeline] deleteDir
+[Pipeline] checkout
+[2026-11-15T21:49:41.778Z] Selected Git installation does not exist. Using Default
+[2026-11-15T21:49:41.778Z] The recommended git tool is: NONE
+[2026-11-15T21:49:41.885Z] No credentials specified
+[2026-11-15T21:49:41.909Z] Cloning the remote Git repository
+[2026-11-15T21:49:41.952Z] Cloning repository https://github.com/mljuansmoreno/p005Lab.git
+[2026-11-15T21:49:41.971Z]  > git init <workspace> # timeout=10
+[2026-11-15T21:49:42.026Z] Fetching upstream changes from https://github.com/mljuansmoreno/p005Lab.git
+[2026-11-15T21:49:42.027Z]  > git --version # timeout=10
+[2026-11-15T21:49:42.050Z]  > git --version # 'git version 2.53.0'
+[2026-11-15T21:49:42.052Z]  > git fetch --tags --force --progress -- https://github.com/mljuansmoreno/p005Lab.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-11-15T21:49:47.006Z] Avoid second fetch
+[2026-11-15T21:49:47.045Z] Checking out Revision 9b336d6b7a80c688800371481aa8e13e048efa8b (refs/remotes/origin/main)
+[2026-11-15T21:49:47.348Z] Commit message: "ci(auditoría): verifica el anexo de evidencias sin extraerlo"
+[2026-11-15T21:49:46.833Z]  > git config remote.origin.url https://github.com/mljuansmoreno/p005Lab.git # timeout=10
+[2026-11-15T21:49:46.865Z]  > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-11-15T21:49:47.021Z]  > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+[2026-11-15T21:49:47.063Z]  > git config core.sparsecheckout # timeout=10
+[2026-11-15T21:49:47.085Z]  > git checkout -f 9b336d6b7a80c688800371481aa8e13e048efa8b # timeout=10
+[2026-11-15T21:49:47.364Z]  > git rev-list --no-walk 59ff28e11e2834d49305a8ac79f16e9b2e015b72 # timeout=10
+[Pipeline] sh
+[2026-11-15T21:49:48.021Z] + python3 guiones/ci/ejecutar.py preparar
+[2026-11-15T21:50:19.386Z] Fuentes fijadas y 4 contratos JSON comprobados.
+[Pipeline] sh
+[2026-11-15T21:50:19.947Z] + python3 guiones/ci/ejecutar.py secretos
+[2026-11-15T21:50:28.839Z] [90m4:50PM[0m [32mINF[0m [1mscanned ~3009772 bytes (3.01 MB) in 4.08s[0m
+[2026-11-15T21:50:28.839Z] [90m4:50PM[0m [32mINF[0m [1mno leaks found[0m
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Fallo controlado del cálculo real)
+[Pipeline] sh
+[2026-11-15T21:50:29.668Z] + cat
+[2026-11-15T21:50:29.668Z] + python3 -
+[2026-11-15T21:50:29.668Z] Proyecto aislado ruta-ci-3179d2f1a4e96306, web 127.0.0.1:59971
+[2026-11-15T21:50:29.668Z] Compose: configuracion
+[2026-11-15T21:50:30.823Z] Compose: compilacion
+[2026-11-15T21:50:57.303Z] Compose: arranque
+[2026-11-15T21:51:13.042Z] Compose: estado
+[2026-11-15T21:51:13.042Z] Compose: red
+[2026-11-15T21:51:14.672Z] Compose: aislamiento
+[2026-11-15T21:51:15.676Z] Compose: acceso
+[2026-11-15T21:51:15.955Z] Compose: autenticacion
+[2026-11-15T21:51:18.705Z] Compose: calculo
+[2026-11-15T21:51:37.657Z] CI: calculo: código de salida 1
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] fileExists
+[Pipeline] sh
+[2026-11-15T21:51:39.501Z] + python3 guiones/ci/ejecutar.py finalizar
+[Pipeline] sh
+[2026-11-15T21:51:40.209Z] + python3 guiones/ci/ejecutar.py archivos
+[Pipeline] archiveArtifacts
+[2026-11-15T21:51:40.696Z] Archiving artifacts
+[2026-11-15T21:51:40.957Z] Recording fingerprints
+[Pipeline] fileExists
+[Pipeline] junit
+[2026-11-15T21:51:41.465Z] Recording test results
+[2026-11-15T21:51:41.831Z] [Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[Pipeline] // timestamps
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+ERROR: script returned exit code 1
+Finished: FAILURE

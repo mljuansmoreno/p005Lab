@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="integracion" tests="10" time="66.873572" failures="1" errors="0" skipped="0">
+  <testcase name="configuracion" classname="compose" time="0.777051" />
+  <testcase name="compilacion" classname="compose" time="23.168654" />
+  <testcase name="arranque" classname="compose" time="18.141666" />
+  <testcase name="estado" classname="compose" time="0.674660" />
+  <testcase name="red" classname="compose" time="1.892469" />
+  <testcase name="aislamiento" classname="compose" time="1.275147" />
+  <testcase name="acceso" classname="compose" time="0.118934" />
+  <testcase name="autenticacion" classname="compose" time="2.975509" />
+  <testcase name="calculo" classname="compose" time="8.477833">
+    <failure message="calculo: código de salida 1" />
+  </testcase>
+  <testcase name="limpieza" classname="compose" time="9.346472" />
+</testsuite>
