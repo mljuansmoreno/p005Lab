@@ -230,3 +230,28 @@ bash jenkins/iniciar_agente.sh
 ```
 
 [Instalación completa, plantillas CLI y autoprueba aislada](documentacion/jenkins.md).
+
+### 3. Ejecutar, revisar y apagar
+
+1. Confirme que `linux-docker` está en línea y ejecute **Build Now** para inicializar la consulta del repositorio. Para verificar el disparo automático, observe **Git Polling Log** y la causa del siguiente build tras un cambio publicado en `main`. Use **Build with Parameters → RUTA_CI_SIN_CACHE** cuando necesite reconstruir las dos imágenes en frío.
+2. El pipeline verifica secretos y fuentes, ejecuta pruebas de la web, construye y arranca Compose, revisa aislamiento y autenticación, ejecuta el cálculo y la recuperación, prueba R y escanea ambas imágenes. Cada ejecución usa un proyecto Compose y puerto propios. El cierre registra la limpieza y publica JUnit y un manifiesto SHA-256.
+3. Abra **Console Output**, **Test Result** y **Artifacts**. Coteje la causa y el SHA de la consola con `00-entorno.json`. Revise `05-calculo.txt`, `06-recuperacion.txt`, `08-pruebas-r.txt`, `09-limpieza.txt`, `seguridad-aplicacion.json` y `seguridad-motor.json`, los XML de `reportes/` y `manifest.json`. Si falla, use JUnit para ubicar la etapa y confirme que se retiraron los recursos del proyecto de ese build.
+4. Cuando la cola esté vacía, detenga el agente con `Ctrl+C` y ejecute `docker compose -f jenkins/compose.yaml stop` para conservar el volumen y el historial. Para reanudar, use `docker compose -f jenkins/compose.yaml up -d` y vuelva a conectar el agente.
+
+Para ejecutar las comprobaciones en Bash sin un controlador, con los requisitos del agente instalados:
+
+```bash
+PYTHONPATH=aplicacion:guiones python3 guiones/ci/ejecutar.py local
+```
+
+Los informes locales quedan en `salidas/jenkins-ci/`. Una ejecución local mediante ese lanzador no tiene número de build Jenkins.
+
+### Alternativa: Jenkins en un runner alojado
+
+En **Actions → Jenkins en runner Linux → Run workflow**, elija `main`. El workflow construye un controlador temporal, conecta un agente y dispara el job. Para pedir reconstrucción sin caché y capturas, puede usar GitHub CLI autenticada con permisos para ejecutar el workflow:
+
+```bash
+gh workflow run jenkins-alojado.yaml --ref main -f sin_cache=true -f capturas=true
+```
+
+Descargue `jenkins-<SHA>-<intento>` y, si se solicitaron capturas, `jenkins-capturas-<SHA>-<intento>`. Compare el SHA del build con el de Actions y la huella del anexo publicada en el resumen. El flujo alojado demuestra un disparo manual; el sondeo SCM se observa en el controlador permanente. [Operación, recuperación y retención](documentacion/operacion_jenkins.md) · [Guía de capturas](documentacion/capturas_semana5.md).
