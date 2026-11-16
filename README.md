@@ -272,3 +272,30 @@ Descargue `jenkins-<SHA>-<intento>` y, si se solicitaron capturas, `jenkins-capt
 El build local #17 agotó el plazo de escaneo anterior después de archivar el informe de la web; el #19 fue abortado y carece de artefactos. Esos resultados no cuentan como aceptaciones. El ensayo local de coexistencia fue independiente del job: usó un par de imágenes para una demo descartable y dos proyectos CI en puertos distintos. Hubo cinco cálculos correctos: tres iniciales y otros dos después de retirar el primer proyecto CI. El ensayo retiró sus propios recursos al terminar.
 
 [Informe de semana 5](documentacion/entrega_semana5.md) · [Matriz de aceptación](documentacion/matriz_semana5.md) · [Informe en PDF](documentacion/ruta-estadistica-jenkins-semana5.pdf) · [Informe en DOCX](documentacion/ruta-estadistica-jenkins-semana5.docx).
+
+## Ciberseguridad: verificaciones realizadas
+
+Los registros corresponden a inspecciones defensivas de este repositorio, sus contenedores e imágenes. Cada JSON conserva la fecha de Bogotá, el control y el SHA auditado. El [informe inicial](documentacion/informes/revision_ciberseguridad.md) conserva por separado el antecedente sobre `0aad2e5`.
+
+| Fecha y revisión auditada | Controles correctos / evaluados | Web: altas / críticas | Motor: altas / críticas |
+| --- | ---: | ---: | ---: |
+| [15 de noviembre de 2026](documentacion/informes/revisiones-seguridad/2026-11-15), `dbcafcb` | 72 / 75 | 54 / 3 | 3 / 0 |
+| [16 de noviembre de 2026](documentacion/informes/revisiones-seguridad/2026-11-16), `295325f` | 74 / 75 | 0 / 0 | 0 / 0 |
+
+El 16 de noviembre, el control [de secretos en el historial de Git](documentacion/informes/revisiones-seguridad/2026-11-16/git-historial-secretos.json) quedó marcado como hallazgo. El registro no identifica una credencial concreta ni documenta el cierre del hallazgo. Es un resultado separado del escaneo de imágenes.
+
+| Grupo | Controles | Cobertura observada |
+| --- | ---: | --- |
+| Git, fuentes y contexto | 10 | Acciones y base Python fijadas, bases declaradas, integridad de la fuente de jsonlite, checkout de verificación, diff, historial de secretos, exclusiones del contexto, archivos privados y exclusión del secreto. |
+| Bitácoras | 1 | Verificación de que los logs revisados no contenían el secreto. |
+| Modelo de Compose | 14 | Dos servicios; dependencia por salud; redes y DNS; publicación web solo en loopback; ninguna publicación del motor; sonda web, secretos de archivo en ambos servicios y tmpfs del motor. |
+| Contenedores activos | 30 | Quince inspecciones por servicio: usuario, modo no privilegiado, capacidades retiradas, prohibición de privilegios nuevos, espacios de nombres, raíz de solo lectura, ausencia del socket de Docker, secreto montado, CPU, memoria, procesos, rotación de logs, reinicios acotados, salud y red. |
+| Red activa | 2 | La red se inspeccionó como interna y con los miembros esperados. |
+| HTTP | 10 | Vida, disponibilidad, formulario, cálculo R, respuesta 404, autenticación del motor y cabeceras CSP, `nosniff`, de caché y de referente. |
+| Imágenes | 8 | Por imagen: inventario SBOM, ausencia del secreto y conteos por severidad alta y crítica. |
+
+Después de los hallazgos se migró la imagen web a Alpine, se mantuvo Python 3.13 sin su extensión SQLite y se excluyó `sqlite-libs`. En el motor Ubuntu Noble se actualizaron APT y Brotli y se fijaron mínimos corregidos. También se retiraron ejemplos de credenciales de la distribución de jsonlite, se ajustaron las exclusiones de Git y Docker y se incorporó Gitleaks para fuentes y archivos comprimidos publicables. [Remediación](documentacion/remediacion_imagenes.md) · [Seguridad y privacidad](documentacion/seguridad_y_privacidad.md).
+
+El registro del 16 enlaza los escaneos de [Actions 43863992759](https://github.com/mljuansmoreno/p005Lab/actions/runs/43863992759): la base de avisos de ese escaneo fue `2026-11-16T06:30:54Z`; Syft inventarió **1.423** componentes para la web y **8.828** para el motor. La evidencia vincula por imagen el ID canónico y la huella del SBOM CycloneDX con los resultados de Grype. El build #11001 usó su propia base y se documenta por separado. Los números de severidad son coincidencias de aviso y paquete para esas imágenes y esa base, no una garantía de seguridad futura o una certificación del producto.
+
+En Windows también quedaron registrados [los controles HTTP del servicio](documentacion/informes/api_seguridad.json), [la consulta NuGet de dependencias directas y transitivas](documentacion/informes/vulnerabilidades.json) y [la revisión de permisos MCP](documentacion/informes/mcp_stdio.json). El registro de NuGet no devolvió paquetes vulnerables para el escritorio en esa consulta; los informes Windows no sustituyen el análisis de capas Linux.
