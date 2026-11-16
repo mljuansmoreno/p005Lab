@@ -1,0 +1,10 @@
+{
+  "job": "ruta-estadistica-main",
+  "definicion": "org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition",
+  "scm": "hudson.plugins.git.GitSCM",
+  "url": "https://github.com/mljuansmoreno/p005Lab.git",
+  "rama": "*/main",
+  "scriptPath": "Jenkinsfile",
+  "pollSCM": "H/2 * * * *",
+  "credencial_scm_configurada": false
+}
