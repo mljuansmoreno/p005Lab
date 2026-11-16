@@ -7,7 +7,8 @@ printf '%s\n' herramientas > "$fase"
 temporal="$(mktemp -d)"
 trap 'rm -rf "$temporal"' EXIT
 
-source "$(dirname -- "${BASH_SOURCE[0]}")/ci/herramientas.sh"
+guiones="$(dirname -- "${BASH_SOURCE[0]}")"
+source "$guiones/ci/herramientas.sh"
 
 obtener_herramienta_ci syft \
   https://github.com/anchore/syft/releases/download/v1.57.1/syft_1.57.1_linux_amd64.tar.gz \
@@ -43,9 +44,10 @@ for servicio in aplicacion motor; do
   "$temporal/grype" "sbom:$temporal/sbom.json" -o json > "$temporal/grype.json"
   segundos_avisos=$((SECONDS - inicio_avisos))
   # El informe incluye el mismo estado validado que devuelve `grype db status`.
-  identidad_base="$(jq -ec '.descriptor.db | select(.valid == true and
-    (.built | type == "string" and length > 0) and (.schemaVersion | type == "string" and length > 0)) |
-    [.built, .schemaVersion, .from]' "$temporal/grype.json")"
+  if ! identidad_base="$(jq -ecf "$guiones/ci/base-grype.jq" "$temporal/grype.json")"; then
+    printf 'Grype no informó una base de avisos validada para %s.\n' "$servicio" >&2
+    exit 1
+  fi
   if [[ -n "$base_observada" && "$identidad_base" != "$base_observada" ]]; then
     printf 'La base de avisos cambió entre imágenes.\n' >&2
     exit 1
@@ -59,7 +61,7 @@ for servicio in aplicacion motor; do
       error("Informe de Grype incompleto")
     else
       ([.matches[] | .vulnerability.severity | ascii_downcase]) as $severidades |
-      {imagen: $imagen, base_avisos: .descriptor.db.built,
+      {imagen: $imagen, base_avisos: .descriptor.db.status.built,
        tiempos_segundos: {base_compartida: $segundos_base, inventario: $segundos_inventario, avisos: $segundos_avisos},
        sbom: {formato: "CycloneDX", sha256: $huella, componentes: $componentes},
        altas: ($severidades | map(select(. == "high")) | length),
