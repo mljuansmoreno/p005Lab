@@ -107,4 +107,6 @@ La [auditoría Git](plan_commits_semana5.md) permite verificar el historial desd
 
 ### Apéndice operativo
 
+El exportador versionado usa los fuentes Markdown del informe y la matriz. Con `python-docx` disponible, ejecute `python3 guiones/ci/exportar_informe.py RUTA_FUENTES --destino RUTA_DOCX --revision SHA`. El SHA fija el destino de los enlaces relativos del documento.
+
 La guía de capturas indica cómo abrir las vistas reales del job. Para conservar la procedencia al exportar evidencia, guarde el número del build, su causa y el SHA de 00-entorno.json. Compare cada archivo descargado con manifest.json. Los enlaces de builds requieren acceso al controlador local.
