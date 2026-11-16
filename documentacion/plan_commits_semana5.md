@@ -34,3 +34,5 @@ Genere el anexo con `python3 guiones/ci/empaquetar_entrega.py RUTA_BITACORA evid
 Use `--capturas RUTA_CAPTURAS` para incluir en el mismo ZIP las vistas verificadas de un build de la bitácora. La auditoría coteja cada PNG con el SHA del build, la URL de la vista y la huella registrada en el manifiesto.
 
 Con la bitácora ya auditada y `python-docx` disponible, ejecute `python3 guiones/ci/generar_informe_semana5.py RUTA_BITACORA RUTA_SALIDA NUMERO_BUILD --capturas RUTA_CAPTURAS`. Se generan las fuentes Markdown del cierre, el Word y el ZIP con la misma revisión. El modo normal exige los 84 commits y las validaciones de cierre. `--borrador` permite reproducir un informe intermedio cuya revisión CI esté verificada.
+
+En Windows con Word instalado, genere el PDF con `pwsh -File guiones/ci/exportar_pdf_semana5.ps1 -RutaDocx RUTA_DOCX`. El PDF se guarda junto al DOCX de forma predeterminada. Use `-Destino RUTA_PDF` si necesita otra ruta.
