@@ -1,0 +1,12 @@
+{
+  "fecha_bogota": "2026-11-16",
+  "control": "imagen-motor-sbom",
+  "revision_auditada": "295325ff7fc09725f8f046741bf3932a2fd5cf2b",
+  "estado": "correcto",
+  "detalle": {
+    "componentes": 8828,
+    "sha256": "9c99466b675b591832478d17ce8fdfe33bbe1b24e99717f4061218d6ebe48332",
+    "imagen": "sha256:801852eacd34985eb98f97b9530bbc359fa53ce9eafbda3c0bdd06abeab5f99d"
+  },
+  "ejecucion": "https://github.com/mljuansmoreno/p005Lab/actions/runs/43863992759"
+}
