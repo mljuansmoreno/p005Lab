@@ -198,4 +198,35 @@ Abra la aplicación nativa, seleccione **Docker** en Configuración y calcule. E
 
 ## Integración continua con Jenkins
 
-[Instalación](documentacion/jenkins.md) · [Operación y reproducción](documentacion/operacion_jenkins.md) · [Informe de semana 5](documentacion/entrega_semana5.md). GitHub Actions conserva los trabajos de Windows, Docker y secretos.
+El controlador de referencia usa Jenkins LTS **2.580.2** con Java 21 y plugins fijados. Escucha en `127.0.0.1:9090`, conserva el estado en un volumen y tiene cero ejecutores. Un agente Linux amd64 con un ejecutor se conecta por WebSocket y ejecuta Docker. El [`Jenkinsfile`](Jenkinsfile) obtiene `main` por SCM; `H/2 * * * *` consulta cambios aproximadamente cada dos minutos. La verificación nativa de Windows continúa en GitHub Actions.
+
+### 1. Preparar e iniciar el controlador
+
+Necesita Docker Linux amd64 y Compose V2. En el agente Linux o Ubuntu WSL2 necesita Java 21, Bash, Git, Python 3.10 o posterior, jq, curl, OpenSSL, tar y sha256sum. Reserve al menos 3 GiB libres en el checkout, asegure el acceso al socket Unix de Docker y compruebe que el agente pueda llegar a `127.0.0.1:9090`. Use un agente dedicado para este repositorio: el acceso al socket permite administrar las cargas del daemon.
+
+```console
+docker compose -f jenkins/compose.yaml config --quiet
+docker compose -f jenkins/compose.yaml up -d --build
+docker compose -f jenkins/compose.yaml ps
+```
+
+Abra [Jenkins local](http://127.0.0.1:9090/). Para desbloquear la primera instalación, lea la clave en una terminal privada con `docker compose -f jenkins/compose.yaml exec -T controlador cat /var/jenkins_home/secrets/initialAdminPassword`. Complete el asistente, cree el administrador local y configure la URL en loopback. Conserve autenticación y protección CSRF y deje desactivado el registro público de usuarios.
+
+### 2. Configurar el nodo y el job
+
+1. En **Administrar Jenkins → Nodos**, mantenga al controlador con cero ejecutores. Cree un agente permanente `linux-docker` con un ejecutor, etiqueta `linux-docker`, directorio remoto `/var/tmp/ruta-estadistica-agente` y uso reservado para trabajos con esa etiqueta. Seleccione el método en el cual el agente inicia la conexión con el controlador.
+2. Cree el job Pipeline `ruta-estadistica-main`. En **Pipeline script from SCM**, seleccione Git y use `https://github.com/mljuansmoreno/p005Lab.git`, rama `*/main` y ruta `Jenkinsfile`. El checkout público solo requiere lectura.
+3. Desde la página del nodo, tome su credencial y guárdela en el Linux del agente. Desde la raíz del checkout en Bash, el bloque siguiente la recibe sin mostrarla. Mantenga esa terminal abierta mientras trabaja el agente.
+
+```bash
+umask 077
+install -d -m 700 /var/tmp/ruta-estadistica-agente
+read -rs -p 'Credencial del nodo: ' RUTA_CI_CONEXION
+printf '\n'
+printf '%s\n' "$RUTA_CI_CONEXION" > /var/tmp/ruta-estadistica-agente/conexion.secreto
+unset RUTA_CI_CONEXION
+chmod 600 /var/tmp/ruta-estadistica-agente/conexion.secreto
+bash jenkins/iniciar_agente.sh
+```
+
+[Instalación completa, plantillas CLI y autoprueba aislada](documentacion/jenkins.md).
