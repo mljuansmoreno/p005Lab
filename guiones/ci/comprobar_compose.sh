@@ -95,7 +95,7 @@ PY
     ;;
   recuperar)
     anterior="$(docker compose ps -q motor)"
-    test -n "$anterior"
+    [[ "$anterior" =~ ^[0-9a-f]{64}$ ]]
     docker compose stop motor
     http "$web/salud" | jq -e '.estado == "activo"'
     codigo="$(curl --noproxy '*' --silent --show-error --max-time 5 \
@@ -104,8 +104,9 @@ PY
     printf 'Disponibilidad con motor detenido: HTTP %s\n' "$codigo"
     docker compose up -d --no-deps --force-recreate --wait --wait-timeout "${RUTA_CI_ESPERA_SALUD:-90}" motor
     nuevo="$(docker compose ps -q motor)"
-    test -n "$nuevo"
+    [[ "$nuevo" =~ ^[0-9a-f]{64}$ ]]
     test "$anterior" != "$nuevo"
+    printf 'ID del motor antes %s\nID del motor recuperado %s\n' "$anterior" "$nuevo"
     http "$web/listo" | jq -e '.listo == true'
     docker compose exec -T aplicacion python probar_compose.py
     ;;
