@@ -59,3 +59,6 @@ unset token
 RUTA_CI_AGENTE_NETRC="$privado/netrc" bash jenkins/iniciar_agente.sh > "$privado/agente.log" 2>&1 &
 pid_agente=$!
 python3 jenkins/recolectar_alojado.py "$privado/api" "$numero" "$GITHUB_SHA"
+if [[ "${RUTA_CI_CAPTURAS:-false}" == true ]]; then
+  node jenkins/capturar_alojado.mjs "$privado/api" "$numero" "$GITHUB_SHA"
+fi
