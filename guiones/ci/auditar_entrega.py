@@ -12,6 +12,7 @@ import sys
 import xml.etree.ElementTree as ET
 from zipfile import BadZipFile, ZipFile
 
+from auditar_capturas import comprobar_capturas
 from ejecutar import ARCHIVOS, PATRON_PROYECTO_CI, REGISTRO_LIMPIEZA, REPORTES, comprobar_politica
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -323,6 +324,13 @@ def auditar_paquete(ruta, *, estricto=False):
                 comprobar_seguridad(informes_seguridad, entorno)
                 comprobar_modo_alojado(build.get("origen_actions", {}), entorno)
             builds[carpeta] = build
+        if "capturas" in cierre:
+            visual = cierre["capturas"]
+            carpeta_build = f"build-{visual['build']}"
+            ruta_visual = f"capturas/{carpeta_build}/"
+            comprobar_capturas(visual, builds[carpeta_build], lambda archivo: paquete.read(ruta_visual + archivo))
+            esperados.update(ruta_visual + dato["archivo"] for dato in visual["capturas"])
+            verificados += len(visual["capturas"])
         if nombres != esperados:
             raise ValueError("El anexo contiene archivos fuera del inventario")
         if not any(b["revision"] == revision and b["resultado"] == "SUCCESS"

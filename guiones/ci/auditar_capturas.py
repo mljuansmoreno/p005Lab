@@ -7,13 +7,15 @@ import json
 from pathlib import Path
 import sys
 
-from auditar_entrega import auditar_build, datos
-
 PNG_IHDR = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR"
 
 
 def auditar_capturas(carpeta, registro):
-    manifiesto = datos(carpeta / "capturas.json")
+    manifiesto = json.loads((carpeta / "capturas.json").read_bytes())
+    return comprobar_capturas(manifiesto, registro, lambda nombre: (carpeta / nombre).read_bytes())
+
+
+def comprobar_capturas(manifiesto, registro, leer_imagen):
     origen = registro["origen_actions"]
     if (manifiesto["build"] != registro["numero"] or manifiesto["revision"] != registro["revision"] or
             manifiesto["acciones"] != origen["url"]):
@@ -31,7 +33,7 @@ def auditar_capturas(carpeta, registro):
         raise ValueError("Faltan vistas requeridas o hay archivos duplicados")
     for captura in capturas:
         nombre = captura["archivo"]
-        imagen = (carpeta / nombre).read_bytes()
+        imagen = leer_imagen(nombre)
         if (captura["url"] != vistas[nombre] or not imagen.startswith(PNG_IHDR) or
                 hashlib.sha256(imagen).hexdigest() != captura["sha256"]):
             raise ValueError(f"Vista o huella de captura incorrecta en {nombre}")
@@ -39,6 +41,8 @@ def auditar_capturas(carpeta, registro):
 
 
 def main():
+    from auditar_entrega import auditar_build
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("capturas", type=Path)
     parser.add_argument("build", type=Path)

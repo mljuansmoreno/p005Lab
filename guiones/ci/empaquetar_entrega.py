@@ -7,18 +7,29 @@ import sys
 from tempfile import NamedTemporaryFile
 from zipfile import BadZipFile, ZIP_DEFLATED, ZipFile
 
+from auditar_capturas import auditar_capturas
 from auditar_entrega import EVIDENCIAS_OBLIGATORIAS, auditar_build, auditar_paquete, datos
 
 
-def empaquetar(bitacora, destino):
+def empaquetar(bitacora, destino, *, capturas=None):
     manifiesto = bitacora / "manifiesto-cierre.json"
     cierre = {**datos(manifiesto), "version_formato_anexo": 2}
+    if capturas is not None:
+        numero = datos(capturas / "capturas.json")["build"]
+        build_visual = next((b for b in cierre["jenkins"] if b["numero"] == numero and "origen_actions" in b), None)
+        if build_visual is None:
+            raise ValueError("El manifiesto no contiene el build de las capturas solicitadas")
+        cierre["capturas"] = auditar_capturas(capturas, build_visual)
     prefijo = "artifact-salidas-jenkins-ci-"
     with NamedTemporaryFile(dir=destino.parent, prefix=".evidencias-", suffix=".zip", delete=False) as archivo:
         temporal = Path(archivo.name)
     try:
         with ZipFile(temporal, "w", compression=ZIP_DEFLATED) as paquete:
             paquete.writestr("manifiesto-cierre.json", json.dumps(cierre, ensure_ascii=False, indent=2) + "\n")
+            if capturas is not None:
+                for dato in cierre["capturas"]["capturas"]:
+                    nombre = dato["archivo"]
+                    paquete.write(capturas / nombre, f"capturas/build-{numero}/{nombre}")
             for build in cierre["jenkins"]:
                 tipo = "autoprueba" if "/ruta-estadistica-autoprueba/" in build["url"] else "build"
                 origen = bitacora / f"{tipo}-{build['numero']}"
@@ -52,9 +63,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("bitacora", type=Path)
     parser.add_argument("destino", type=Path)
+    parser.add_argument("--capturas", type=Path, help="Carpeta de capturas verificables de un build del anexo")
     args = parser.parse_args()
     try:
-        revision, cantidad = empaquetar(args.bitacora, args.destino)
+        revision, cantidad = empaquetar(args.bitacora, args.destino, capturas=args.capturas)
     except (OSError, KeyError, ValueError, BadZipFile) as error:
         print(f"Anexo: {error}", file=sys.stderr)
         return 1
