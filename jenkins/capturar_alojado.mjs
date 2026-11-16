@@ -16,6 +16,7 @@ const [username, password] = (await readFile(archivoCredencial, 'utf8')).trim().
 if (!username || !password) {
   throw new Error('Falta la autenticación del controlador temporal.');
 }
+const authorization = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
 
 const trabajo = '/job/ruta-estadistica-main/';
 const build = `${trabajo}${numero}/`;
@@ -29,12 +30,16 @@ const capturas = [];
 const navegador = await chromium.launch({ executablePath: process.env.RUTA_CI_CHROME });
 try {
   const contexto = await navegador.newContext({
-    httpCredentials: { username, password, origin: origen },
     viewport: { width: 1480, height: 950 },
     serviceWorkers: 'block',
   });
-  await contexto.route('**/*', ruta => {
-    return new URL(ruta.request().url()).origin === origen ? ruta.continue() : ruta.abort();
+  await contexto.route('**/*', async ruta => {
+    const solicitud = ruta.request();
+    if (new URL(solicitud.url()).origin !== origen) {
+      return ruta.abort();
+    }
+    const respuesta = await ruta.fetch({ maxRedirects: 0, headers: { ...solicitud.headers(), authorization } });
+    return ruta.fulfill({ response: respuesta });
   });
   await mkdir(carpeta, { recursive: true });
   const pagina = await contexto.newPage();
@@ -42,7 +47,8 @@ try {
     const url = origen + pantalla.ruta;
     const respuesta = await pagina.goto(url, { waitUntil: 'domcontentloaded' });
     if (!respuesta?.ok() || pagina.url() !== url) {
-      throw new Error(`La pantalla de Jenkins no respondió correctamente en ${pantalla.ruta}`);
+      throw new Error(`Jenkins devolvió HTTP ${respuesta?.status()} en ${new URL(pagina.url()).pathname}, ` +
+        `se esperaba ${pantalla.ruta}`);
     }
     if (pantalla.etapa) {
       await pagina.getByText(pantalla.etapa, { exact: true }).first().waitFor();
