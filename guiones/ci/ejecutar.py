@@ -296,7 +296,8 @@ def integrar(puerto, sin_cache=False):
             ejecutar_caso(reporte, "detener_servicios", temporal, entorno,
                           (*COMPOSE, "stop", "--timeout", "15"), 90)
             (temporal / "servicios.txt").write_bytes(comando((*COMPOSE, "logs", "--no-color"), entorno=entorno))
-            ejecutar_caso(reporte, "escaneo", temporal, entorno,
+            # Un corte forzoso puede impedir los traps del escáner. El padre retira este árbol.
+            ejecutar_caso(reporte, "escaneo", temporal, {**entorno, "TMPDIR": str(temporal)},
                           ("bash", "guiones/escanear_imagenes.sh", str(temporal)), PLAZO_ESCANEO)
             verificar_politica(temporal, datos["imagenes"])
         except (OSError, ValueError, subprocess.SubprocessError) as fallo:
