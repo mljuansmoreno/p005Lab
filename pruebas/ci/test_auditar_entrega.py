@@ -6,9 +6,11 @@ from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 import unittest
+from zipfile import ZipFile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "guiones/ci"))
 from auditar_entrega import acciones_finales, auditar_build, EVIDENCIAS_OBLIGATORIAS, exigir_cierre, TRABAJOS_ACTIONS
+from descargar_jenkins_alojado import extraer
 
 
 class PruebasAuditoria(unittest.TestCase):
@@ -145,3 +147,17 @@ class PruebasAuditoria(unittest.TestCase):
         archivo.write_text(json.dumps(origen), encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "origen alojado"):
             auditar_build(carpeta)
+
+    def test_importacion_rechaza_archivos_ajenos_a_la_evidencia(self):
+        with TemporaryDirectory() as temporal:
+            raiz = Path(temporal)
+            archivo = raiz / "ejecucion.zip"
+            for nombre in ("build-10201/../privado.txt", "build-10201/.env", "build-10202/build.json"):
+                with self.subTest(nombre=nombre):
+                    with ZipFile(archivo, "w") as paquete:
+                        for esperado in ("build.json", "consoleText", "origen-actions.json"):
+                            paquete.writestr(f"build-10201/{esperado}", "prueba")
+                        paquete.writestr(nombre, "prueba")
+                    with self.assertRaises(ValueError):
+                        extraer(archivo, raiz)
+                    self.assertFalse((raiz / "build-10201").exists())

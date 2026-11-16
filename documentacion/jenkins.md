@@ -6,6 +6,8 @@ La ruta principal usa Jenkins LTS 2.580.2 con Java 21 en Docker y un agente Linu
 
 Para ejecutar Jenkins con recursos de un runner Linux alojado, abra [Jenkins en runner Linux](https://github.com/mljuansmoreno/p005Lab/actions/workflows/jenkins-alojado.yaml) y ejecute el workflow sobre `main`. El runner construye la imagen con los plugins fijados, conecta un agente Linux local y dispara el job versionado. El colector coteja el SHA de Jenkins con el de Actions. Descargue el artefacto `jenkins-SHA-INTENTO` para consultar las huellas y el resultado. La evidencia del disparo automático SCM se obtiene en el controlador permanente.
 
+Con GitHub CLI autenticada, ejecute `python3 guiones/ci/descargar_jenkins_alojado.py ID_DE_ACTIONS salidas/jenkins-semana5` para incorporar la ejecución a la bitácora. El importador comprueba la huella del ZIP publicada por GitHub, las rutas de los archivos y el SHA registrado por Jenkins antes de conservar la carpeta `build-NÚMERO`.
+
 ## Prerrequisitos
 
 - Docker en modo Linux amd64 y Docker Compose V2 con `up --wait-timeout`. En Windows, habilite la integración con la distribución WSL2 dedicada al CI y compruebe que la distribución puede acceder al daemon y a `127.0.0.1:9090`.
