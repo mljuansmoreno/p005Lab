@@ -31,9 +31,9 @@ class Jenkins:
         self.cabeceras = {"Authorization": f"Basic {token}"}
         self.http = build_opener(ProxyHandler({}))
 
-    def pedir(self, ruta, *, cuerpo=None):
+    def pedir(self, ruta, *, cuerpo=None, plazo=15):
         req = Request(URL + ruta, data=cuerpo, headers=self.cabeceras)
-        with self.http.open(req, timeout=15) as respuesta:
+        with self.http.open(req, timeout=plazo) as respuesta:
             return respuesta.read()
 
     def esperar_json(self, ruta, listo, plazo):
@@ -66,7 +66,7 @@ def ejecutar(jenkins, numero, revision, *, sin_cache=False):
     if any(version != inventario[nombre] for nombre, version in verificados.items()):
         raise ValueError("Los plugins activos de Jenkins difieren del inventario fijado")
     formulario = urlencode({"jenkinsfile": Path("Jenkinsfile").read_text(encoding="utf-8")}).encode("ascii")
-    sintaxis = jenkins.pedir("pipeline-model-converter/validate", cuerpo=formulario).decode("utf-8")
+    sintaxis = jenkins.pedir("pipeline-model-converter/validate", cuerpo=formulario, plazo=90).decode("utf-8")
     if sintaxis.strip() != "Jenkinsfile successfully validated.":
         raise ValueError(sintaxis)
     (carpeta / "linter.txt").write_text(sintaxis, encoding="utf-8")
