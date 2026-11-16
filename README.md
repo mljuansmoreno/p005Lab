@@ -255,3 +255,20 @@ gh workflow run jenkins-alojado.yaml --ref main -f sin_cache=true -f capturas=tr
 ```
 
 Descargue `jenkins-<SHA>-<intento>` y, si se solicitaron capturas, `jenkins-capturas-<SHA>-<intento>`. Compare el SHA del build con el de Actions y la huella del anexo publicada en el resumen. El flujo alojado demuestra un disparo manual; el sondeo SCM se observa en el controlador permanente. [Operación, recuperación y retención](documentacion/operacion_jenkins.md) · [Guía de capturas](documentacion/capturas_semana5.md).
+
+### Pruebas de Jenkins realizadas
+
+| Build | Resultado registrado |
+| --- | --- |
+| **Local #9**, `911f2cb`, disparo por cambio SCM | `SUCCESS`. Seis pruebas web y trece de integración, cálculo real, recuperación del motor, suite de R 4.5.2, escaneo de las dos imágenes y limpieza. |
+| **Local #13**, `bfde9fd`, disparo manual | `SUCCESS`. Seis pruebas web y trece de integración; el manifiesto conserva el cálculo, la recuperación, R, ambos escaneos y el desmontaje. |
+| **Autopruebas locales #3 y #4** | `FAILURE` esperado en la aserción de cálculo. Se archivó el desmontaje y en #4 JUnit registró explícitamente `limpieza` como correcta. |
+| **Autoprueba local #5**, `d92408c` | `ABORTED` al cancelar durante el cálculo; JUnit y el registro de desmontaje conservan la limpieza. |
+| [Alojado #10201](https://github.com/mljuansmoreno/p005Lab/actions/runs/43801819087), `48d8a4e` | `SUCCESS` manual, 20 pruebas JUnit aprobadas, cálculo de seis filas, ambos escaneos y limpieza. |
+| [Alojado #10501](https://github.com/mljuansmoreno/p005Lab/actions/runs/43805486879) y [#10601](https://github.com/mljuansmoreno/p005Lab/actions/runs/43806089502) | #10501 conservó IDs distintos y HTTP 200/503/200 en la prueba de recuperación. #10601 cotejó escaneos de ambas imágenes con base de avisos común y verificó la limpieza del proyecto. |
+| [Alojado #10801](https://github.com/mljuansmoreno/p005Lab/actions/runs/43807515338) y [#10901](https://github.com/mljuansmoreno/p005Lab/actions/runs/43808744863) | #10801 conservó vistas de estado, etapas y 20 pruebas aprobadas. #10901 verificó el modo de compilación sin caché solicitado. |
+| [Alojado #11001](https://github.com/mljuansmoreno/p005Lab/actions/runs/43810524298), `295325f` | `SUCCESS` manual en unos 132 s, reconstrucción sin caché, 20 pruebas aprobadas (6 web y 14 de integración), recálculo, escaneo sin coincidencias altas ni críticas y desmontaje. [Windows, Docker y secretos](https://github.com/mljuansmoreno/p005Lab/actions/runs/43810516949) aprobaron para el mismo SHA. |
+
+El build local #17 agotó el plazo de escaneo anterior después de archivar el informe de la web; el #19 fue abortado y carece de artefactos. Esos resultados no cuentan como aceptaciones. El ensayo local de coexistencia fue independiente del job: usó un par de imágenes para una demo descartable y dos proyectos CI en puertos distintos. Hubo cinco cálculos correctos: tres iniciales y otros dos después de retirar el primer proyecto CI. El ensayo retiró sus propios recursos al terminar.
+
+[Informe de semana 5](documentacion/entrega_semana5.md) · [Matriz de aceptación](documentacion/matriz_semana5.md) · [Informe en PDF](documentacion/ruta-estadistica-jenkins-semana5.pdf) · [Informe en DOCX](documentacion/ruta-estadistica-jenkins-semana5.docx).
