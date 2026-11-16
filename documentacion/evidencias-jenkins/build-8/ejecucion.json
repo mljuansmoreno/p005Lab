@@ -1,0 +1,20 @@
+{
+  "job": "ruta-estadistica-main",
+  "build": 8,
+  "revision": "d51e911bd5ab3a23d70b5c1e230acbee16b30205",
+  "causa": "Cause$UserIdCause",
+  "resultado": "FAILURE",
+  "fecha_utc": "2026-11-15T19:42:10.497904+00:00",
+  "modo_compilacion": null,
+  "imagenes_oci": {
+    "aplicacion": "sha256:9af889eea23047c55c3b53ec586d2b9ddeca8a228e33bf05d27fe0f822cf7c3a",
+    "motor": "sha256:3670e9803605e4084292d44df404d2190b3bd4b8de0e2afb2af1d2c1247d8e57"
+  },
+  "plataforma": {
+    "docker": "29.9.3",
+    "compose": "5.7.0",
+    "python": "3.14.4",
+    "git": "git version 2.53.0",
+    "arquitectura": "x86_64"
+  }
+}
