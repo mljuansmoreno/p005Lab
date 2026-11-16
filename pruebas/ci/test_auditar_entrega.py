@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "guiones/ci"))
-from auditar_entrega import acciones_finales, auditar_build, EVIDENCIAS_OBLIGATORIAS, TRABAJOS_ACTIONS
+from auditar_entrega import acciones_finales, auditar_build, EVIDENCIAS_OBLIGATORIAS, exigir_cierre, TRABAJOS_ACTIONS
 
 
 class PruebasAuditoria(unittest.TestCase):
@@ -113,3 +113,22 @@ class PruebasAuditoria(unittest.TestCase):
         consola.write_text("Finished: SUCCESS\n", encoding="utf-8")
         with self.assertRaises(FileNotFoundError):
             auditar_build(carpeta)
+
+    def test_cierre_exige_historial_publicado_y_disparos_distintos(self):
+        commits = [{"id": f"S5-{numero:03d}", "publicado": True} for numero in range(1, 85)]
+        url = "http://127.0.0.1:9090/job/ruta-estadistica-main/1/"
+        anterior = {"url": url, "causa": "SCMTrigger$SCMTriggerCause", "revision": "a" * 40,
+                    "resultado": "FAILURE"}
+        final = {**anterior, "url": url.replace("/1/", "/2/"), "revision": "b" * 40, "resultado": "SUCCESS"}
+        resultado = {"commits": commits, "jenkins": [anterior, final], "jenkins_revision_final": [final]}
+        exigir_cierre(resultado)
+        resultado["jenkins_revision_final"] = []
+        with self.assertRaisesRegex(ValueError, "build exitoso"):
+            exigir_cierre(resultado)
+        resultado["jenkins_revision_final"] = [final]
+        anterior["revision"] = final["revision"]
+        with self.assertRaisesRegex(ValueError, "dos disparos SCM"):
+            exigir_cierre(resultado)
+        commits[-1]["publicado"] = False
+        with self.assertRaisesRegex(ValueError, "84 incrementos"):
+            exigir_cierre(resultado)

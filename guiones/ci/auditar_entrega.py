@@ -15,6 +15,7 @@ from ejecutar import ARCHIVOS, REPORTES
 
 EVIDENCIAS_OBLIGATORIAS = {*ARCHIVOS, *(f"reportes/{nombre}.xml" for nombre in REPORTES)}
 TRABAJOS_ACTIONS = {"verificar", "Docker Linux y cálculo entre contenedores", "Credenciales y archivos comprimidos"}
+META_COMMITS = 84
 
 
 def git(*args):
@@ -212,15 +213,30 @@ def acciones_finales(actions, revision):
     }
 
 
+def exigir_cierre(resultado):
+    ids = [c["id"] for c in resultado["commits"] if c["publicado"]]
+    if ids != [f"S5-{numero:03d}" for numero in range(1, META_COMMITS + 1)]:
+        raise ValueError(f"El cierre exige los {META_COMMITS} incrementos ordenados y publicados. Verificados: {len(ids)}")
+    if not any(b["resultado"] == "SUCCESS" for b in resultado["jenkins_revision_final"]):
+        raise ValueError("Falta un build exitoso de Jenkins en main para el SHA final")
+    disparos = [b for b in resultado["jenkins"] if "/ruta-estadistica-main/" in b["url"] and
+                b["revision"] and "SCMTrigger$SCMTriggerCause" in b["causa"].split(", ")]
+    if len({b["revision"] for b in disparos}) < 2 or not any(b["resultado"] == "SUCCESS" for b in disparos):
+        raise ValueError("Faltan dos disparos SCM con SHA distinto en main y al menos uno exitoso")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     entradas = parser.add_mutually_exclusive_group(required=True)
     entradas.add_argument("bitacora", type=Path, nargs="?")
     entradas.add_argument("--paquete", type=Path, help="Audita el anexo ZIP de semana 5 sin extraer archivos")
     parser.add_argument("--actions", type=Path, help="JSON de GitHub CLI con las verificaciones del SHA final")
+    parser.add_argument("--exigir-cierre", action="store_true", help="Exige la meta de Git y evidencia Jenkins y Actions")
     args = parser.parse_args()
     if args.paquete and args.actions:
         parser.error("Use --actions con la ruta de la bitácora")
+    if args.exigir_cierre and not args.actions:
+        parser.error("Use --exigir-cierre con la bitácora y --actions")
     try:
         if args.paquete:
             revision, total = auditar_paquete(args.paquete)
@@ -233,7 +249,7 @@ def main():
                 builds.append(auditar_build(ruta))
         resultado = {
             "fecha_utc": datetime.now(timezone.utc).isoformat(),
-            **historial, "meta": 84, "deficit": max(0, 84 - historial["publicados"]),
+            **historial, "meta": META_COMMITS, "deficit": max(0, META_COMMITS - historial["publicados"]),
             "jenkins": builds,
             "jenkins_revision_final": [b for b in builds if b["revision"] == historial["final_remoto"] and
                                         "/ruta-estadistica-main/" in b["url"]],
@@ -242,6 +258,8 @@ def main():
             if historial["final_remoto"] != historial["final_local"]:
                 raise ValueError("El checkout local difiere de origin/main")
             resultado["actions_revision_final"] = acciones_finales(datos(args.actions), historial["final_remoto"])
+        if args.exigir_cierre:
+            exigir_cierre(resultado)
         ruta = args.bitacora / "manifiesto-cierre.json"
         ruta.write_text(json.dumps(resultado, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(f"Publicados: {historial['publicados']}. Builds auditados: {len(builds)}.")
