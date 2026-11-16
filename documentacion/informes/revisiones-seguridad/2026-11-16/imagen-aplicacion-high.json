@@ -1,0 +1,12 @@
+{
+  "fecha_bogota": "2026-11-16",
+  "control": "imagen-aplicacion-high",
+  "revision_auditada": "295325ff7fc09725f8f046741bf3932a2fd5cf2b",
+  "estado": "correcto",
+  "detalle": {
+    "coincidencias": 0,
+    "base_avisos": "2026-11-16T06:30:54Z",
+    "imagen": "sha256:64224b7332b185b9a764fb4d10778852567721adc6877afe5f7e981c895faa65"
+  },
+  "ejecucion": "https://github.com/mljuansmoreno/p005Lab/actions/runs/43863992759"
+}
