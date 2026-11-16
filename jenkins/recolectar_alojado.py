@@ -17,8 +17,10 @@ URL = "http://127.0.0.1:9090/"
 TRABAJO = "job/ruta-estadistica-main/"
 CAMPOS = "number,url,result,building,duration,actions[causes[shortDescription]],artifacts[relativePath]"
 RUTA_ARCHIVO = "salidas/jenkins-ci/"
+PLUGINS_REQUERIDOS = {"git", "workflow-job", "pipeline-model-definition", "docker-workflow", "credentials"}
 LINEA_SEGURA = re.compile(
     r"(?:\[[0-9T:Z.\-]+\] )?(?:Checking out Revision [0-9a-f]{40} \(refs/remotes/origin/main\)"
+    r"|\[Pipeline\] \{ \((?:Checkout|Build|Test)\)"
     r"|Compose: [a-z_]+|Finished: (?:SUCCESS|FAILURE|ABORTED|UNSTABLE|NOT_BUILT))"
 )
 
@@ -53,13 +55,26 @@ class Jenkins:
 
 def ejecutar(jenkins, numero, revision, *, sin_cache=False):
     jenkins.esperar_json("computer/linux-docker/api/json?tree=offline", lambda datos: not datos["offline"], 120)
+    carpeta = Path("salidas/jenkins-alojado") / f"build-{numero}"
+    carpeta.mkdir(parents=True)
+    consulta = quote("plugins[shortName,version,active]")
+    plugins = json.loads(jenkins.pedir(f"pluginManager/api/json?tree={consulta}"))["plugins"]
+    activos = {plugin["shortName"]: plugin["version"] for plugin in plugins if plugin["active"]}
+    inventario = dict(reversed(linea.split()) for linea in Path("jenkins/plugins.txt").read_text().splitlines())
+    verificados = {nombre: activos.get(nombre) for nombre in sorted(PLUGINS_REQUERIDOS)}
+    (carpeta / "plugins-activos.json").write_text(json.dumps(verificados, indent=2) + "\n", encoding="utf-8")
+    if any(version != inventario[nombre] for nombre, version in verificados.items()):
+        raise ValueError("Los plugins activos de Jenkins difieren del inventario fijado")
+    formulario = urlencode({"jenkinsfile": Path("Jenkinsfile").read_text(encoding="utf-8")}).encode("ascii")
+    sintaxis = jenkins.pedir("pipeline-model-converter/validate", cuerpo=formulario).decode("utf-8")
+    if sintaxis.strip() != "Jenkinsfile successfully validated.":
+        raise ValueError(sintaxis)
+    (carpeta / "linter.txt").write_text(sintaxis, encoding="utf-8")
     parametros = urlencode({"RUTA_CI_SIN_CACHE": str(sin_cache).lower()}).encode("ascii")
     jenkins.pedir(TRABAJO + "buildWithParameters?delay=0sec", cuerpo=parametros)
     ruta = f"{TRABAJO}{numero}/"
     build = jenkins.esperar_json(ruta + f"api/json?tree={quote(CAMPOS)}",
                                  lambda datos: not datos["building"] and bool(datos["result"]), 37 * 60)
-    carpeta = Path("salidas/jenkins-alojado") / f"build-{numero}"
-    carpeta.mkdir(parents=True)
     (carpeta / "build.json").write_text(json.dumps(build, indent=2) + "\n", encoding="utf-8")
     consola = jenkins.pedir(ruta + "consoleText").decode("utf-8", errors="replace")
     hitos = [linea for linea in consola.splitlines() if LINEA_SEGURA.fullmatch(linea)]
