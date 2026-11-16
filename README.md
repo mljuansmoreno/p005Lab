@@ -139,22 +139,34 @@ En el [workflow de verificación](.github/workflows/verificacion.yaml), busque `
 
 ## Aplicación de escritorio
 
-Aplicación Windows en español para recorrer pregunta, datos, preparación, ruta, resultados, interpretación y evidencia. Los cálculos los realiza el paquete R `rutaanalitica`; no se necesita una cuenta ni un modelo de lenguaje.
-
-Esta entrega es de desarrollo. Consulte [estado real y verificaciones](documentacion/estado_entrega.md) antes de distribuirla. No se ha aprobado en Microsoft Store.
-
 ### Inicio de desarrollo
 
-Windows x64, SDK .NET 10.0.403, Windows SDK 10.0.26100.0 y R 4.5.2 x64. Si está disponible, el SDK aislado `.herramientas/dotnet` tiene prioridad sobre el sistema.
+**1. Instale los requisitos.** Use Windows x64 con PowerShell 7 (`pwsh`), .NET SDK **10.0.403**, Windows SDK **10.0.26100.0** y R **4.5.2 x64**. Compruebe `dotnet --list-sdks` y la ubicación de `bin/Rscript.exe` en la instalación de R. El guion de compilación prefiere `.herramientas/dotnet/dotnet.exe` cuando existe. La restauración necesita acceso a NuGet si no hay caché.
+
+**2. Prepare recursos y publique.** Si solo quiere usar el escritorio, ejecute `git clone https://github.com/mljuansmoreno/p005Lab.git` y entre a `p005Lab`. Docker no interviene en el análisis con R local. Desde la raíz del checkout, ajuste `-RutaR` a la instalación que comprobó.
 
 ```powershell
-./guiones/preparar_desarrollo.ps1 -AdquirirJson
+./guiones/preparar_desarrollo.ps1 -RutaR 'C:/Program Files/R/R-4.5.2' -AdquirirJson
 ./guiones/compilar.ps1 -Publicar
+```
+
+La primera orden adquiere `jsonlite` para una biblioteca aislada, instala `rutaanalitica` y copia R, las bibliotecas y el trabajador a `salidas/recursos`. La segunda compila y publica el escritorio con esos recursos. Si falta el SDK o el script no encuentra R, corrija el requisito antes de continuar.
+
+**3. Abra el ejecutable y pruebe el ejemplo.**
+
+```powershell
 ./salidas/aplicacion/RutaEstadistica.Escritorio.exe
+```
+
+En **Inicio** pulse **Probar ejemplo**, conserve el motor **Local** y pulse **Calcular** en la ruta de análisis. El ejemplo nativo contiene las mediciones 10, 12, 14, 17, 19 y 21: la media esperada es **15,5**. Abra **Resultados**, **Interpretación** y **Evidencia**. La carpeta publicada lleva R y las bibliotecas, por lo que un análisis local no descarga dependencias.
+
+**4. Ejecute las regresiones de desarrollo**, cuando quiera comprobar R y la integración local de .NET:
+
+```powershell
 ./guiones/ejecutar_pruebas.ps1
 ```
 
-En Inicio pulse **Probar ejemplo**, después **Calcular**. R calcula las seis mediciones; recorra Resultados, Interpretación y Evidencia. La distribución preparada contiene R y bibliotecas; el usuario final no debe instalar herramientas de desarrollo. No hay descargas durante un análisis local.
+[Instalación de desarrollo](documentacion/instalacion_desarrollo.md) · [Recorrido reproducible](documentacion/recorrido_completo.md) · [Errores y soluciones](documentacion/errores_y_soluciones.md).
 
 Para sus datos: cree un proyecto, escriba la pregunta, seleccione archivo, confirme opciones de lectura y luego roles. No se infiere el significado a partir del nombre. CSV/TSV UTF-8 y XLSX sin fórmulas: 50 MiB, 100.000 registros sin contar encabezado, 200 columnas. Los límites se aplican sin truncamiento silencioso. La vista previa contiene hasta 200 filas.
 
