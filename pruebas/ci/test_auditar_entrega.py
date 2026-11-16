@@ -223,13 +223,18 @@ class PruebasAuditoria(unittest.TestCase):
             auditar_build(carpeta)
 
     def test_cierre_exige_historial_publicado_y_disparos_distintos(self):
-        commits = [{"id": f"S5-{numero:03d}", "publicado": True} for numero in range(1, 85)]
+        commits = [{"id": f"S5-{numero:03d}", "sha": f"{numero:040x}", "publicado": True}
+                   for numero in range(1, 85)]
         url = "http://127.0.0.1:9090/job/ruta-estadistica-main/1/"
         anterior = {"url": url, "causa": "SCMTrigger$SCMTriggerCause", "revision": "a" * 40,
                     "resultado": "FAILURE"}
         final = {**anterior, "url": url.replace("/1/", "/2/"), "revision": "b" * 40, "resultado": "SUCCESS"}
-        resultado = {"commits": commits, "jenkins": [anterior, final], "jenkins_revision_final": [final]}
+        resultado = {"commits": commits, "jenkins": [anterior, final], "jenkins_revision_final": [final],
+                     "publicados": 84, "meta": 84, "deficit": 0,
+                     "final_local": final["revision"], "final_remoto": final["revision"]}
         exigir_cierre(resultado)
+        with self.assertRaisesRegex(ValueError, "totales inconsistentes"):
+            exigir_cierre({**resultado, "deficit": 1})
         resultado["jenkins_revision_final"] = []
         with self.assertRaisesRegex(ValueError, "build exitoso"):
             exigir_cierre(resultado)

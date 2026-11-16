@@ -23,6 +23,8 @@ Cada SHA se puede comprobar con `git merge-base --is-ancestor SHA origin/main` y
 
 Para revisar el anexo ZIP recibido, ejecute `python3 guiones/ci/auditar_entrega.py --paquete evidencias-jenkins-semana5.zip`. Esta modalidad comprueba las huellas y la coherencia de los metadatos de Jenkins y Actions en el ZIP, incluido un build Jenkins exitoso del SHA de cierre. Compruebe ese SHA en GitHub para contrastarlo con el historial publicado.
 
+Para exigir el cierre completo sin extraer el ZIP, añada `--exigir-cierre`. La comprobación exige 84 entradas publicadas con SHA único, saldo pendiente cero y la evidencia de los disparos SCM incluida en el anexo. Contraste la lista con `origin/main` para verificar la publicación en GitHub.
+
 Para incorporar el resultado de Actions al manifiesto local, guarde la salida de `gh run view ID --json headSha,url,status,conclusion,jobs` en `actions-final.json`. Ejecute `python3 guiones/ci/auditar_entrega.py RUTA_BITACORA --actions actions-final.json` después de actualizar `origin/main`. El auditor exige que Windows, Docker y secretos hayan concluido correctamente para ese mismo SHA.
 
 Al verificar el cierre, añada `--exigir-cierre` al comando anterior. El auditor también exige los 84 incrementos publicados en orden, un build Jenkins exitoso del SHA final y dos revisiones con disparos SCM en `main`, al menos una con éxito. La comprobación cubre Git y las ejecuciones CI. Revise por separado el informe, las capturas y los procedimientos de reproducibilidad.

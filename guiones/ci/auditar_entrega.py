@@ -232,7 +232,7 @@ def auditar_build(carpeta):
     }
 
 
-def auditar_paquete(ruta):
+def auditar_paquete(ruta, *, estricto=False):
     with ZipFile(ruta) as paquete:
         nombres = set(paquete.namelist())
         if len(nombres) != len(paquete.infolist()):
@@ -276,6 +276,7 @@ def auditar_paquete(ruta):
                     raise ValueError(f"Registro sin artefactos incoherente en {carpeta}")
                 if build["revision"] is not None:
                     sha(build["revision"])
+                builds[carpeta] = build
                 continue
             evidencia = json.loads(paquete.read(entrada_manifiesto))
             entorno = json.loads(paquete.read(f"{carpeta}/00-entorno.json"))
@@ -313,6 +314,11 @@ def auditar_paquete(ruta):
         if not any(b["revision"] == revision and b["resultado"] == "SUCCESS"
                    for clave, b in builds.items() if clave.startswith("build-")):
             raise ValueError("El anexo no contiene un build exitoso del SHA final")
+        if estricto:
+            jenkins = list(builds.values())
+            exigir_cierre({**cierre, "jenkins": jenkins,
+                           "jenkins_revision_final": [b for b in jenkins if b["revision"] == revision and
+                                                      "/ruta-estadistica-main/" in b["url"]]})
     return revision, verificados
 
 
@@ -335,9 +341,15 @@ def acciones_finales(actions, revision):
 
 
 def exigir_cierre(resultado):
-    ids = [c["id"] for c in resultado["commits"] if c["publicado"]]
+    commits = [c for c in resultado["commits"] if c["publicado"]]
+    ids = [c["id"] for c in commits]
     if ids != [f"S5-{numero:03d}" for numero in range(1, META_COMMITS + 1)]:
         raise ValueError(f"El cierre exige los {META_COMMITS} incrementos ordenados y publicados. Verificados: {len(ids)}")
+    revisiones = {sha(c["sha"]) for c in commits}
+    if (len(revisiones) != META_COMMITS or resultado["publicados"] != META_COMMITS or
+            resultado["meta"] != META_COMMITS or resultado["deficit"] != 0 or
+            resultado["final_local"] != resultado["final_remoto"]):
+        raise ValueError("El cierre contiene SHAs duplicados o totales inconsistentes")
     if not any(b["resultado"] == "SUCCESS" for b in resultado["jenkins_revision_final"]):
         raise ValueError("Falta un build exitoso de Jenkins en main para el SHA final")
     disparos = [b for b in resultado["jenkins"] if "/ruta-estadistica-main/" in b["url"] and
@@ -356,11 +368,11 @@ def main():
     args = parser.parse_args()
     if args.paquete and args.actions:
         parser.error("Use --actions con la ruta de la bitácora")
-    if args.exigir_cierre and not args.actions:
-        parser.error("Use --exigir-cierre con la bitácora y --actions")
+    if args.exigir_cierre and not (args.actions or args.paquete):
+        parser.error("Use --exigir-cierre con --paquete o con la bitácora y --actions")
     try:
         if args.paquete:
-            revision, total = auditar_paquete(args.paquete)
+            revision, total = auditar_paquete(args.paquete, estricto=args.exigir_cierre)
             print(f"Anexo verificado para {revision}. Huellas comprobadas: {total}.")
             return 0
         historial = auditar_git(args.bitacora)
