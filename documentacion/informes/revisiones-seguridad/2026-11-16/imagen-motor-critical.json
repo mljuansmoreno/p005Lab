@@ -1,0 +1,12 @@
+{
+  "fecha_bogota": "2026-11-16",
+  "control": "imagen-motor-critical",
+  "revision_auditada": "295325ff7fc09725f8f046741bf3932a2fd5cf2b",
+  "estado": "correcto",
+  "detalle": {
+    "coincidencias": 0,
+    "base_avisos": "2026-11-16T06:30:54Z",
+    "imagen": "sha256:801852eacd34985eb98f97b9530bbc359fa53ce9eafbda3c0bdd06abeab5f99d"
+  },
+  "ejecucion": "https://github.com/mljuansmoreno/p005Lab/actions/runs/43863992759"
+}
