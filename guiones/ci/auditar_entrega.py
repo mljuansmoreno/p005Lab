@@ -9,11 +9,13 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 from zipfile import BadZipFile, ZipFile
 
 from ejecutar import ARCHIVOS, REPORTES
 
-EVIDENCIAS_OBLIGATORIAS = {*ARCHIVOS, *(f"reportes/{nombre}.xml" for nombre in REPORTES)}
+ARCHIVOS_JUNIT = {f"reportes/{nombre}.xml" for nombre in REPORTES}
+EVIDENCIAS_OBLIGATORIAS = {*ARCHIVOS, *ARCHIVOS_JUNIT}
 TRABAJOS_ACTIONS = {"verificar", "Docker Linux y cálculo entre contenedores", "Credenciales y archivos comprimidos"}
 META_COMMITS = 84
 
@@ -44,6 +46,21 @@ def verificar_huella(contenido, registro, nombre):
     if (hashlib.sha256(contenido).hexdigest() != registro.get("sha256") or
             len(contenido) != registro.get("bytes")):
         raise ValueError(f"Huella o tamaño incorrecto en {nombre}")
+
+
+def comprobar_junit(contenido, nombre):
+    try:
+        suite = ET.fromstring(contenido)
+    except ET.ParseError as error:
+        raise ValueError(f"XML JUnit inválido en {nombre}") from error
+    casos = suite.findall("testcase")
+    cantidades = {"tests": len(casos), "failures": len(suite.findall("testcase/failure")),
+                  "errors": len(suite.findall("testcase/error")), "skipped": len(suite.findall("testcase/skipped"))}
+    if suite.tag != "testsuite" or any(suite.get(campo) != str(total) for campo, total in cantidades.items()):
+        raise ValueError(f"Totales JUnit incoherentes en {nombre}")
+    if cantidades["failures"] or cantidades["errors"] or cantidades["tests"] <= cantidades["skipped"]:
+        raise ValueError(f"JUnit no acredita un resultado exitoso en {nombre}")
+    return cantidades
 
 
 def auditar_git(carpeta):
@@ -112,6 +129,7 @@ def auditar_build(carpeta):
     comprobados = []
     no_archivados = []
     nombres_locales = set()
+    pruebas_junit = {}
     for nombre, registro in manifiesto["archivos"].items():
         # La descarga local usa un prefijo fijo y sustituye las barras por guiones.
         nombre_local = nombre.replace("/", "-")
@@ -128,7 +146,10 @@ def auditar_build(carpeta):
                 no_archivados.append(nombre)
                 continue
             raise ValueError(f"Falta el artefacto declarado en {carpeta.name}: {nombre}")
-        verificar_huella(ruta.read_bytes(), registro, nombre_local)
+        contenido = ruta.read_bytes()
+        verificar_huella(contenido, registro, nombre_local)
+        if build["result"] == "SUCCESS" and nombre in ARCHIVOS_JUNIT:
+            pruebas_junit[nombre] = comprobar_junit(contenido, nombre)
         comprobados.append(nombre)
     faltantes = EVIDENCIAS_OBLIGATORIAS.difference(comprobados)
     if build["result"] == "SUCCESS" and faltantes:
@@ -137,6 +158,7 @@ def auditar_build(carpeta):
         **resumen, "revision": revision, "artefactos_con_huella_verificada": comprobados,
         "artefactos_declarados_sin_archivar": no_archivados,
         **procedencia,
+        **({"pruebas_junit": pruebas_junit} if pruebas_junit else {}),
         **({"descripcion_autoprueba": entorno["causa"]} if autoprueba else {}),
     }
 
@@ -198,11 +220,17 @@ def auditar_paquete(ruta):
             if api["result"] == "SUCCESS" and not EVIDENCIAS_OBLIGATORIAS <= archivos:
                 raise ValueError(f"Build exitoso con evidencia incompleta en {carpeta}")
             esperados.add(entrada_manifiesto)
+            pruebas_junit = {}
             for nombre in archivos:
                 entrada = f"{carpeta}/{nombre}"
-                verificar_huella(paquete.read(entrada), evidencia["archivos"][nombre], entrada)
+                contenido = paquete.read(entrada)
+                verificar_huella(contenido, evidencia["archivos"][nombre], entrada)
+                if api["result"] == "SUCCESS" and nombre in ARCHIVOS_JUNIT:
+                    pruebas_junit[nombre] = comprobar_junit(contenido, entrada)
                 esperados.add(entrada)
                 verificados += 1
+            if build.get("pruebas_junit", pruebas_junit) != pruebas_junit:
+                raise ValueError(f"Totales JUnit distintos al anexo en {carpeta}")
             builds[carpeta] = build
         if nombres != esperados:
             raise ValueError("El anexo contiene archivos fuera del inventario")

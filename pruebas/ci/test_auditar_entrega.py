@@ -30,6 +30,9 @@ class PruebasAuditoria(unittest.TestCase):
         archivos = {}
         for nombre in EVIDENCIAS_OBLIGATORIAS:
             contenido = json.dumps(entorno).encode() if nombre == "00-entorno.json" else b"fixture\n"
+            if nombre.endswith(".xml"):
+                contenido = (b'<testsuite tests="1" failures="0" errors="0" skipped="0">'
+                             b'<testcase name="prueba"/></testsuite>')
             (carpeta / f"{prefijo}{nombre.replace('/', '-')}").write_bytes(contenido)
             archivos[nombre] = {"sha256": hashlib.sha256(contenido).hexdigest(), "bytes": len(contenido)}
         return carpeta, carpeta / f"{prefijo}manifest.json", {"revision": revision, "archivos": archivos}
@@ -62,6 +65,21 @@ class PruebasAuditoria(unittest.TestCase):
         api.write_text(json.dumps(build), encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "No coinciden metadatos"):
             auditar_build(carpeta)
+
+    def test_exito_rechaza_junit_sin_pruebas_aprobadas_aunque_la_huella_coincida(self):
+        carpeta, ruta, manifiesto = self.preparar("SUCCESS")
+        archivo = "reportes/web.xml"
+        ruta_xml = carpeta / "artifact-salidas-jenkins-ci-reportes-web.xml"
+        for contenido in (
+            b'<testsuite tests="2" failures="0" errors="0" skipped="0"><testcase/></testsuite>',
+            b'<testsuite tests="1" failures="1" errors="0" skipped="0"><testcase><failure/></testcase></testsuite>',
+            b'<testsuite tests="1" failures="0" errors="0" skipped="1"><testcase><skipped/></testcase></testsuite>',
+        ):
+            ruta_xml.write_bytes(contenido)
+            manifiesto["archivos"][archivo] = {"sha256": hashlib.sha256(contenido).hexdigest(), "bytes": len(contenido)}
+            ruta.write_text(json.dumps(manifiesto), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "JUnit"):
+                auditar_build(carpeta)
 
     def test_distingue_archivo_omitido_por_build_historico(self):
         carpeta, ruta, manifiesto = self.preparar("FAILURE")
