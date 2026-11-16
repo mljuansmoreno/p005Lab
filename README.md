@@ -45,7 +45,7 @@ docker compose version
 
 ### Preparar el secreto
 
-Desde la raíz del repositorio, use uno de los siguientes bloques. Si ya tiene un `.env`, conserve sus valores y compruebe que la ruta del secreto corresponda al archivo generado.
+**2.** Copie `.env.example` a `.env` si este último no existe. El valor predeterminado de `RUTA_ESTADISTICA_ARCHIVO_SECRETO` es `./credenciales/motor.secreto` y el de `RUTA_ESTADISTICA_PUERTO_WEB` es `8080`. Los bloques siguientes crean el archivo de la ruta predeterminada; si ya configuró otra ruta, verifique que apunte a su archivo. Use solo el bloque de su terminal.
 
 **PowerShell**
 
@@ -71,7 +71,7 @@ if [ ! -f credenciales/motor.secreto ]; then
 fi
 ```
 
-Git y Docker excluyen `.env` y el archivo de credencial. Compose lee la ruta desde `.env` y monta el archivo como `/run/secrets/motor` en ambos contenedores. En Linux, el directorio privado protege el archivo en el host y el modo `0444` permite que los procesos sin privilegios lo lean una vez montado. [Secretos en Docker Compose](https://docs.docker.com/compose/how-tos/use-secrets/).
+Compose monta el mismo archivo como `/run/secrets/motor` en ambos servicios. En Linux, el directorio privado restringe el acceso desde el host y el modo `0444` permite la lectura del montaje por los usuarios de los contenedores. Mantenga el archivo fuera de Git, los logs y las capturas. `.gitignore` y `.dockerignore` excluyen las rutas predeterminadas.
 
 ### Arrancar y probar
 
