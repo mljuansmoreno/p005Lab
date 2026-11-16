@@ -6,10 +6,11 @@ from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 import unittest
+from unittest.mock import patch
 from zipfile import ZipFile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "guiones/ci"))
-from auditar_entrega import acciones_finales, auditar_build, EVIDENCIAS_OBLIGATORIAS, exigir_cierre, TRABAJOS_ACTIONS
+from auditar_entrega import acciones_finales, auditar_build, auditar_git, EVIDENCIAS_OBLIGATORIAS, exigir_cierre, TRABAJOS_ACTIONS
 from datos_sinteticos import CSV_SINTETICO
 from descargar_jenkins_alojado import extraer
 
@@ -239,6 +240,30 @@ class PruebasAuditoria(unittest.TestCase):
         commits[-1]["publicado"] = False
         with self.assertRaisesRegex(ValueError, "84 incrementos"):
             exigir_cierre(resultado)
+
+    def test_auditoria_coteja_el_orden_publicado_con_git(self):
+        with TemporaryDirectory() as temporal:
+            carpeta = Path(temporal)
+            base, primero, ajeno, ultimo = (letra * 40 for letra in "abcd")
+            (carpeta / "base.txt").write_text(base, encoding="ascii")
+            registros = [{"sha": primero, "id": "S5-001", "mensaje": "Primero"},
+                         {"sha": ultimo, "id": "S5-002", "mensaje": "Último"}]
+            archivo = carpeta / "incrementos.jsonl"
+            respuestas = {
+                ("rev-parse", "HEAD"): ultimo, ("rev-parse", "origin/main"): ultimo,
+                ("rev-list", "--reverse", "--topo-order", f"{base}..{ultimo}"): "\n".join((primero, ajeno, ultimo)),
+            }
+            for r in registros:
+                respuestas["merge-base", "--is-ancestor", base, r["sha"]] = ""
+                respuestas["show", "-s", "--format=%(trailers:key=Entrega-S5,valueonly)", r["sha"]] = r["id"][3:]
+                respuestas["show", "-s", "--format=%s", r["sha"]] = r["mensaje"]
+                respuestas["diff-tree", "--no-commit-id", "--name-only", "-r", r["sha"]] = "Jenkinsfile"
+            with patch("auditar_entrega.git", side_effect=lambda *args: respuestas[args]):
+                archivo.write_text("\n".join(map(json.dumps, registros)), encoding="utf-8")
+                self.assertEqual(auditar_git(carpeta)["externos"], [ajeno])
+                archivo.write_text("\n".join(map(json.dumps, reversed(registros))), encoding="utf-8")
+                with self.assertRaisesRegex(ValueError, "orden de la bitácora"):
+                    auditar_git(carpeta)
 
     def test_origen_alojado_debe_identificar_el_checkout(self):
         carpeta, ruta, manifiesto = self.preparar("SUCCESS")

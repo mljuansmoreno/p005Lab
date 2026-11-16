@@ -117,7 +117,8 @@ def auditar_git(carpeta):
     local = sha(git("rev-parse", "HEAD"))
     remoto = sha(git("rev-parse", "origin/main"))
     git("merge-base", "--is-ancestor", base, remoto)
-    alcanzables = set(git("rev-list", f"{base}..{remoto}").splitlines())
+    orden_remoto = git("rev-list", "--reverse", "--topo-order", f"{base}..{remoto}").splitlines()
+    alcanzables = set(orden_remoto)
     registros = []
     ids, revisiones = set(), set()
     for linea in (carpeta / "incrementos.jsonl").read_text(encoding="utf-8-sig").splitlines():
@@ -137,6 +138,9 @@ def auditar_git(carpeta):
         if not git("diff-tree", "--no-commit-id", "--name-only", "-r", commit):
             raise ValueError(f"Commit sin cambio de contenido: {identificador}")
         registros.append({**cambio, "publicado": commit in alcanzables})
+    orden_bitacora = [c["sha"] for c in registros if c["publicado"]]
+    if orden_bitacora != [commit for commit in orden_remoto if commit in revisiones]:
+        raise ValueError("El orden de la bitácora no coincide con el historial publicado")
     return {
         "base": base, "final_local": local, "final_remoto": remoto,
         "commits": registros, "publicados": sum(c["publicado"] for c in registros),
