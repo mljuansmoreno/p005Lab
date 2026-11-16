@@ -16,7 +16,7 @@ NUEVO = "b" * 64
 
 @unittest.skipUnless(sys.platform == "linux" and shutil.which("bash"), "Requiere Bash en Linux")
 class PruebaRecuperacionCompose(unittest.TestCase):
-    def ejecutar(self, nuevo=NUEVO):
+    def ejecutar(self, nuevo=NUEVO, *, salud="200", listo="200"):
         with TemporaryDirectory(prefix="recuperación compose ") as temporal:
             carpeta = Path(temporal)
             respuestas = {
@@ -30,9 +30,9 @@ class PruebaRecuperacionCompose(unittest.TestCase):
 esac
 ''',
                 "curl": '''case "${!#}" in
-  */salud) printf '{"estado":"activo"}' ;;
+  */salud) printf '{"estado":"activo"}\\n%s' "$HTTP_SALUD" ;;
   */listo)
-    if [[ -f "$ESTADO_MOTOR" ]]; then printf '{"listo":true}'; else printf '503'; fi ;;
+    if [[ -f "$ESTADO_MOTOR" ]]; then printf '{"listo":true}\\n%s' "$HTTP_LISTO"; else printf '503'; fi ;;
   *) exit 19 ;;
 esac
 ''',
@@ -48,7 +48,7 @@ esac
                 ruta.chmod(0o755)
             entorno = {**os.environ, "PATH": os.pathsep.join((temporal, os.environ["PATH"])),
                        "ANTERIOR": ANTERIOR, "NUEVO": nuevo, "ESTADO_MOTOR": str(carpeta / "recreado"),
-                       "RUTA_CI_ESPERA_SALUD": "90"}
+                       "RUTA_CI_ESPERA_SALUD": "90", "HTTP_SALUD": salud, "HTTP_LISTO": listo}
             return subprocess.run(("bash", "guiones/ci/comprobar_compose.sh", "recuperar"), cwd=RAIZ,
                                   env=entorno, capture_output=True, text=True, timeout=10)
 
@@ -57,6 +57,8 @@ esac
         self.assertEqual(respuesta.returncode, 0, respuesta.stderr)
         self.assertIn(f"ID del motor antes {ANTERIOR}", respuesta.stdout)
         self.assertIn(f"ID del motor recuperado {NUEVO}", respuesta.stdout)
+        self.assertIn("Vida web con motor detenido HTTP 200", respuesta.stdout)
+        self.assertIn("Disponibilidad recuperada HTTP 200", respuesta.stdout)
         self.assertIn("cálculo repetido", respuesta.stdout)
 
     def test_no_aprueba_un_motor_identico_o_un_id_multiple(self):
@@ -64,4 +66,12 @@ esac
             with self.subTest(nuevo=nuevo):
                 respuesta = self.ejecutar(nuevo)
                 self.assertNotEqual(respuesta.returncode, 0)
+                self.assertNotIn("cálculo repetido", respuesta.stdout)
+
+    def test_rechaza_otro_estado_http_aunque_el_cuerpo_sea_correcto(self):
+        for estados in ({"salud": "201"}, {"listo": "202"}):
+            with self.subTest(estados=estados):
+                respuesta = self.ejecutar(**estados)
+                self.assertNotEqual(respuesta.returncode, 0)
+                self.assertIn("Se esperaba HTTP 200", respuesta.stderr)
                 self.assertNotIn("cálculo repetido", respuesta.stdout)

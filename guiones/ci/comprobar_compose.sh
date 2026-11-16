@@ -11,6 +11,17 @@ http() {
   curl --noproxy '*' --fail --silent --show-error --max-time 5 "$@"
 }
 
+http_200() {
+  local respuesta codigo
+  respuesta="$(http --write-out '\n%{http_code}' "$@")" || return
+  codigo="${respuesta##*$'\n'}"
+  if [[ "$codigo" != 200 ]]; then
+    printf 'Se esperaba HTTP 200 y se recibió %s.\n' "$codigo" >&2
+    return 1
+  fi
+  printf '%s\n' "${respuesta%$'\n'*}"
+}
+
 case "$accion" in
   configuracion)
     docker compose config --quiet
@@ -97,7 +108,8 @@ PY
     anterior="$(docker compose ps -q motor)"
     [[ "$anterior" =~ ^[0-9a-f]{64}$ ]]
     docker compose stop motor
-    http "$web/salud" | jq -e '.estado == "activo"'
+    http_200 "$web/salud" | jq -e '.estado == "activo"'
+    printf 'Vida web con motor detenido HTTP 200\n'
     codigo="$(curl --noproxy '*' --silent --show-error --max-time 5 \
       --output /dev/null --write-out '%{http_code}' "$web/listo")"
     test "$codigo" = 503
@@ -107,7 +119,8 @@ PY
     [[ "$nuevo" =~ ^[0-9a-f]{64}$ ]]
     test "$anterior" != "$nuevo"
     printf 'ID del motor antes %s\nID del motor recuperado %s\n' "$anterior" "$nuevo"
-    http "$web/listo" | jq -e '.listo == true'
+    http_200 "$web/listo" | jq -e '.listo == true'
+    printf 'Disponibilidad recuperada HTTP 200\n'
     docker compose exec -T aplicacion python probar_compose.py
     ;;
   r)
