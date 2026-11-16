@@ -28,6 +28,7 @@ COMPROBAR = ("bash", "guiones/ci/comprobar_compose.sh")
 ESPERA_SALUD = "180"
 PLAZO_ESCANEO = 25 * 60
 PATRON_PROYECTO_CI = r"ruta-ci-[0-9a-f]{16}"
+REGISTRO_LIMPIEZA = "Proyecto {}: contenedores, redes, volúmenes e imágenes retirados."
 REPORTES = ("web", "integracion")
 ARCHIVOS = (
     "00-entorno.json", "01-compilacion.txt", "02-arranque.txt", "03-docker-ps.txt",
@@ -316,7 +317,7 @@ def integrar(puerto, sin_cache=False):
             try:
                 limpiar(entorno, proyecto)
                 (temporal / "09-limpieza.txt").write_text(
-                    f"Proyecto {proyecto}: contenedores, redes, volúmenes e imágenes retirados.\n",
+                    REGISTRO_LIMPIEZA.format(proyecto) + "\n",
                     encoding="utf-8")
             except (OSError, ValueError, subprocess.SubprocessError):
                 mensaje = f"No se verificó el desmontaje del proyecto {proyecto}"

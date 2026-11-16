@@ -27,7 +27,9 @@ class PruebasAuditoria(unittest.TestCase):
         build = {"number": 1, "url": url, "building": False, "result": resultado, "duration": 531,
                  "actions": [{"causes": [{"_class": f"hudson.triggers.{causa}"}]}]}
         imagenes = {"aplicacion": "sha256:" + "c" * 64, "motor": "sha256:" + "d" * 64}
-        entorno = {"revision": revision, "build": "1", "build_url": url, "causa": causa, "imagenes": imagenes}
+        proyecto = "ruta-ci-" + "a" * 16
+        entorno = {"revision": revision, "build": "1", "build_url": url, "causa": causa,
+                   "imagenes": imagenes, "proyecto": proyecto}
         (carpeta / "build.json").write_text(json.dumps(build), encoding="utf-8")
         calculo = json.dumps({"destino": "motor:8787", "trabajo_id": "a" * 32,
                               "solicitud_id": "b" * 32, "estado": "completado",
@@ -40,6 +42,8 @@ class PruebasAuditoria(unittest.TestCase):
                 contenido = calculo
             if nombre == "06-recuperacion.txt":
                 contenido = b"Disponibilidad con motor detenido: HTTP 503\n" + calculo
+            if nombre == "09-limpieza.txt":
+                contenido = f"Proyecto {proyecto}: contenedores, redes, volúmenes e imágenes retirados.\n".encode()
             if nombre.startswith("seguridad-"):
                 servicio = nombre.removeprefix("seguridad-").removesuffix(".json")
                 contenido = json.dumps({"imagen": imagenes[servicio], "base_avisos": "2026-11-15T06:19:39Z",
@@ -104,6 +108,17 @@ class PruebasAuditoria(unittest.TestCase):
                                                         "bytes": len(contenido)}
         ruta.write_text(json.dumps(manifiesto), encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "no corresponde a la imagen construida"):
+            auditar_build(carpeta)
+
+    def test_exito_requiere_limpieza_del_proyecto_del_build(self):
+        carpeta, ruta, manifiesto = self.preparar("SUCCESS")
+        archivo = carpeta / "artifact-salidas-jenkins-ci-09-limpieza.txt"
+        contenido = archivo.read_bytes().replace(b"a" * 16, b"b" * 16)
+        archivo.write_bytes(contenido)
+        manifiesto["archivos"]["09-limpieza.txt"] = {"sha256": hashlib.sha256(contenido).hexdigest(),
+                                                    "bytes": len(contenido)}
+        ruta.write_text(json.dumps(manifiesto), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "limpieza del proyecto"):
             auditar_build(carpeta)
 
     def test_formato_nuevo_exige_dos_respuestas_200_y_un_motor_nuevo(self):

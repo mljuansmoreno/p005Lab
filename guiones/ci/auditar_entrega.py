@@ -12,7 +12,7 @@ import sys
 import xml.etree.ElementTree as ET
 from zipfile import BadZipFile, ZipFile
 
-from ejecutar import ARCHIVOS, REPORTES, comprobar_politica
+from ejecutar import ARCHIVOS, PATRON_PROYECTO_CI, REGISTRO_LIMPIEZA, REPORTES, comprobar_politica
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from datos_sinteticos import coincide_resultado_e2e
@@ -93,6 +93,11 @@ def comprobar_compose(contenido, nombre, entorno):
         comprobar_calculo(contenido, nombre)
     elif nombre.endswith("06-recuperacion.txt"):
         comprobar_recuperacion(contenido, nombre, entorno.get("version_registro_recuperacion", 1))
+    elif nombre.endswith("09-limpieza.txt"):
+        proyecto = entorno.get("proyecto", "")
+        if (not isinstance(proyecto, str) or not re.fullmatch(PATRON_PROYECTO_CI, proyecto) or
+                REGISTRO_LIMPIEZA.format(proyecto) not in contenido.decode("utf-8").splitlines()):
+            raise ValueError(f"El registro no acredita la limpieza del proyecto en {nombre}")
 
 
 def comprobar_seguridad(informes, entorno):
