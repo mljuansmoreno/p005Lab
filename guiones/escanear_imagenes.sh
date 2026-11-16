@@ -17,8 +17,10 @@ obtener_herramienta_ci grype \
   e9da18cc1429e786722e32161288103600efffd8e483c90761f90485bd1bec85 "$temporal"
 
 printf '%s\n' base-de-avisos > "$fase"
+inicio_base=$SECONDS
 "$temporal/grype" db update
 base_avisos="$("$temporal/grype" db status -o json | jq -er 'select(.valid) | .built | strings')"
+segundos_base=$((SECONDS - inicio_base))
 export GRYPE_DB_AUTO_UPDATE=false
 for servicio in aplicacion motor; do
   referencia="$(docker compose images -q "$servicio")"
@@ -30,19 +32,25 @@ for servicio in aplicacion motor; do
   imagen="$(docker image inspect --format '{{.Id}}' "$referencia")"
   [[ "$imagen" =~ ^sha256:[0-9a-f]{64}$ ]]
   printf 'inventario-%s\n' "$servicio" > "$fase"
+  inicio_inventario=$SECONDS
   "$temporal/syft" "docker:$imagen" -o cyclonedx-json > "$temporal/sbom.json"
   componentes="$(jq -er 'select(.bomFormat == "CycloneDX") | .components |
     select(type == "array" and length > 0) | length' "$temporal/sbom.json")"
   huella="$(sha256sum "$temporal/sbom.json")"
+  segundos_inventario=$((SECONDS - inicio_inventario))
   printf 'avisos-%s\n' "$servicio" > "$fase"
+  inicio_avisos=$SECONDS
   "$temporal/grype" "sbom:$temporal/sbom.json" -o json > "$temporal/grype.json"
   jq --arg imagen "$imagen" --arg base "$base_avisos" \
-     --arg huella "${huella%% *}" --argjson componentes "$componentes" '
+     --arg huella "${huella%% *}" --argjson componentes "$componentes" \
+     --argjson segundos_base "$segundos_base" --argjson segundos_inventario "$segundos_inventario" \
+     --argjson segundos_avisos "$((SECONDS - inicio_avisos))" '
     if (.matches | type) != "array" then
       error("Informe de Grype incompleto")
     else
       ([.matches[] | .vulnerability.severity | ascii_downcase]) as $severidades |
       {imagen: $imagen, base_avisos: $base,
+       tiempos_segundos: {base_compartida: $segundos_base, inventario: $segundos_inventario, avisos: $segundos_avisos},
        sbom: {formato: "CycloneDX", sha256: $huella, componentes: $componentes},
        altas: ($severidades | map(select(. == "high")) | length),
        criticas: ($severidades | map(select(. == "critical")) | length),
