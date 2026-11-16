@@ -19,9 +19,9 @@ obtener_herramienta_ci grype \
 printf '%s\n' base-de-avisos > "$fase"
 inicio_base=$SECONDS
 "$temporal/grype" db update
-base_avisos="$("$temporal/grype" db status -o json | jq -er 'select(.valid) | .built | strings')"
 segundos_base=$((SECONDS - inicio_base))
 export GRYPE_DB_AUTO_UPDATE=false
+base_observada=''
 for servicio in aplicacion motor; do
   referencia="$(docker compose images -q "$servicio")"
   test -n "$referencia"
@@ -41,15 +41,25 @@ for servicio in aplicacion motor; do
   printf 'avisos-%s\n' "$servicio" > "$fase"
   inicio_avisos=$SECONDS
   "$temporal/grype" "sbom:$temporal/sbom.json" -o json > "$temporal/grype.json"
-  jq --arg imagen "$imagen" --arg base "$base_avisos" \
+  segundos_avisos=$((SECONDS - inicio_avisos))
+  # El informe incluye el mismo estado validado que devuelve `grype db status`.
+  identidad_base="$(jq -ec '.descriptor.db | select(.valid == true and
+    (.built | type == "string" and length > 0) and (.schemaVersion | type == "string" and length > 0)) |
+    [.built, .schemaVersion, .from]' "$temporal/grype.json")"
+  if [[ -n "$base_observada" && "$identidad_base" != "$base_observada" ]]; then
+    printf 'La base de avisos cambió entre imágenes.\n' >&2
+    exit 1
+  fi
+  base_observada="$identidad_base"
+  jq --arg imagen "$imagen" \
      --arg huella "${huella%% *}" --argjson componentes "$componentes" \
      --argjson segundos_base "$segundos_base" --argjson segundos_inventario "$segundos_inventario" \
-     --argjson segundos_avisos "$((SECONDS - inicio_avisos))" '
+     --argjson segundos_avisos "$segundos_avisos" '
     if (.matches | type) != "array" then
       error("Informe de Grype incompleto")
     else
       ([.matches[] | .vulnerability.severity | ascii_downcase]) as $severidades |
-      {imagen: $imagen, base_avisos: $base,
+      {imagen: $imagen, base_avisos: .descriptor.db.built,
        tiempos_segundos: {base_compartida: $segundos_base, inventario: $segundos_inventario, avisos: $segundos_avisos},
        sbom: {formato: "CycloneDX", sha256: $huella, componentes: $componentes},
        altas: ($severidades | map(select(. == "high")) | length),
