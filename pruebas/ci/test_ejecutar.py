@@ -65,6 +65,33 @@ class PruebasInforme(unittest.TestCase):
 
 
 class PruebasEjecucion(unittest.TestCase):
+    def test_test_rechaza_etiquetas_reemplazadas_y_desmonta_el_proyecto(self):
+        imagenes = {"aplicacion": "sha256:" + "a" * 64, "motor": "sha256:" + "b" * 64}
+        with TemporaryDirectory() as directorio, redirect_stdout(io.StringIO()):
+            ruta = Path(directorio)
+            (ruta / "reportes").mkdir()
+            informe = ruta / "reportes/integracion.xml"
+            reporte = Reporte("integracion")
+            reporte.caso("compilacion", "compose", 0)
+            reporte.guardar(informe)
+            datos = {"proyecto": "ruta-ci-1111111111111111", "puerto_web": 8181, "imagenes": imagenes}
+            with (patch.object(ejecutar, "SALIDA", ruta),
+                  patch.object(ejecutar, "PRIVADO", ruta / "privado"),
+                  patch.object(ejecutar, "proyecto_del_build", return_value=datos),
+                  patch.object(ejecutar, "puerto_web", return_value=8181),
+                  patch.object(Path, "chmod"),
+                  patch.object(ejecutar, "entorno_compose", return_value={}),
+                  patch.object(ejecutar, "procedencia", return_value={}),
+                  patch.object(ejecutar, "ejecutar_caso") as paso,
+                  patch.object(ejecutar, "limpiar") as limpiar):
+                with self.assertRaisesRegex(ValueError, "imágenes de Build"):
+                    ejecutar.integrar("0", usar_build=True)
+            paso.assert_not_called()
+            limpiar.assert_called_once()
+            xml = ET.parse(informe).getroot()
+            self.assertIsNotNone(xml.find("testcase[@name='compilacion']"))
+            self.assertIsNotNone(xml.find("testcase[@name='limpieza']"))
+
     def test_compose_aislado_de_variables_heredadas(self):
         with patch.dict(os.environ, {"COMPOSE_PROFILES": "ajeno", "COMPOSE_PROJECT_NAME": "demo"}):
             ruta = Path("/tmp/con espacios/secreto")

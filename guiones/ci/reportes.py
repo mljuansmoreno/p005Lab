@@ -11,6 +11,10 @@ class Reporte:
         self.raiz = ET.Element("testsuite", name=nombre)
         self.inicio = monotonic()
 
+    def reanudar(self, ruta):
+        self.raiz = ET.parse(ruta).getroot()
+        self.inicio -= float(self.raiz.get("time", "0"))
+
     def caso(self, nombre, clase, segundos, etiqueta=None, mensaje=None):
         caso = ET.SubElement(self.raiz, "testcase", {
             "name": nombre, "classname": clase, "time": f"{segundos:.6f}",

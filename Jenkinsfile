@@ -3,6 +3,7 @@ pipeline {
 
     options {
         skipDefaultCheckout()
+        disableRestartFromStage()
         disableConcurrentBuilds()
         timestamps()
         timeout(time: 65, unit: 'MINUTES')
@@ -18,7 +19,7 @@ pipeline {
     }
 
     stages {
-        stage('Obtener código') {
+        stage('Checkout') {
             steps {
                 deleteDir()
                 script {
@@ -32,28 +33,21 @@ pipeline {
                 sh 'git rev-parse HEAD'
             }
         }
-        stage('Validar entorno') {
+        stage('Build') {
             steps {
                 sh 'python3 guiones/ci/ejecutar.py preparar'
-            }
-        }
-        stage('Analizar secretos') {
-            steps {
                 sh 'python3 guiones/ci/ejecutar.py secretos'
+                script {
+                    def opciones = params.RUTA_CI_SIN_CACHE ? ' --sin-cache' : ''
+                    sh "python3 guiones/ci/ejecutar.py construir${opciones}"
+                }
             }
         }
-        stage('Probar web') {
+        stage('Test') {
             steps {
                 sh 'python3 -m unittest discover -s pruebas/ci'
                 sh 'python3 guiones/ci/ejecutar.py web'
-            }
-        }
-        stage('Construir y verificar con Docker') {
-            steps {
-                script {
-                    def opciones = params.RUTA_CI_SIN_CACHE ? ' --sin-cache' : ''
-                    sh "python3 guiones/ci/ejecutar.py docker${opciones}"
-                }
+                sh 'python3 guiones/ci/ejecutar.py probar-imagenes'
             }
         }
     }
@@ -63,11 +57,15 @@ pipeline {
             script {
                 def salida = 'salidas/jenkins-ci'
                 if (fileExists("${salida}/00-entorno.json")) {
+                    def limpieza = sh(script: 'python3 guiones/ci/ejecutar.py limpiar-build', returnStatus: true)
                     try {
                         sh 'python3 guiones/ci/ejecutar.py finalizar'
                     } finally {
                         def archivos = sh(script: 'python3 guiones/ci/ejecutar.py archivos', returnStdout: true).trim()
                         archiveArtifacts artifacts: archivos, fingerprint: true, followSymlinks: false
+                    }
+                    if (limpieza != 0) {
+                        currentBuild.result = 'FAILURE'
                     }
                 }
                 for (def informe : ['web', 'integracion']) {

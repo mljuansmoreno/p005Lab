@@ -30,6 +30,7 @@ PLAZO_ESCANEO = 25 * 60
 PATRON_PROYECTO_CI = r"ruta-ci-[0-9a-f]{16}"
 REGISTRO_LIMPIEZA = "Proyecto {}: contenedores, redes, volúmenes e imágenes retirados."
 REPORTES = ("web", "integracion")
+SERVICIOS = ("aplicacion", "motor")
 ARCHIVOS = (
     "00-entorno.json", "01-compilacion.txt", "02-arranque.txt", "03-docker-ps.txt",
     "04-red.txt", "05-calculo.txt", "06-recuperacion.txt", "07-aislamiento.json",
@@ -182,10 +183,13 @@ def entorno_compose(proyecto, secreto, puerto):
     return entorno
 
 
-def procedencia(entorno):
+def procedencia(entorno, *, compiladas=False):
     imagenes = {}
-    for servicio in ("aplicacion", "motor"):
-        imagen = texto((*COMPOSE, "images", "-q", servicio), entorno=entorno)
+    for servicio in SERVICIOS:
+        if compiladas:
+            imagen = f"{entorno['COMPOSE_PROJECT_NAME']}-{servicio}"
+        else:
+            imagen = texto((*COMPOSE, "images", "-q", servicio), entorno=entorno)
         identificador, sha = texto(("docker", "image", "inspect", imagen, "--format",
                                      '{{.Id}} {{index .Config.Labels "org.opencontainers.image.revision"}}'),
                                     entorno=entorno).split()
@@ -248,26 +252,77 @@ def publicar(temporal, llave):
             (SALIDA / ruta.name).write_bytes(contenido)
 
 
-def integrar(puerto, sin_cache=False):
-    puerto = puerto_web(puerto)
-    PRIVADO.mkdir(parents=True, exist_ok=True)
-    sufijo = secrets.token_hex(8)
-    proyecto = f"ruta-ci-{sufijo}"
-    metadatos = SALIDA / "00-entorno.json"
+def crear_proyecto(metadatos, puerto, sin_cache):
     datos = json.loads(metadatos.read_text(encoding="utf-8"))
+    proyecto = f"ruta-ci-{secrets.token_hex(8)}"
     datos.update({"proyecto": proyecto, "puerto_web": puerto,
                   "modo_compilacion": "sin_cache" if sin_cache else "cache_permitida",
                   "version_registro_recuperacion": 2, "version_informe_seguridad": 2})
     json_archivo(metadatos, datos)
     print(f"Proyecto aislado {proyecto}, web 127.0.0.1:{puerto}", flush=True)
-    reporte = Reporte("integracion")
+    return datos
+
+
+def compilar(reporte, temporal, entorno, sin_cache):
     compilacion = (*COMPOSE, "--progress", "plain", "build")
     if sin_cache:
         compilacion += ("--no-cache",)
+    ejecutar_caso(reporte, "configuracion", temporal, entorno, COMPROBAR + ("configuracion",), 30)
+    ejecutar_caso(reporte, "compilacion", temporal, entorno, compilacion, 1440, ("01-compilacion.txt",))
+
+
+def construir(puerto, sin_cache):
+    metadatos = SALIDA / "00-entorno.json"
+    datos = crear_proyecto(metadatos, puerto_web(puerto), sin_cache)
+    entorno = entorno_compose(datos["proyecto"], Path("/dev/null"), datos["puerto_web"])
+    reporte = Reporte("integracion")
+    with tempfile.TemporaryDirectory() as directorio:
+        temporal = Path(directorio)
+        try:
+            compilar(reporte, temporal, entorno, sin_cache)
+            datos["imagenes"] = procedencia(entorno, compiladas=True)
+            json_archivo(metadatos, datos)
+        finally:
+            registro = temporal / "01-compilacion.txt"
+            if registro.is_file():
+                (SALIDA / registro.name).write_bytes(registro.read_bytes().replace(os.fsencode(RAIZ), b"<checkout>"))
+            if len(reporte.raiz):
+                reporte.guardar(SALIDA / "reportes/integracion.xml")
+
+
+def proyecto_del_build(metadatos):
+    datos = json.loads(metadatos.read_text(encoding="utf-8"))
+    if datos.get("revision") != revision() or datos.get("build") != os.getenv("BUILD_NUMBER"):
+        raise ValueError("El proyecto Compose pertenece a otro checkout o build")
+    return datos
+
+
+def limpiar_build():
+    datos = proyecto_del_build(SALIDA / "00-entorno.json")
+    if "proyecto" in datos and not evidencia_regular(SALIDA / "09-limpieza.txt"):
+        proyecto = datos["proyecto"]
+        recuperar_limpieza(proyecto)
+        (SALIDA / "09-limpieza.txt").write_text(REGISTRO_LIMPIEZA.format(proyecto) + "\n", encoding="utf-8")
+
+
+def integrar(puerto, sin_cache=False, *, usar_build=False):
+    metadatos = SALIDA / "00-entorno.json"
+    if usar_build:
+        datos = proyecto_del_build(metadatos)
+        proyecto = datos["proyecto"]
+        if not re.fullmatch(PATRON_PROYECTO_CI, proyecto):
+            raise ValueError("El build no tiene un proyecto Compose propio")
+        puerto = puerto_web(datos["puerto_web"])
+    else:
+        puerto = puerto_web(puerto)
+        datos = crear_proyecto(metadatos, puerto, sin_cache)
+        proyecto = datos["proyecto"]
+    PRIVADO.mkdir(parents=True, exist_ok=True)
+    reporte = Reporte("integracion")
+    if usar_build:
+        reporte.reanudar(SALIDA / "reportes/integracion.xml")
+    arranque = (*COMPOSE, "up", "-d", "--no-build", "--pull", "never", "--wait", "--wait-timeout", ESPERA_SALUD)
     pasos = (
-        ("configuracion", (), (*COMPROBAR, "configuracion"), 30),
-        ("compilacion", ("01-compilacion.txt",), compilacion, 1440),
-        ("arranque", ("02-arranque.txt",), (*COMPOSE, "up", "-d", "--wait", "--wait-timeout", ESPERA_SALUD), 220),
         ("estado", ("03-docker-ps.txt",), (*COMPOSE, "ps", "--all"), 30),
         ("red", ("04-red.txt",), (*COMPROBAR, "red"), 30),
         ("aislamiento", ("07-aislamiento.json",), (*COMPROBAR, "aislamiento"), 30),
@@ -286,11 +341,20 @@ def integrar(puerto, sin_cache=False):
         entorno = entorno_compose(proyecto, secreto, puerto)
         error = None
         try:
+            if usar_build:
+                if procedencia(entorno, compiladas=True) != datos["imagenes"]:
+                    raise ValueError("Las etiquetas Compose ya no apuntan a las imágenes de Build")
+            else:
+                compilar(reporte, temporal, entorno, sin_cache)
+            ejecutar_caso(reporte, "arranque", temporal, entorno, arranque, 220, ("02-arranque.txt",))
+            imagenes = procedencia(entorno)
+            if usar_build and imagenes != datos["imagenes"]:
+                raise ValueError("Compose arrancó imágenes distintas de las construidas")
+            datos["imagenes"] = imagenes
+            json_archivo(temporal / "00-entorno.json", datos)
             for nombre, archivos, orden, plazo in pasos:
                 ejecutar_caso(reporte, nombre, temporal, entorno, orden, plazo, archivos)
-            datos["imagenes"] = procedencia(entorno)
-            json_archivo(temporal / "00-entorno.json", datos)
-            for servicio in ("aplicacion", "motor"):
+            for servicio in SERVICIOS:
                 comando(("docker", "run", "--rm", "--network", "none", "--read-only",
                          "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
                          "--entrypoint", "/bin/sh", datos["imagenes"][servicio],
@@ -357,6 +421,8 @@ def ejecutar_caso(reporte, nombre, temporal, entorno, orden, plazo, archivos=())
         if archivos:
             borrador.replace(temporal / archivos[0])
     finally:
+        if nombre == "compilacion" and borrador.is_file():
+            borrador.replace(temporal / archivos[0])
         borrador.unlink(missing_ok=True)
 
 
@@ -435,15 +501,16 @@ def interrumpir(_senal, _marco):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("fase", choices=("preparar", "secretos", "web", "docker", "finalizar", "archivos",
-                                        "local", "recuperar-limpieza", "procedencia"))
+                                        "local", "recuperar-limpieza", "procedencia",
+                                        "construir", "probar-imagenes", "limpiar-build"))
     parser.add_argument("--puerto", default=os.getenv("RUTA_CI_PUERTO_WEB", "0"))
     parser.add_argument("--proyecto", help="Identificador del build terminado al recuperar su limpieza")
     parser.add_argument("--sin-cache", action="store_true", help="Reconstruye ambas imágenes sin caché de capas")
     args = parser.parse_args()
     if bool(args.proyecto) != (args.fase == "recuperar-limpieza"):
         parser.error("Use --proyecto únicamente con recuperar-limpieza")
-    if args.sin_cache and args.fase not in ("local", "docker"):
-        parser.error("Use --sin-cache con local o docker")
+    if args.sin_cache and args.fase not in ("local", "docker", "construir"):
+        parser.error("Use --sin-cache con local, docker o construir")
     os.chdir(RAIZ)
     signal.signal(signal.SIGTERM, interrumpir)
     try:
@@ -456,6 +523,13 @@ def main():
         if args.fase in ("docker", "local"):
             integrar(args.puerto, sin_cache=args.sin_cache)
             manifestar(exigir=True)
+        if args.fase == "construir":
+            construir(args.puerto, args.sin_cache)
+        if args.fase == "probar-imagenes":
+            integrar(args.puerto, usar_build=True)
+            manifestar(exigir=True)
+        if args.fase == "limpiar-build":
+            limpiar_build()
         if args.fase == "finalizar":
             manifestar(exigir=False)
         if args.fase == "archivos":
