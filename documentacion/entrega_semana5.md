@@ -76,6 +76,10 @@ La base confirmada de `main` fue `0b0a87d38bda8552c2926e65dd5f928e4211eea7`. El 
 
 La corrección `dd66a4c` conservó los mismos plugins y cambió la representación del inventario que había activado Gitleaks. La corrección `911f2cb` permitió pasar los identificadores canónicos de las imágenes a Syft. En esta última revisión se verificaron las huellas de quince archivos de evidencia de Jenkins. GitHub Actions completó los trabajos Windows, Docker y secretos en el mismo SHA. El manifiesto de cierre registra los resultados del SHA que quede en `main` y se genera fuera del historial para evitar una referencia circular. [Ejecución de Actions en 911f2cb](https://github.com/mljuansmoreno/p005Lab/actions/runs/43754604687).
 
+El build manual de Jenkins #10201 ejecutó `48d8a4ec2ce56572d8fac59001ffff957daaf120` en un runner Linux alojado. Jenkins registró 165,335 s y el job completo de Actions duró 3 min 21 s. El reporte JUnit contabilizó veinte pruebas sin fallos ni errores. El cálculo devolvió seis filas y media 4.16666666666667. La consulta de avisos tomó 3 s para la aplicación y 11 s para el motor. Ambas imágenes registraron cero avisos altos y críticos. La ejecución incluye quince artefactos comprobables y la limpieza de Compose. [Jenkins #10201 y artefactos](https://github.com/mljuansmoreno/p005Lab/actions/runs/43801819087).
+
+Windows, Docker y secretos también aprobaron su workflow habitual en `48d8a4e`. El disparo SCM automático quedó acreditado antes en el controlador permanente mediante el build #9. [Verificaciones de Actions para 48d8a4e](https://github.com/mljuansmoreno/p005Lab/actions/runs/43801811485).
+
 ## 5. Evaluación, límites y conclusiones
 
 La [matriz de aceptación](matriz_semana5.md) identifica el origen y la evidencia de cada criterio. Los archivos disponibles incluyen el artículo de la primera entrega y sus capturas. La guía institucional aporta el alcance académico. Entre los archivos disponibles no se encontró una rúbrica auténtica de semana 5. La matriz aplica criterios técnicos de aceptación sin asignar calificaciones.
