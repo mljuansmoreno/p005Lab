@@ -1,0 +1,33 @@
+name: Jenkins en runner Linux
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jenkins-alojado-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  ejecutar-jenkins:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Ejecutar el Jenkinsfile del proyecto
+        env:
+          PYTHONPATH: guiones/ci
+        run: bash jenkins/ejecutar_alojado.sh
+      - name: Conservar evidencia de Jenkins
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: jenkins-${{ github.sha }}-${{ github.run_attempt }}
+          path: salidas/jenkins-alojado/
+          if-no-files-found: warn
+          retention-days: 30

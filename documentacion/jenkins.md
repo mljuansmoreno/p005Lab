@@ -2,6 +2,10 @@
 
 La ruta principal usa Jenkins LTS 2.580.2 con Java 21 en Docker y un agente Linux amd64 en el host o en Ubuntu WSL2. El controlador escucha en `127.0.0.1:9090` y conserva el estado en el volumen Compose `ruta-estadistica-jenkins_jenkins_home`. Tiene cero ejecutores y recibe el agente por WebSocket. El job de `main` consulta GitHub por SCM cada dos minutos mediante `H/2 * * * *`.
 
+## Verificación en un runner alojado
+
+Para ejecutar Jenkins con recursos de un runner Linux alojado, abra [Jenkins en runner Linux](https://github.com/mljuansmoreno/p005Lab/actions/workflows/jenkins-alojado.yaml) y ejecute el workflow sobre `main`. El runner construye la imagen con los plugins fijados, conecta un agente Linux local y dispara el job versionado. El colector coteja el SHA de Jenkins con el de Actions. Descargue el artefacto `jenkins-SHA-INTENTO` para consultar las huellas y el resultado. La evidencia del disparo automático SCM se obtiene en el controlador permanente.
+
 ## Prerrequisitos
 
 - Docker en modo Linux amd64 y Docker Compose V2 con `up --wait-timeout`. En Windows, habilite la integración con la distribución WSL2 dedicada al CI y compruebe que la distribución puede acceder al daemon y a `127.0.0.1:9090`.
