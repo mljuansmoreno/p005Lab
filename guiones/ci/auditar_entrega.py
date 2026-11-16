@@ -129,6 +129,7 @@ def auditar_paquete(ruta):
         actions = cierre["actions_revision_final"]
         if actions["headSha"] != revision or actions["status"] != "completed" or actions["conclusion"] != "success":
             raise ValueError("El resultado de Actions no acredita la revisión de cierre")
+        verificar_trabajos_actions(actions["trabajos"])
         builds = {}
         esperados = {"manifiesto-cierre.json"}
         verificados = 0
@@ -148,6 +149,8 @@ def auditar_paquete(ruta):
                     entorno["build_url"] != api["url"] or (tipo == "build" and entorno["causa"] != causas)):
                 raise ValueError(f"Metadatos incoherentes en {carpeta}")
             archivos = set(build["artefactos_con_huella_verificada"])
+            if not archivos <= EVIDENCIAS_OBLIGATORIAS:
+                raise ValueError(f"Artefacto fuera de la lista publicable en {carpeta}")
             if api["result"] == "SUCCESS" and not EVIDENCIAS_OBLIGATORIAS <= archivos:
                 raise ValueError(f"Build exitoso con evidencia incompleta en {carpeta}")
             esperados.update((f"{carpeta}/manifest.json", f"{carpeta}/jenkins-api-resumen.json"))
@@ -165,17 +168,21 @@ def auditar_paquete(ruta):
     return revision, verificados
 
 
+def verificar_trabajos_actions(trabajos):
+    aprobados = {j["nombre"] for j in trabajos if j["estado"] == "completed" and j["conclusion"] == "success"}
+    if not TRABAJOS_ACTIONS <= aprobados:
+        raise ValueError("Falta evidencia exitosa de Windows, Docker o secretos en Actions")
+
+
 def acciones_finales(actions, revision):
     if actions["headSha"] != revision or actions["status"] != "completed" or actions["conclusion"] != "success":
         raise ValueError("El run de Actions no acredita el SHA final")
-    trabajos = actions["jobs"]
-    aprobados = {j["name"] for j in trabajos if j["status"] == "completed" and j["conclusion"] == "success"}
-    if not TRABAJOS_ACTIONS <= aprobados:
-        raise ValueError("Falta evidencia exitosa de Windows, Docker o secretos en Actions")
+    trabajos = [{"nombre": j["name"], "estado": j["status"], "conclusion": j["conclusion"], "url": j["url"]}
+                for j in actions["jobs"]]
+    verificar_trabajos_actions(trabajos)
     return {
         **{campo: actions[campo] for campo in ("headSha", "url", "status", "conclusion")},
-        "trabajos": [{"nombre": j["name"], "estado": j["status"], "conclusion": j["conclusion"], "url": j["url"]}
-                      for j in trabajos],
+        "trabajos": trabajos,
     }
 
 
