@@ -75,19 +75,27 @@ Compose monta el mismo archivo como `/run/secrets/motor` en ambos servicios. En 
 
 ### Arrancar y probar
 
+**3.** Valide la configuración, construya y espere a que los servicios estén sanos.
+
 ```console
 docker compose config --quiet
 docker compose up -d --build --wait --wait-timeout 90
 docker compose ps
-curl http://127.0.0.1:8080/salud
-curl http://127.0.0.1:8080/listo
-docker network inspect ruta-estadistica-demo_analisis
+```
+
+`aplicacion` y `motor` deben aparecer saludables. Solo `aplicacion` debe tener un puerto publicado en el host. La primera construcción puede tardar más que un arranque posterior; el plazo de espera se aplica al arranque de los servicios.
+
+**4.** Abra [http://127.0.0.1:8080](http://127.0.0.1:8080) y pulse **Calcular ejemplo**. El formulario debe mostrar **6 filas** con media **25/6**, aproximadamente **4,16666666666667**. Use el puerto que configuró si cambió el predeterminado. El ejemplo web es fijo y difiere del ejemplo del escritorio.
+
+**5.** Compruebe las sondas y repita el cálculo automáticamente. Use `curl` en Bash o `curl.exe` en PowerShell, y ajuste el puerto de las URLs si lo cambió.
+
+```bash
+curl --fail --show-error http://127.0.0.1:8080/salud
+curl --fail --show-error http://127.0.0.1:8080/listo
 docker compose exec -T aplicacion python probar_compose.py
 ```
 
-Abra [127.0.0.1:8080](http://127.0.0.1:8080) y pulse **Calcular ejemplo**. Debe obtener seis filas analizadas y una media de aproximadamente `4.16666666666667`. La prueba automatizada usa la misma acción del formulario y valida el destino `motor:8787`, el estado del trabajo, la huella SHA-256 y el resultado numérico. Si el puerto web está ocupado, cambie `RUTA_ESTADISTICA_PUERTO_WEB` en `.env` y abra ese puerto en el navegador.
-
-Detenga los servicios con `docker compose down --remove-orphans`. Puede conservar el secreto para el próximo arranque o borrar `credenciales/motor.secreto` después de detenerlos.
+`/salud` comprueba que la web vive; `/listo` comprueba la disponibilidad del motor. El cliente de prueba usa la misma ruta de cálculo que el formulario y comprueba el estado `completado`, el destino `motor:8787`, los identificadores del trabajo y la solicitud, la huella SHA-256 del CSV, las seis filas y la media. Los identificadores son propios de cada ejecución.
 
 ### Servicios y evidencias
 
