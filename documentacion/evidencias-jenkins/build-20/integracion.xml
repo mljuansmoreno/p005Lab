@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="integracion" tests="14" time="2000.330254" failures="0" errors="1" skipped="0">
+  <testcase name="configuracion" classname="compose" time="4.273113" />
+  <testcase name="compilacion" classname="compose" time="104.497364" />
+  <testcase name="arranque" classname="compose" time="94.135725" />
+  <testcase name="estado" classname="compose" time="2.290799" />
+  <testcase name="red" classname="compose" time="10.376689" />
+  <testcase name="aislamiento" classname="compose" time="6.023104" />
+  <testcase name="acceso" classname="compose" time="0.747215" />
+  <testcase name="autenticacion" classname="compose" time="10.557113" />
+  <testcase name="calculo" classname="compose" time="71.578087" />
+  <testcase name="recuperacion" classname="compose" time="52.138086" />
+  <testcase name="pruebas_r" classname="compose" time="14.993442" />
+  <testcase name="detener_servicios" classname="compose" time="9.390859" />
+  <testcase name="escaneo" classname="compose" time="1502.645022">
+    <error message="escaneo: TimeoutExpired (avisos-motor)" />
+  </testcase>
+  <testcase name="limpieza" classname="compose" time="35.336688" />
+</testsuite>
