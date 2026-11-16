@@ -7,6 +7,10 @@ on:
         description: Guardar capturas del build, las etapas y las pruebas JUnit
         type: boolean
         default: false
+      sin_cache:
+        description: Reconstruir las dos imágenes desde un checkout limpio y sin caché de capas
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -38,6 +42,7 @@ jobs:
         env:
           PYTHONPATH: guiones/ci
           RUTA_CI_CAPTURAS: ${{ inputs.capturas }}
+          RUTA_CI_ALOJADO_SIN_CACHE: ${{ inputs.sin_cache }}
         run: bash jenkins/ejecutar_alojado.sh
       - name: Conservar evidencia de Jenkins
         id: evidencia

@@ -51,9 +51,9 @@ class Jenkins:
         raise TimeoutError(f"Jenkins no alcanzó el estado esperado en {plazo} s")
 
 
-def ejecutar(jenkins, numero, revision):
+def ejecutar(jenkins, numero, revision, *, sin_cache=False):
     jenkins.esperar_json("computer/linux-docker/api/json?tree=offline", lambda datos: not datos["offline"], 120)
-    parametros = urlencode({"RUTA_CI_SIN_CACHE": "false"}).encode("ascii")
+    parametros = urlencode({"RUTA_CI_SIN_CACHE": str(sin_cache).lower()}).encode("ascii")
     jenkins.pedir(TRABAJO + "buildWithParameters?delay=0sec", cuerpo=parametros)
     ruta = f"{TRABAJO}{numero}/"
     build = jenkins.esperar_json(ruta + f"api/json?tree={quote(CAMPOS)}",
@@ -87,8 +87,9 @@ def main():
     argumentos.add_argument("credencial", type=Path)
     argumentos.add_argument("numero", type=int)
     argumentos.add_argument("revision", type=sha)
+    argumentos.add_argument("--sin-cache", action="store_true")
     args = argumentos.parse_args()
-    return 0 if ejecutar(Jenkins(args.credencial), args.numero, args.revision) else 1
+    return 0 if ejecutar(Jenkins(args.credencial), args.numero, args.revision, sin_cache=args.sin_cache) else 1
 
 
 if __name__ == "__main__":
