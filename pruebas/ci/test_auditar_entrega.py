@@ -284,6 +284,26 @@ class PruebasAuditoria(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "origen alojado"):
             auditar_build(carpeta)
 
+    def test_verifica_el_modo_de_compilacion_solicitado(self):
+        carpeta, ruta, manifiesto = self.preparar("SUCCESS")
+        archivo = carpeta / "artifact-salidas-jenkins-ci-00-entorno.json"
+        entorno = json.loads(archivo.read_bytes())
+        entorno["modo_compilacion"] = "cache_permitida"
+        contenido = json.dumps(entorno).encode()
+        archivo.write_bytes(contenido)
+        manifiesto["archivos"]["00-entorno.json"] = {"sha256": hashlib.sha256(contenido).hexdigest(),
+                                                   "bytes": len(contenido)}
+        ruta.write_text(json.dumps(manifiesto), encoding="utf-8")
+        origen = {"url": "https://github.com/mljuansmoreno/p005Lab/actions/runs/42",
+                  "revision_esperada": manifiesto["revision"], "modo_compilacion_solicitado": "cache_permitida"}
+        ruta_origen = carpeta / "origen-actions.json"
+        ruta_origen.write_text(json.dumps(origen), encoding="utf-8")
+        self.assertEqual(auditar_build(carpeta)["origen_actions"], origen)
+        origen["modo_compilacion_solicitado"] = "sin_cache"
+        ruta_origen.write_text(json.dumps(origen), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "modo solicitado"):
+            auditar_build(carpeta)
+
     def test_importacion_rechaza_archivos_ajenos_a_la_evidencia(self):
         with TemporaryDirectory() as temporal:
             raiz = Path(temporal)

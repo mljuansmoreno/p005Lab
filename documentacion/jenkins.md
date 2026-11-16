@@ -8,6 +8,8 @@ Para ejecutar Jenkins con recursos de un runner Linux alojado, abra [Jenkins en 
 
 Con GitHub CLI autenticada, ejecute `python3 guiones/ci/descargar_jenkins_alojado.py ID_DE_ACTIONS salidas/jenkins-semana5` para incorporar la ejecución a la bitácora. El importador comprueba la huella del ZIP publicada por GitHub, las rutas de los archivos y el SHA registrado por Jenkins antes de conservar la carpeta `build-NÚMERO`.
 
+Para verificar una reconstrucción con `--no-cache` y conservar las vistas de Jenkins, inicie `gh workflow run jenkins-alojado.yaml --ref main -f sin_cache=true -f capturas=true`. El anexo coteja la opción solicitada en Actions con el modo que registró Jenkins al construir las dos imágenes.
+
 ## Prerrequisitos
 
 - Docker en modo Linux amd64 y Docker Compose V2 con `up --wait-timeout`. En Windows, habilite la integración con la distribución WSL2 dedicada al CI y compruebe que la distribución puede acceder al daemon y a `127.0.0.1:9090`.

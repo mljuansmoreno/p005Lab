@@ -66,8 +66,9 @@ def ejecutar(jenkins, numero, revision, *, sin_cache=False):
     (carpeta / "consoleText").write_text("\n".join(hitos) + "\n", encoding="utf-8")
     origen = os.environ
     url_actions = f"{origen['GITHUB_SERVER_URL']}/{origen['GITHUB_REPOSITORY']}/actions/runs/{origen['GITHUB_RUN_ID']}"
-    (carpeta / "origen-actions.json").write_text(json.dumps({"url": url_actions, "revision_esperada": revision}) + "\n",
-                                                encoding="utf-8")
+    procedencia = {"url": url_actions, "revision_esperada": revision,
+                   "modo_compilacion_solicitado": "sin_cache" if sin_cache else "cache_permitida"}
+    (carpeta / "origen-actions.json").write_text(json.dumps(procedencia) + "\n", encoding="utf-8")
     archivados = {artefacto["relativePath"] for artefacto in build["artifacts"]}
     for nombre in sorted(EVIDENCIAS_OBLIGATORIAS | {"manifest.json"}):
         relativa = RUTA_ARCHIVO + nombre

@@ -43,7 +43,19 @@ def validar_origen_actions(origen, revision):
     if (not re.fullmatch(r"https://github\.com/mljuansmoreno/p005Lab/actions/runs/[1-9][0-9]*", url) or
             sha(origen["revision_esperada"]) != revision):
         raise ValueError("El origen alojado no acredita la revisión de Jenkins")
-    return {"url": url, "revision_esperada": revision}
+    resultado = {"url": url, "revision_esperada": revision}
+    if "modo_compilacion_solicitado" in origen:
+        modo = origen["modo_compilacion_solicitado"]
+        if modo not in ("sin_cache", "cache_permitida"):
+            raise ValueError("Modo de compilación alojado desconocido")
+        resultado["modo_compilacion_solicitado"] = modo
+    return resultado
+
+
+def comprobar_modo_alojado(origen, entorno):
+    solicitado = origen.get("modo_compilacion_solicitado")
+    if solicitado is not None and entorno.get("modo_compilacion") != solicitado:
+        raise ValueError("La compilación de Jenkins difiere del modo solicitado en Actions")
 
 
 def verificar_huella(contenido, registro, nombre):
@@ -223,6 +235,7 @@ def auditar_build(carpeta):
         raise ValueError(f"Build exitoso con evidencia incompleta en {carpeta.name}: {', '.join(sorted(faltantes))}")
     if build["result"] == "SUCCESS":
         comprobar_seguridad(informes_seguridad, entorno)
+        comprobar_modo_alojado(procedencia.get("origen_actions", {}), entorno)
     return {
         **resumen, "revision": revision, "artefactos_con_huella_verificada": comprobados,
         "artefactos_declarados_sin_archivar": no_archivados,
@@ -308,6 +321,7 @@ def auditar_paquete(ruta, *, estricto=False):
                 raise ValueError(f"Totales JUnit distintos al anexo en {carpeta}")
             if api["result"] == "SUCCESS":
                 comprobar_seguridad(informes_seguridad, entorno)
+                comprobar_modo_alojado(build.get("origen_actions", {}), entorno)
             builds[carpeta] = build
         if nombres != esperados:
             raise ValueError("El anexo contiene archivos fuera del inventario")
