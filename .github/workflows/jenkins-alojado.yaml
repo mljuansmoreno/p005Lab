@@ -20,14 +20,30 @@ jobs:
         with:
           persist-credentials: false
       - name: Ejecutar el Jenkinsfile del proyecto
+        id: ejecutar
         env:
           PYTHONPATH: guiones/ci
         run: bash jenkins/ejecutar_alojado.sh
       - name: Conservar evidencia de Jenkins
+        id: evidencia
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: jenkins-${{ github.sha }}-${{ github.run_attempt }}
           path: salidas/jenkins-alojado/
-          if-no-files-found: warn
+          if-no-files-found: ${{ steps.ejecutar.outcome == 'success' && 'error' || 'warn' }}
           retention-days: 30
+      - name: Identificar el anexo publicado
+        if: ${{ always() && steps.evidencia.outputs.artifact-id != '' }}
+        env:
+          ANEXO_URL: ${{ steps.evidencia.outputs.artifact-url }}
+          ANEXO_HUELLA: ${{ steps.evidencia.outputs.artifact-digest }}
+        run: |
+          huella="${ANEXO_HUELLA#sha256:}"
+          [[ "$huella" =~ ^[0-9a-f]{64}$ ]]
+          {
+            printf '### Evidencia de Jenkins\n\n'
+            printf -- '- Revisión: `%s`\n' "$GITHUB_SHA"
+            printf -- '- Descargar: [artefacto de Jenkins](%s)\n' "$ANEXO_URL"
+            printf -- '- SHA-256 del ZIP: `%s`\n' "$huella"
+          } >> "$GITHUB_STEP_SUMMARY"
