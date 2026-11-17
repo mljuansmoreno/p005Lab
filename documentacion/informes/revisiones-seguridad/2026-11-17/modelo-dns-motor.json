@@ -1,0 +1,14 @@
+{
+  "fecha_bogota": "2026-11-17",
+  "control": "modelo-dns-motor",
+  "revision_auditada": "7eff1f8bc68c17709e161918eae99788e0961e06",
+  "estado": "correcto",
+  "referencia_nist": {
+    "perfil": "p005Lab-2026-11",
+    "sp_800_53": [
+      "CM-6"
+    ],
+    "metodo": "examen",
+    "sp_800_190": "4.4.3"
+  }
+}
