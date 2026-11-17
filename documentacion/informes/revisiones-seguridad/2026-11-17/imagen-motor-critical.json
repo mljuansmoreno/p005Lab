@@ -1,0 +1,23 @@
+{
+  "fecha_bogota": "2026-11-17",
+  "control": "imagen-motor-critical",
+  "revision_auditada": "7eff1f8bc68c17709e161918eae99788e0961e06",
+  "estado": "correcto",
+  "referencia_nist": {
+    "perfil": "p005Lab-2026-11",
+    "sp_800_53": [
+      "RA-5"
+    ],
+    "metodo": "prueba",
+    "sp_800_190": "4.1.1"
+  },
+  "detalle": {
+    "coincidencias": 0,
+    "base_avisos": "2026-11-16T06:30:54Z",
+    "base_vigente": true,
+    "maximo_horas_base": 48,
+    "maximo_coincidencias": 0,
+    "imagen": "sha256:293e432d9476b6cabce401411d1833a076cb771f4912faf666e31962f8aec9ba"
+  },
+  "ejecucion": "https://github.com/mljuansmoreno/p005Lab/actions/runs/44021755350"
+}
