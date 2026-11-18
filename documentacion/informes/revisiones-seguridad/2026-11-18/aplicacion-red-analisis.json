@@ -1,0 +1,14 @@
+{
+  "fecha_bogota": "2026-11-18",
+  "control": "aplicacion-red-analisis",
+  "revision_auditada": "17d9ab10f9e32e97aa9a51fe7584820cad661456",
+  "estado": "correcto",
+  "referencia_nist": {
+    "perfil": "p005Lab-2026-11",
+    "sp_800_53": [
+      "SC-7"
+    ],
+    "metodo": "examen",
+    "sp_800_190": "4.3.3"
+  }
+}
