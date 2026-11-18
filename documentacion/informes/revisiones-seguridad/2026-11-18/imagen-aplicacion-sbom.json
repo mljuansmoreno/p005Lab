@@ -1,0 +1,20 @@
+{
+  "fecha_bogota": "2026-11-18",
+  "control": "imagen-aplicacion-sbom",
+  "revision_auditada": "17d9ab10f9e32e97aa9a51fe7584820cad661456",
+  "estado": "correcto",
+  "referencia_nist": {
+    "perfil": "p005Lab-2026-11",
+    "sp_800_53": [
+      "CM-8"
+    ],
+    "metodo": "examen",
+    "sp_800_190": "4.1.1"
+  },
+  "detalle": {
+    "componentes": 1423,
+    "sha256": "c9300d994178fa58501d7560992641e1a21e17d5f2f8c8ccd508ab1ff60b56e9",
+    "imagen": "sha256:ba902cf47a86ae74f7a26dcc4bf36c2699741a6f8be52beb9534f8d89b678bc4"
+  },
+  "ejecucion": "https://github.com/mljuansmoreno/p005Lab/actions/runs/44242063024"
+}
