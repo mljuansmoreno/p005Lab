@@ -1,0 +1,20 @@
+{
+  "fecha_bogota": "2026-11-18",
+  "control": "imagen-motor-sbom",
+  "revision_auditada": "17d9ab10f9e32e97aa9a51fe7584820cad661456",
+  "estado": "correcto",
+  "referencia_nist": {
+    "perfil": "p005Lab-2026-11",
+    "sp_800_53": [
+      "CM-8"
+    ],
+    "metodo": "examen",
+    "sp_800_190": "4.1.1"
+  },
+  "detalle": {
+    "componentes": 8828,
+    "sha256": "bda573660d172e33c8bb31fbe75b4b12315f0afec516cff28cecf7c6c0bd3cae",
+    "imagen": "sha256:e53dd86157522a2ac447b93f8d958222c6aa6a5238c0dd4c2ded80d813f0a996"
+  },
+  "ejecucion": "https://github.com/mljuansmoreno/p005Lab/actions/runs/44242063024"
+}
