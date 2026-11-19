@@ -1,0 +1,14 @@
+{
+  "fecha_bogota": "2026-11-19",
+  "control": "modelo-motor-tmpfs",
+  "revision_auditada": "f31460eeec3c49f6c1bde90e6cb3262b233e8ccc",
+  "estado": "correcto",
+  "referencia_nist": {
+    "perfil": "p005Lab-2026-11",
+    "sp_800_53": [
+      "CM-6"
+    ],
+    "metodo": "examen",
+    "sp_800_190": "4.4.3"
+  }
+}
