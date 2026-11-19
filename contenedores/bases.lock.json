@@ -10,14 +10,14 @@
     "resumen": "sha256:fd4ccdd3a4a6f7ef805e2daeee2a0fe3bf126bc231f36351223baecf5a595a4c"
   },
   "python": {
-    "imagen": "python:3.13.18-alpine3.23",
-    "resumen": "sha256:bf88c40985006a79ca25458159a4da1dffc457f9ae234e948b2d6df56ca5ebd2",
-    "fecha_consulta": "2026-11-15"
+    "imagen": "python:3.13.18-alpine3.24",
+    "resumen": "sha256:9ef1a599f863231c3d91e941389bfdc4a2d6070557243d54df1a4e57015b960e",
+    "fecha_consulta": "2026-11-19"
   },
   "alpine_web": {
-    "imagen": "alpine:3.23",
-    "resumen": "sha256:469c9ea410b9215eaee7976ba6c0639039b444be8e5d638f7abbada189971eb2",
-    "fecha_consulta": "2026-11-15"
+    "imagen": "alpine:3.24",
+    "resumen": "sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf",
+    "fecha_consulta": "2026-11-19"
   },
   "jsonlite": {
     "url": "https://cran.r-project.org/src/contrib/jsonlite_2.0.0.tar.gz",
