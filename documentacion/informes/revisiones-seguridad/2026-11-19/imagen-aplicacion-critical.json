@@ -1,0 +1,23 @@
+{
+  "fecha_bogota": "2026-11-19",
+  "control": "imagen-aplicacion-critical",
+  "revision_auditada": "f31460eeec3c49f6c1bde90e6cb3262b233e8ccc",
+  "estado": "correcto",
+  "referencia_nist": {
+    "perfil": "p005Lab-2026-11",
+    "sp_800_53": [
+      "RA-5"
+    ],
+    "metodo": "prueba",
+    "sp_800_190": "4.1.1"
+  },
+  "detalle": {
+    "coincidencias": 0,
+    "base_avisos": "2026-11-19T06:23:17Z",
+    "base_vigente": true,
+    "maximo_horas_base": 48,
+    "maximo_coincidencias": 0,
+    "imagen": "sha256:a01dbe1ba4bf88afbbf654d3a1e6ac93faa66872f0a725e58c4a59f1cd5779bf"
+  },
+  "ejecucion": "https://github.com/mljuansmoreno/p005Lab/actions/runs/44539767937"
+}
