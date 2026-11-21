@@ -7,7 +7,7 @@ from threading import Thread
 from unittest.mock import patch
 from pathlib import Path
 
-from web import ServidorWeb, configurar_destino, leer_secreto, cliente_http
+from web import ServidorWeb, configurar_destino, leer_secreto, cliente_http, analizar, motor_disponible
 from urllib.error import HTTPError
 from urllib.request import HTTPHandler, Request
 
@@ -43,6 +43,16 @@ class ConfiguracionWeb(unittest.TestCase):
         with self.assertRaises(HTTPError):
             cliente.error("http", Request("http://motor:8787", headers={"Authorization": "Bearer ejemplo"}),
                           None, 302, "redireccion", {"Location": "http://example.com:8787"})
+
+    def test_no_consulta_destinos_externos(self):
+        for funcion in (analizar, motor_disponible):
+            with self.subTest(funcion=funcion.__name__), patch("web.cliente_http") as cliente:
+                with self.assertRaises(ValueError): funcion("http://example.com:8787", "f" * 64)
+                cliente.assert_not_called()
+
+    def test_ignora_proxies_del_entorno(self):
+        with patch.dict("os.environ", {"http_proxy": "http://example.com:8888", "https_proxy": "http://example.com:8888"}):
+            self.assertFalse(any(hasattr(h, "proxies") for h in cliente_http().handlers))
 
     def test_secreto(self):
         with tempfile.TemporaryDirectory() as directorio:
