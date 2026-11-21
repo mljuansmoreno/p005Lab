@@ -10,6 +10,7 @@
 !distribucion/fuentes/
 !distribucion/fuentes/jsonlite_2.0.0.tar.gz
 !aplicacion/
+!aplicacion/verificar_runtime.py
 !aplicacion/web.py
 !aplicacion/probar_compose.py
 !guiones/

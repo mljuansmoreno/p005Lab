@@ -25,6 +25,8 @@ RUN apk upgrade --no-cache \
     && ! apk info -e libssl3
 WORKDIR /aplicacion
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
+COPY aplicacion/verificar_runtime.py ./
+RUN python verificar_runtime.py
 COPY aplicacion/web.py aplicacion/probar_compose.py guiones/datos_sinteticos.py ./
 USER 1654:1654
 EXPOSE 8080
