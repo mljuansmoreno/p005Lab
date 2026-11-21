@@ -2,6 +2,8 @@ FROM python:3.13.18-alpine3.24@sha256:9ef1a599f863231c3d91e941389bfdc4a2d6070557
 # La web no usa SQLite. Retirarlo antes de copiar a la etapa final evita
 # trasladar la extensión y conserva la base oficial intacta como origen.
 RUN rm -rf /usr/local/lib/python3.13/sqlite3 \
+    && rm -rf /usr/local/lib/python3.13/ensurepip /usr/local/lib/python3.13/site-packages/pip* \
+    && rm -f /usr/local/bin/pip /usr/local/bin/pip3 /usr/local/bin/pip3.13 \
     && find /usr/local/lib/python3.13/lib-dynload \( -name '_sqlite3*.so' -o -name '_ssl*.so' -o -name '_hashlib*.so' \) -delete
 
 FROM alpine:3.24@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf
