@@ -13,3 +13,13 @@ class EscaneoSecretos(unittest.TestCase):
 
     def test_coincidencia_consistente(self):
         self.assertEqual(validar_resultado(17, [{"RuleID": "regla", "File": "archivo", "Fingerprint": "huella"}], "WRN leaks found"), 1)
+
+    def test_rechaza_errores_aunque_el_detector_devuelva_cero(self):
+        for diagnostico in ("ERR [git] error interno", "error=git", "fatal: diff", "failed to read", "failed: git"):
+            with self.subTest(diagnostico=diagnostico), self.assertRaises(ValueError):
+                validar_resultado(0, [], diagnostico)
+
+    def test_rechaza_salida_o_informe_inconsistente(self):
+        for codigo, datos in ((1, []), (17, []), (0, [{}]), (0, {}), (17, [{"RuleID": "regla"}])):
+            with self.subTest(codigo=codigo, datos=datos), self.assertRaises(ValueError):
+                validar_resultado(codigo, datos, "")
