@@ -118,6 +118,8 @@ jobs:
           bash guiones/ci/comprobar_compose.sh red | tee "$RUTA_ESTADISTICA_EVIDENCIAS/04-red.txt"
       - name: Verificar el aislamiento de los contenedores
         run: bash guiones/ci/comprobar_compose.sh aislamiento
+      - name: Verificar runtime web sin TLS ni instaladores
+        run: docker compose exec -T aplicacion python verificar_runtime.py
       - name: Comprobar el acceso web desde el host
         run: bash guiones/ci/comprobar_compose.sh acceso
       - name: Comprobar la autenticación interna del motor
