@@ -325,6 +325,8 @@ def leer_secreto(ruta):
 
 
 if __name__ == "__main__":
+    from verificar_runtime import verificar
+    verificar()
     destino = configurar_destino(os.environ["RUTA_ESTADISTICA_MOTOR_URL"])
     secreto = leer_secreto(os.environ["RUTA_ESTADISTICA_ARCHIVO_SECRETO"])
     with ServidorWeb(("0.0.0.0", 8080), destino, secreto) as servidor:
