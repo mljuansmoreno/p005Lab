@@ -21,8 +21,9 @@ RUN set -eu -o pipefail; \
     python -c 'import importlib.util, hashlib, zlib; assert importlib.util.find_spec("sqlite3") is None'
 # Solo HTTP local: SHA-256 usa la implementación HACL* de CPython.
 RUN apk upgrade --no-cache \
-    && ! apk info -e libcrypto3 \
-    && ! apk info -e libssl3
+    && apk del --no-network --purge apk-tools libcrypto3 libssl3 \
+    && test ! -e /usr/lib/libcrypto.so.3 \
+    && test ! -e /usr/lib/libssl.so.3
 WORKDIR /aplicacion
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 COPY aplicacion/verificar_runtime.py ./
