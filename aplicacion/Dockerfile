@@ -2,7 +2,7 @@ FROM python:3.13.18-alpine3.24@sha256:9ef1a599f863231c3d91e941389bfdc4a2d6070557
 # La web no usa SQLite. Retirarlo antes de copiar a la etapa final evita
 # trasladar la extensión y conserva la base oficial intacta como origen.
 RUN rm -rf /usr/local/lib/python3.13/sqlite3 \
-    && find /usr/local/lib/python3.13/lib-dynload -name '_sqlite3*.so' -delete
+    && find /usr/local/lib/python3.13/lib-dynload \( -name '_sqlite3*.so' -o -name '_ssl*.so' -o -name '_hashlib*.so' \) -delete
 
 FROM alpine:3.24@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf
 ENV PATH=/usr/local/bin:$PATH
@@ -16,10 +16,11 @@ RUN set -eu -o pipefail; \
     apk add --no-cache --virtual .python-rundeps $dependencias; \
     apk del --no-network .detector-runtime; \
     if apk info -e sqlite-libs; then exit 1; fi; \
-    python -c 'import importlib.util, ssl, zlib; assert importlib.util.find_spec("sqlite3") is None'
-# Alpine 3.24 corrigió los cuatro avisos de OpenSSL en 3.5.9-r1.
+    python -c 'import importlib.util, hashlib, zlib; assert importlib.util.find_spec("sqlite3") is None'
+# Solo HTTP local: SHA-256 usa la implementación HACL* de CPython.
 RUN apk upgrade --no-cache \
-    && apk add --no-cache 'libcrypto3>=3.5.9-r1' 'libssl3>=3.5.9-r1'
+    && ! apk info -e libcrypto3 \
+    && ! apk info -e libssl3
 WORKDIR /aplicacion
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 COPY aplicacion/web.py aplicacion/probar_compose.py guiones/datos_sinteticos.py ./
