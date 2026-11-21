@@ -1,6 +1,7 @@
 """Interfaz local para ejecutar el ejemplo descriptivo con el motor HTTP."""
 
 import hashlib
+import ipaddress
 import html
 import io
 import json
@@ -298,6 +299,13 @@ def configurar_destino(valor):
         or url.path not in ("", "/") or url.query or url.fragment
     ):
         raise ValueError("Configure RUTA_ESTADISTICA_MOTOR_URL como http://host:puerto")
+    host = url.hostname
+    try:
+        permitido = ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        permitido = host in ("motor", "localhost")
+    if not permitido or not 1 <= url.port <= 65535 or any(c.isspace() for c in valor):
+        raise ValueError("El motor HTTP debe estar en Compose o en loopback")
     return valor.rstrip("/")
 
 
