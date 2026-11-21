@@ -7,6 +7,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "aplicacion"))
 from verificar_runtime import verificar, PROHIBIDOS
 
 class RuntimeWeb(unittest.TestCase):
+    def setUp(self):
+        self.archivos = patch("verificar_runtime.Path.exists", return_value=False)
+        self.archivos.start()
+        self.addCleanup(self.archivos.stop)
+
+    def test_rechaza_instalador_ejecutable(self):
+        with patch("verificar_runtime.importlib.util.find_spec", return_value=None), patch("verificar_runtime.Path.rglob", return_value=[]), patch("verificar_runtime.Path.exists", return_value=True):
+            with self.assertRaises(RuntimeError): verificar()
+
     def test_acepta_runtime_minimo(self):
         with patch("verificar_runtime.importlib.util.find_spec", return_value=None), patch("verificar_runtime.Path.rglob", return_value=[]):
             self.assertFalse(verificar()["openssl"])

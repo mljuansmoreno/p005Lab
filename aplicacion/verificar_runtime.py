@@ -9,7 +9,9 @@ def verificar():
     presentes = [nombre for nombre in PROHIBIDOS if importlib.util.find_spec(nombre) is not None]
     bibliotecas = [p.name for raiz in (Path("/lib"), Path("/usr/lib"), Path("/usr/local/lib"))
                    for patron in ("libssl.so*", "libcrypto.so*") for p in raiz.rglob(patron)]
-    if presentes or bibliotecas:
+    instaladores = [str(raiz / nombre) for raiz in (Path("/sbin"), Path("/usr/sbin"), Path("/usr/bin"), Path("/usr/local/bin"))
+                    for nombre in ("apk", "pip", "pip3", "pip3.13") if (raiz / nombre).exists()]
+    if presentes or bibliotecas or instaladores:
         raise RuntimeError("El runtime contiene dependencias ajenas al contrato HTTP local")
     if hashlib.sha256(b"abc").hexdigest() != "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad":
         raise RuntimeError("SHA-256 no coincide con el vector conocido")
