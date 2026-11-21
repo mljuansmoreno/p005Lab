@@ -23,3 +23,12 @@ class EscaneoSecretos(unittest.TestCase):
         for codigo, datos in ((1, []), (17, []), (0, [{}]), (0, {}), (17, [{"RuleID": "regla"}])):
             with self.subTest(codigo=codigo, datos=datos), self.assertRaises(ValueError):
                 validar_resultado(codigo, datos, "")
+
+    def test_rechaza_checkout_superficial(self):
+        for respuesta in (b"true\n", b"", b"desconocido"):
+            with self.subTest(respuesta=respuesta), patch("escanear_secretos.subprocess.check_output", return_value=respuesta):
+                with self.assertRaises(ValueError): exigir_historial(Path("."))
+
+    def test_acepta_historial_completo(self):
+        with patch("escanear_secretos.subprocess.check_output", return_value=b"false\n"):
+            exigir_historial(Path("."))
