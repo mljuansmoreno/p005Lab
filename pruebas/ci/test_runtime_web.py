@@ -38,6 +38,6 @@ class RuntimeWeb(unittest.TestCase):
         for biblioteca in ("libssl.so.3", "libcrypto.so.3"):
             for prefijo in ("/lib", "/usr/lib", "/usr/local/lib"):
                 def encontrados(raiz, patron):
-                    return [Path(biblioteca)] if str(raiz) == prefijo and biblioteca.startswith(patron[:-1]) else []
+                    return [Path(biblioteca)] if raiz == Path(prefijo) and biblioteca.startswith(patron[:-1]) else []
                 with self.subTest(biblioteca=biblioteca, prefijo=prefijo), patch("verificar_runtime.importlib.util.find_spec", return_value=None), patch.object(Path, "rglob", encontrados):
                     with self.assertRaises(RuntimeError): verificar()
