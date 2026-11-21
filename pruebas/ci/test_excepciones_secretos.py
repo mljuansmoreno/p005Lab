@@ -46,3 +46,18 @@ class ExcepcionesSecretos(unittest.TestCase):
             documento = copy.deepcopy(self.documento)
             documento["matches"][0][campo] = valor
             with self.subTest(campo=campo), self.assertRaises(ValueError): self.validar(documento)
+
+    def test_rechaza_excepciones_extra_omitidas_y_duplicadas(self):
+        for ignoradas in ("", self.item["fingerprint"] + "\n" + "b" * 40,
+                          (self.item["fingerprint"] + "\n") * 2):
+            with self.subTest(ignoradas=ignoradas), self.assertRaises(ValueError): self.validar(ignoradas=ignoradas)
+
+    def test_rechaza_catalogo_de_otro_origen(self):
+        documento = copy.deepcopy(self.documento)
+        documento["source"] = "https://example.com/plugins.json"
+        with self.assertRaises(ValueError): self.validar(documento)
+
+    def test_rechaza_huellas_repetidas_en_catalogo(self):
+        documento = copy.deepcopy(self.documento)
+        documento["matches"].append(copy.deepcopy(self.item))
+        with self.assertRaises(ValueError): self.validar(documento)
