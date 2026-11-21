@@ -51,6 +51,7 @@ def exigir(condicion, mensaje):
 
 
 def analizar(destino, secreto):
+    destino = configurar_destino(destino)
     limite = time.monotonic() + TIEMPO_ANALISIS
     cliente = cliente_http()
 
@@ -129,6 +130,7 @@ def analizar(destino, secreto):
 
 
 def motor_disponible(destino, secreto):
+    destino = configurar_destino(destino)
     cliente = cliente_http()
     peticion = Request(destino + "/salud", headers={"Authorization": f"Bearer {secreto}"})
     try:
