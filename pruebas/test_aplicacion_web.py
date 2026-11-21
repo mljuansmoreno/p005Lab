@@ -7,7 +7,9 @@ from threading import Thread
 from unittest.mock import patch
 from pathlib import Path
 
-from web import ServidorWeb, configurar_destino, leer_secreto
+from web import ServidorWeb, configurar_destino, leer_secreto, cliente_http
+from urllib.error import HTTPError
+from urllib.request import HTTPHandler, Request
 
 
 class ConfiguracionWeb(unittest.TestCase):
@@ -29,6 +31,18 @@ class ConfiguracionWeb(unittest.TestCase):
     def test_destinos_loopback(self):
         for url in ("http://127.0.0.1:8787", "http://localhost:8787", "http://[::1]:8787"):
             with self.subTest(url=url): self.assertEqual(configurar_destino(url), url)
+
+    def test_cliente_solo_http(self):
+        cliente = cliente_http()
+        for esquema in ("https", "file", "ftp", "data", "proxy"):
+            self.assertFalse(any(hasattr(h, esquema + "_open") for h in cliente.handlers))
+        self.assertTrue(any(isinstance(h, HTTPHandler) for h in cliente.handlers))
+
+    def test_redireccion_no_reenvia_credencial(self):
+        cliente = cliente_http()
+        with self.assertRaises(HTTPError):
+            cliente.error("http", Request("http://motor:8787", headers={"Authorization": "Bearer ejemplo"}),
+                          None, 302, "redireccion", {"Location": "http://example.com:8787"})
 
     def test_secreto(self):
         with tempfile.TemporaryDirectory() as directorio:
