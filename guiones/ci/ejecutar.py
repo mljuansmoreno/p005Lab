@@ -326,6 +326,7 @@ def integrar(puerto, sin_cache=False, *, usar_build=False):
         ("estado", ("03-docker-ps.txt",), (*COMPOSE, "ps", "--all"), 30),
         ("red", ("04-red.txt",), (*COMPROBAR, "red"), 30),
         ("aislamiento", ("07-aislamiento.json",), (*COMPROBAR, "aislamiento"), 30),
+        ("runtime_web", (), (*COMPOSE, "exec", "-T", "aplicacion", "python", "verificar_runtime.py"), 30),
         ("acceso", (), (*COMPROBAR, "acceso"), 30),
         ("autenticacion", ("10-autenticacion.txt",), (*COMPROBAR, "autenticacion"), 30),
         ("calculo", ("05-calculo.txt",), (*COMPROBAR, "calcular"), 90),
