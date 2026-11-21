@@ -20,6 +20,16 @@ class ConfiguracionWeb(unittest.TestCase):
             with self.subTest(url=url), self.assertRaises(ValueError):
                 configurar_destino(url)
 
+    def test_destinos_fuera_del_limite_local(self):
+        for url in ("https://motor:8787", "http://example.com:8787", "http://192.0.2.1:8787",
+                    "http://motor.ejemplo:8787", "http://motor:0", "http://motor:65536",
+                    "http://motor:8787\n", "http://motor:8787/#secreto"):
+            with self.subTest(url=url), self.assertRaises(ValueError): configurar_destino(url)
+
+    def test_destinos_loopback(self):
+        for url in ("http://127.0.0.1:8787", "http://localhost:8787", "http://[::1]:8787"):
+            with self.subTest(url=url): self.assertEqual(configurar_destino(url), url)
+
     def test_secreto(self):
         with tempfile.TemporaryDirectory() as directorio:
             ruta = Path(directorio) / "motor.secreto"
