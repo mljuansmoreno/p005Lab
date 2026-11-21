@@ -24,3 +24,11 @@ class RuntimeWeb(unittest.TestCase):
         with patch("verificar_runtime.importlib.util.find_spec", return_value=None), patch("verificar_runtime.Path.rglob", return_value=[]), patch("verificar_runtime.hashlib.sha256") as sha:
             sha.return_value.hexdigest.return_value = "0" * 64
             with self.assertRaises(RuntimeError): verificar()
+
+    def test_busca_crypto_y_ssl_en_todos_los_prefijos(self):
+        for biblioteca in ("libssl.so.3", "libcrypto.so.3"):
+            for prefijo in ("/lib", "/usr/lib", "/usr/local/lib"):
+                def encontrados(raiz, patron):
+                    return [Path(biblioteca)] if str(raiz) == prefijo and biblioteca.startswith(patron[:-1]) else []
+                with self.subTest(biblioteca=biblioteca, prefijo=prefijo), patch("verificar_runtime.importlib.util.find_spec", return_value=None), patch.object(Path, "rglob", encontrados):
+                    with self.assertRaises(RuntimeError): verificar()
