@@ -18,7 +18,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
-from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
+from urllib.request import HTTPRedirectHandler, HTTPHandler, HTTPDefaultErrorHandler, HTTPErrorProcessor, OpenerDirector, Request
 
 from datos_sinteticos import CSV_SINTETICO
 
@@ -37,6 +37,14 @@ class SinRedirecciones(HTTPRedirectHandler):
         return None
 
 
+def cliente_http():
+    # Lista cerrada: sin proxies del entorno, TLS, FTP, archivos ni data URLs.
+    cliente = OpenerDirector()
+    for manejador in (HTTPHandler(), HTTPDefaultErrorHandler(), HTTPErrorProcessor(), SinRedirecciones()):
+        cliente.add_handler(manejador)
+    return cliente
+
+
 def exigir(condicion, mensaje):
     if not condicion:
         raise ErrorMotor(mensaje)
@@ -44,7 +52,7 @@ def exigir(condicion, mensaje):
 
 def analizar(destino, secreto):
     limite = time.monotonic() + TIEMPO_ANALISIS
-    cliente = build_opener(ProxyHandler({}), SinRedirecciones())
+    cliente = cliente_http()
 
     def consultar(ruta, esperado, datos=None):
         cabeceras = {"Authorization": f"Bearer {secreto}"}
@@ -121,7 +129,7 @@ def analizar(destino, secreto):
 
 
 def motor_disponible(destino, secreto):
-    cliente = build_opener(ProxyHandler({}), SinRedirecciones())
+    cliente = cliente_http()
     peticion = Request(destino + "/salud", headers={"Authorization": f"Bearer {secreto}"})
     try:
         with cliente.open(peticion, timeout=2) as respuesta:
