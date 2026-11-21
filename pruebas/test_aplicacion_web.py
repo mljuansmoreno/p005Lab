@@ -39,10 +39,10 @@ class ConfiguracionWeb(unittest.TestCase):
         self.assertTrue(any(isinstance(h, HTTPHandler) for h in cliente.handlers))
 
     def test_redireccion_no_reenvia_credencial(self):
-        cliente = cliente_http()
-        with self.assertRaises(HTTPError):
-            cliente.error("http", Request("http://motor:8787", headers={"Authorization": "Bearer ejemplo"}),
-                          None, 302, "redireccion", {"Location": "http://example.com:8787"})
+        for codigo in (301, 302, 303, 307, 308):
+            with self.subTest(codigo=codigo), self.assertRaises(HTTPError):
+                cliente_http().error("http", Request("http://motor:8787", headers={"Authorization": "Bearer ejemplo"}),
+                                     None, codigo, "redireccion", {"Location": "http://example.com:8787"})
 
     def test_no_consulta_destinos_externos(self):
         for funcion in (analizar, motor_disponible):
