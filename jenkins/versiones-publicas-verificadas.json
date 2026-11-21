@@ -1,6 +1,6 @@
 {
   "source": "https://updates.jenkins.io/plugin-versions.json",
-  "checked_at": "2026-11-17T05:12:16.6216791+00:00",
+  "checked_at": "2026-11-21T20:46:16.905571+00:00",
   "matches": [
     {
       "fingerprint": "921af48994ab8a5236424783d8742df4c9c669f3:jenkins/plugins.txt:generic-api-key:2",

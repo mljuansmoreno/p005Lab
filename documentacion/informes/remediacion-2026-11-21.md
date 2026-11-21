@@ -33,3 +33,36 @@ nuevo con el [catálogo oficial de Jenkins](https://updates.jenkins.io/plugin-ve
 Las 23 coincidencias correspondían a versiones públicas, no a credenciales.
 Se registra la clasificación mediante huellas exactas y se mantiene el escaneo
 del resto del historial y de los archivos comprimidos.
+
+
+## Verificación y trazabilidad
+
+Se ejecutaron 59 pruebas pertinentes: 12 de la web, 13 del control de secretos,
+6 del contrato de runtime, 25 del coordinador de CI en Linux y 3 de fuentes.
+Todas pasaron. El escaneo real de Gitleaks terminó con cero coincidencias
+pendientes tanto en todo el historial como en el árbol de archivos.
+La imagen web se construyó y superó el contrato de runtime sin OpenSSL.
+
+| Control original | SP 800-53 | Método SP 800-53A | Verificación |
+| --- | --- | --- | --- |
+| git-historial-secretos | IA-5, SA-11 | Prueba | Historial completo, archivos y excepciones exactas |
+| imagen-aplicacion-high | RA-5 | Prueba | Inventario y análisis de ambas imágenes; cero altas y críticas |
+
+La retirada de componentes innecesarios sigue la guía SP 800-190, sección 4.1.1.
+Esta trazabilidad describe las comprobaciones aplicadas; no constituye una
+certificación general del sistema ni sustituye la auditoría completa de 75 controles.
+
+Para verificar un checkout completo desde la raíz:
+
+```bash
+python3 -m unittest discover -s pruebas/ci -p 'test_*secretos.py'
+python3 -m unittest discover -s pruebas/ci -p test_runtime_web.py
+PYTHONPATH=aplicacion:guiones python3 -m unittest discover -s pruebas -p test_aplicacion_web.py
+bash guiones/verificar_secretos.sh
+```
+
+Actions conserva el análisis real de las imágenes de la revisión final y bloquea
+la entrega ante cualquier coincidencia alta o crítica. Su job Docker verifica
+además salud, aislamiento, autenticación, cálculo real y recuperación del motor.
+El contrato de runtime se comprueba dentro del contenedor que está ejecutándose.
+Las evidencias locales y credenciales temporales se mantienen fuera del repositorio.
