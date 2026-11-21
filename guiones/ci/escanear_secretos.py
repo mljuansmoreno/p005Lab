@@ -1,6 +1,7 @@
 """Escanea historial y archivos sin imprimir coincidencias ni diagnósticos privados."""
 import argparse
 import json
+import re
 from pathlib import Path
 import subprocess
 import tempfile
@@ -9,7 +10,7 @@ from comprobar_excepciones import comprobar
 def validar_resultado(codigo, datos, diagnostico):
     if codigo not in (0, 17) or not isinstance(datos, list):
         raise ValueError("El detector de secretos no completó el análisis")
-    if any(marca in diagnostico.lower() for marca in (" err ", "error=", "fatal:", "failed to", "failed:")):
+    if re.search(r"(?im)(?:^|\s)(?:err|ftl)(?:\s|$)|error=|fatal:|failed(?: to|:)", diagnostico):
         raise ValueError("El detector informó un error interno")
     if any(not isinstance(item, dict) or not all(item.get(k) for k in ("RuleID", "File", "Fingerprint")) for item in datos):
         raise ValueError("Informe de secretos incompleto")
