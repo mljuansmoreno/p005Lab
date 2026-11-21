@@ -17,6 +17,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
+      - name: Probar validación del detector y excepciones
+        run: |
+          python3 -m unittest discover -s pruebas/ci -p "test_*secretos.py"
+          python3 -m unittest discover -s pruebas/ci -p test_runtime_web.py
       - name: Revisar el contenido publicable
         run: bash guiones/verificar_secretos.sh
 
