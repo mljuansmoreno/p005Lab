@@ -32,3 +32,17 @@ class ExcepcionesSecretos(unittest.TestCase):
 
     def test_catalogo_real_del_repositorio(self):
         self.assertEqual(comprobar(RAIZ), 23)
+
+    def test_rechaza_otra_regla_archivo_o_linea(self):
+        for huella in (self.item["fingerprint"].replace("generic-api-key", "otra-regla"),
+                       self.item["fingerprint"].replace("jenkins/plugins.txt", "codigo/token.py"),
+                       self.item["fingerprint"][:-1] + "2"):
+            documento = copy.deepcopy(self.documento)
+            documento["matches"][0]["fingerprint"] = huella
+            with self.subTest(huella=huella), self.assertRaises(ValueError): self.validar(documento, huella)
+
+    def test_rechaza_version_o_hash_incorrecto(self):
+        for campo, valor in (("version", "2.0"), ("sha256", "AA=="), ("plugin", "otra-api")):
+            documento = copy.deepcopy(self.documento)
+            documento["matches"][0][campo] = valor
+            with self.subTest(campo=campo), self.assertRaises(ValueError): self.validar(documento)
