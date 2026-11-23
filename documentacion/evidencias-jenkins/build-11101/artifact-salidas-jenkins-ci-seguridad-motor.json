@@ -1,0 +1,17 @@
+{
+  "imagen": "sha256:85f0fea5fd857b22616e98c09d3c8b0ff4cf61dd3713be3ff4cc2d24d82ea0f3",
+  "base_avisos": "2026-11-22T06:19:59Z",
+  "tiempos_segundos": {
+    "base_compartida": 65,
+    "inventario": 11,
+    "avisos": 14
+  },
+  "sbom": {
+    "formato": "CycloneDX",
+    "sha256": "e67d6ea7ab4a2137d05f7df0f73d2aee36de252992d445d97f5fd5934e9b00a9",
+    "componentes": 8828
+  },
+  "altas": 0,
+  "criticas": 0,
+  "pendientes": []
+}
