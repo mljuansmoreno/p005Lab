@@ -1,0 +1,10 @@
+{
+  "job": "ruta-estadistica-autoprueba",
+  "build": 5,
+  "fecha_utc": "2026-11-15T22:20:49.402000+00:00",
+  "revision": "d92408c867835d5c8a4e9953599b0832dd3951d7",
+  "resultado": "ABORTED",
+  "causa": "usuario",
+  "escenario": "Autoprueba aislada: cancelacion",
+  "proyecto": "ruta-ci-2e15dc6b024d99c2"
+}
