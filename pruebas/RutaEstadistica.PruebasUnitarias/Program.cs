@@ -140,6 +140,16 @@ try
         try { await ImportadorDatos.ImportarAsync(variante, new(), "Mediciones"); throw new Exception("Libro sin relaciones admitido"); }
         catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_LIBRO_INVALIDO", "XLSX sin relaciones devuelve un error de dominio"); }
     }
+    {
+        var variante = Path.Combine(temporal, "entradas.xlsx");
+        File.Copy(libro, variante);
+        using (var archivo = ZipFile.Open(variante, ZipArchiveMode.Update))
+            for (var indice = archivo.Entries.Count; indice < 1000; indice++) archivo.CreateEntry($"hoja_auxiliar_{indice}");
+        Verificar(ImportadorDatos.ListarHojas(await File.ReadAllBytesAsync(variante)).Single() == "Mediciones", "El límite de mil entradas es inclusivo");
+        using (var archivo = ZipFile.Open(variante, ZipArchiveMode.Update)) archivo.CreateEntry("una_mas");
+        var contenido = await File.ReadAllBytesAsync(variante);
+        Rechazar(() => ImportadorDatos.ListarHojas(contenido), "DATOS_LIBRO_INVALIDO");
+    }
     var datosLibro = await ImportadorDatos.ImportarAsync(libro, new(), "Mediciones");
     Verificar(datosLibro.Filas[0][0] == "001" && datosLibro.Filas[0][1] == "2.5", "XLSX conserva texto y valores originales");
     try { await ImportadorDatos.ImportarAsync(libro, new()); throw new Exception("Hoja no confirmada aceptada"); }
