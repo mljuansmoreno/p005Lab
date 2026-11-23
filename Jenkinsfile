@@ -56,22 +56,25 @@ pipeline {
         always {
             script {
                 def salida = 'salidas/jenkins-ci'
-                if (fileExists("${salida}/00-entorno.json")) {
-                    def limpieza = sh(script: 'python3 guiones/ci/ejecutar.py limpiar-build', returnStatus: true)
-                    try {
-                        sh 'python3 guiones/ci/ejecutar.py finalizar'
-                    } finally {
-                        def archivos = sh(script: 'python3 guiones/ci/ejecutar.py archivos', returnStdout: true).trim()
-                        archiveArtifacts artifacts: archivos, fingerprint: true, followSymlinks: false
+                try {
+                    if (fileExists("${salida}/00-entorno.json")) {
+                        def limpieza = sh(script: 'python3 guiones/ci/ejecutar.py limpiar-build', returnStatus: true)
+                        try {
+                            sh 'python3 guiones/ci/ejecutar.py finalizar'
+                        } finally {
+                            def archivos = sh(script: 'python3 guiones/ci/ejecutar.py archivos', returnStdout: true).trim()
+                            archiveArtifacts artifacts: archivos, fingerprint: true, followSymlinks: false
+                        }
+                        if (limpieza != 0) {
+                            currentBuild.result = 'FAILURE'
+                        }
                     }
-                    if (limpieza != 0) {
-                        currentBuild.result = 'FAILURE'
-                    }
-                }
-                for (def informe : ['web', 'integracion']) {
-                    def ruta = "${salida}/reportes/${informe}.xml"
-                    if (fileExists(ruta)) {
-                        junit testResults: ruta
+                } finally {
+                    for (def informe : ['web', 'integracion']) {
+                        def ruta = "${salida}/reportes/${informe}.xml"
+                        if (fileExists(ruta)) {
+                            junit testResults: ruta
+                        }
                     }
                 }
             }
