@@ -310,6 +310,10 @@ try
         Verificar(carga.HashDatos == hash && carga.Filas == 3, "Carga de API registra revisión y recuentos sin truncar");
         Verificar(gestor.Cargar(new(proyecto.Id, csv)).DatosId == carga.DatosId, "Recalcular sobre la misma revisión reutiliza la carga sin agotar el almacén");
         var solicitud = new SolicitudAnalisis(1, Guid.NewGuid().ToString("N"), proyecto.Id, hash, hash, "descriptivo", ["c002"], PoliticaFaltantes: "excluir_confirmados");
+    {
+        foreach (var version in new[] { 0, 2, int.MaxValue })
+            Rechazar(() => Validacion.Validar(solicitud with { VersionContrato = version }, preparados), "CONTRATO_VERSION_NO_ADMITIDA");
+    }
         var primero = gestor.Encolar(new(carga.DatosId, solicitud));
         var plazoInicio = DateTimeOffset.UtcNow.AddSeconds(10);
         while (gestor.Consultar(primero.TrabajoId, proyecto.Id).Estado == "pendiente" && DateTimeOffset.UtcNow < plazoInicio) await Task.Delay(10);
