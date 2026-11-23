@@ -13,6 +13,12 @@ from web import analizar, ErrorMotor
 
 
 class ResilienciaWeb(unittest.TestCase):
+    def test_respuesta_fuera_de_orden(self):
+        ajeno = dict(self.trabajo, estado="completado", trabajo_id="b" * 32)
+        with self.assertRaisesRegex(ErrorMotor, "otro trabajo"):
+            self.ejecutar([self.carga, self.trabajo, ajeno])
+        self.assertNotIn(("GET", self.consulta + "/resultado"), self.llamadas)
+
     def test_respuesta_fuera_de_plazo(self):
         from web import TIEMPO_ANALISIS
         with patch("web.time.monotonic", side_effect=[0, 0, TIEMPO_ANALISIS + 1]):
