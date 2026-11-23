@@ -86,6 +86,8 @@ El controlador permanente y el controlador alojado tienen historiales independie
 
 **Puntaje de la rúbrica:** 20 puntos.
 
+- [Compose](docker-compose.yml) define `aplicacion` y `motor` desde el mismo checkout. Consulte sus [Dockerfiles de aplicación](aplicacion/Dockerfile) y [motor](contenedores/Dockerfile) y el [comando de construcción](guiones/ci/ejecutar.py).
+
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
 | Contexto de la aplicación | Comparar el servicio aplicacion con las fases FROM de su Dockerfile. | Compose construye la web desde el checkout. El control de fuentes coteja las etapas Python y Alpine con el bloqueo de bases. | [docker-compose.yml](https://github.com/mljuansmoreno/p005Lab/blob/d0560d3915c3b662236963681edd5ef13ba0631b/docker-compose.yml) · [Dockerfile](https://github.com/mljuansmoreno/p005Lab/blob/761ed6e86009e4e6a4af8a6f5747d6eedffcc7b7/aplicacion/Dockerfile) |
