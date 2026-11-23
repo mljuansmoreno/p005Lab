@@ -71,6 +71,8 @@ El controlador permanente y el controlador alojado tienen historiales independie
 
 **Puntaje de la rúbrica:** 15 puntos.
 
+- El [disparador declarativo](Jenkinsfile) usa `H/2 * * * *` y la [definición SCM](jenkins/trabajo-main.xml) usa `*/main`. El [registro del sondeo permanente](documentacion/evidencias-jenkins/poll-scm.txt) identifica `refs/heads/main`, el SHA remoto y #29.
+
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
 | Repositorio y rama | Leer la URL remota y refs/heads/main en la traza de sondeo. | El controlador permanente consultó GitHub mediante git ls-remote y reconoció el SHA del #29 como ya construido. | [trabajo-main.xml](https://github.com/mljuansmoreno/p005Lab/blob/64903be883027dd1600d7f7a6c026f5d5079b988/jenkins/trabajo-main.xml) · [poll-scm.txt](https://github.com/mljuansmoreno/p005Lab/blob/2fe8f589d467a400189aeaa965b328fe01c94dd4/documentacion/evidencias-jenkins/poll-scm.txt) |
