@@ -13,6 +13,13 @@ from web import analizar, ErrorMotor
 
 
 class ResilienciaWeb(unittest.TestCase):
+    def test_plazo_de_sondeo(self):
+        from web import TIEMPO_ANALISIS
+        reloj = [0, 0, 0, 0, 0, TIEMPO_ANALISIS + 1]
+        with patch("web.time.monotonic", side_effect=reloj), self.assertRaisesRegex(ErrorMotor, "agotó el tiempo"):
+            self.ejecutar([self.carga, self.trabajo])
+        self.assertEqual(self.llamadas, [("POST", "/datos"), ("POST", "/trabajos")])
+
     def test_zip_incompleto(self):
         with self.assertRaises(zipfile.BadZipFile):
             self.ejecutar([self.carga, dict(self.trabajo, estado="completado"), lambda: self.paquete_valido()[:-22]])
