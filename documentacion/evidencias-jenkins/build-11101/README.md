@@ -19,3 +19,4 @@ El [run 45109084160](https://github.com/mljuansmoreno/p005Lab/actions/runs/45109
 | [05-calculo.txt](artifact-salidas-jenkins-ci-05-calculo.txt) | La respuesta contiene el destino, la huella del conjunto de datos, los identificadores y el resultado numérico. |
 | [06-recuperacion.txt](artifact-salidas-jenkins-ci-06-recuperacion.txt) | La traza recoge la respuesta durante la caída, el reemplazo del motor y una nueva operación concluida. |
 | [07-aislamiento.json](artifact-salidas-jenkins-ci-07-aislamiento.json) | El informe reúne los resultados de inspección de seguridad de los servicios del build. |
+| [08-pruebas-r.txt](artifact-salidas-jenkins-ci-08-pruebas-r.txt) | El resultado permite distinguir las pruebas internas del motor de la solicitud web de integración. |

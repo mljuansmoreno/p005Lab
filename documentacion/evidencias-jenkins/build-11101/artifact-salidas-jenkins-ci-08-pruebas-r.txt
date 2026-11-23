@@ -1,0 +1,3 @@
+Rscript (R) version 4.5.2 (2025-10-31)
+VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.
+Suite de rutaanalitica ejecutada correctamente.
