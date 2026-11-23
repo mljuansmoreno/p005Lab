@@ -139,5 +139,13 @@ local({
   res <- analizar(crear_solicitud("pareado"), muestra, directorio)
   verificar(res$cifras$intervalo, -3 + c(-1,1) * stats::qt(.975, 3) * sqrt(10/4))
 })
+# Conserva el valor p e invierte el efecto al intercambiar los pares.
+local({
+  muestra <- data.frame(c001 = c(10,20,30,40), c002 = c(12,19,35,46))
+  ida <- analizar(crear_solicitud("pareado"), muestra, directorio)$cifras
+  vuelta <- analizar(crear_solicitud("pareado", c("c002","c001")), muestra, directorio)$cifras
+  verificar(c(ida$diferencia_media, vuelta$diferencia_media), c(-3,3))
+  verificar(ida$valor_p, vuelta$valor_p)
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
