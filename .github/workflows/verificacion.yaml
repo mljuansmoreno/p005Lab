@@ -115,6 +115,11 @@ jobs:
         run: docker compose --progress plain build 2>&1 | tee "$RUTA_ESTADISTICA_EVIDENCIAS/01-compilacion.txt"
       - name: Arrancar Compose y esperar la salud de los servicios
         run: docker compose up -d --wait --wait-timeout 90 2>&1 | tee "$RUTA_ESTADISTICA_EVIDENCIAS/02-arranque.txt"
+      - name: Ejecutar regresiones del despliegue con las imágenes del build
+        run: |
+          export RUTA_QA_IMAGEN_APLICACION="$(docker inspect --format '{{.Config.Image}}' "$(docker compose ps -q aplicacion)")"
+          export RUTA_QA_IMAGEN_MOTOR="$(docker inspect --format '{{.Config.Image}}' "$(docker compose ps -q motor)")"
+          python3 -m unittest discover -s pruebas/contenedores -v
       - name: Registrar el estado y la red
         run: |
           docker ps --filter "label=com.docker.compose.project=$COMPOSE_PROJECT_NAME" | tee "$RUTA_ESTADISTICA_EVIDENCIAS/03-docker-ps.txt"
