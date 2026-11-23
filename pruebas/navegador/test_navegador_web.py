@@ -1,5 +1,6 @@
 """Pruebas de la web local en un navegador Chromium real."""
 import os
+import re
 from pathlib import Path
 import sys
 from threading import Thread
@@ -50,3 +51,14 @@ class NavegadorWeb(unittest.TestCase):
         self.assertEqual(principal.count(), 1)
         self.assertEqual(principal.get_by_role("heading", level=1).inner_text(), "Ruta Estadística")
         self.assertEqual(self.pagina.locator("html").get_attribute("lang"), "es")
+
+    def test_contraste(self):
+        self.pagina.goto(self.origen)
+        boton = self.pagina.get_by_role("button")
+        colores = boton.evaluate("(b) => [getComputedStyle(b).color, getComputedStyle(b).backgroundColor]")
+        def luminancia(rgb):
+            valores = [int(c) / 255 for c in re.fullmatch(r"rgb\((\d+), (\d+), (\d+)\)", rgb).groups()]
+            lineales = [v / 12.92 if v <= .04045 else ((v + .055) / 1.055) ** 2.4 for v in valores]
+            return sum(v * peso for v, peso in zip(lineales, (.2126, .7152, .0722)))
+        oscuro, claro = sorted(luminancia(color) for color in colores)
+        self.assertGreaterEqual((claro + .05) / (oscuro + .05), 4.5)
