@@ -288,3 +288,16 @@ class TrabajosHTTP(unittest.TestCase):
                 codigo, contenido = self.http("DELETE", self.ruta(trabajo))
                 estado = json.loads(contenido)
                 self.assertEqual((codigo, estado["estado"], estado["codigo_error"]), (200, "cancelado", "TRABAJO_CANCELADO"))
+
+    def test_cancelar_completado(self):
+        trabajo = self.encolar(self.cargar("c001\n2\n4\n"))
+        self.assertEqual(self.esperar(trabajo)[-1]["estado"], "completado")
+        def leer():
+            codigo, datos = self.http("GET", self.ruta(trabajo, "/resultado"))
+            self.assertEqual(codigo, 200)
+            with zipfile.ZipFile(io.BytesIO(datos)) as archivo:
+                return {n: archivo.read(n) for n in archivo.namelist()}
+        antes = leer()
+        estado, contenido = self.http("DELETE", self.ruta(trabajo))
+        self.assertEqual((estado, json.loads(contenido)["estado"]), (200, "completado"))
+        self.assertEqual(antes, leer())
