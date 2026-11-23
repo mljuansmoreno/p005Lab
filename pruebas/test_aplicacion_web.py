@@ -173,3 +173,13 @@ class InterfazWeb(unittest.TestCase):
             primera = self.solicitar("POST", "/analizar", {"Accept": "application/json"})
             segunda = self.solicitar("POST", "/analizar", {"Accept": "application/json"})
         self.assertEqual((primera[0], segunda[0], json.loads(segunda[2])), (502, 200, {"media": 1}))
+
+
+    def test_ocupado_sin_consulta(self):
+        while self.servidor.analisis.acquire(blocking=False):
+            self.addCleanup(self.servidor.analisis.release)
+        with patch("web.analizar") as calcular:
+            estado, cabeceras, cuerpo = self.solicitar("POST", "/analizar")
+        calcular.assert_not_called()
+        self.assertEqual((estado, cabeceras["Retry-After"], json.loads(cuerpo)),
+                         (503, "2", {"error": "capacidad_ocupada"}))
