@@ -368,6 +368,14 @@ try
     {
         var carga = new CargaDatosMotor(proyecto.Id, "c001\n1\n");
         var inicial = almacen.Cargar(carga);
+        {
+            var solicitudCarga = new CargaDatosMotor(proyecto.Id, "c001\n2\n");
+            var vigente = almacen.Cargar(solicitudCarga);
+            reloj.Avanzar(TimeSpan.FromMinutes(15));
+            Verificar(almacen.Cargar(solicitudCarga).DatosId == vigente.DatosId, "La carga a los quince minutos exactos renueva el plazo");
+            reloj.Avanzar(TimeSpan.FromMinutes(14));
+            Verificar(almacen.Cargar(solicitudCarga).DatosId == vigente.DatosId, "Una recarga reciente conserva la misma revisión");
+        }
         reloj.Avanzar(TimeSpan.FromMinutes(16));
         Verificar(almacen.Cargar(carga).DatosId != inicial.DatosId, "Una carga inactiva caduca al superar quince minutos");
     }
