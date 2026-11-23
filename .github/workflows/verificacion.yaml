@@ -27,6 +27,18 @@ jobs:
           "$RUNNER_TEMP/qa-python/bin/python" guiones/ci/medir_cobertura_python.py
       - name: Revisar el contenido publicable
         run: bash guiones/verificar_secretos.sh
+      - name: Preparar cobertura publicable
+        run: python guiones/ci/publicar_cobertura.py python
+      - name: Archivar informes QA de python
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: qa-python
+          if-no-files-found: warn
+          path: |
+            salidas/qa/reportes/*.xml
+            salidas/qa/publicable/*.xml
+            salidas/qa/publicable/resumen.html
 
   verificar:
     runs-on: windows-2025
@@ -90,6 +102,18 @@ jobs:
       - name: Compilar host MCP
         shell: pwsh
         run: dotnet build codigo/RutaEstadistica.ServidorMcp -c Release --no-restore
+      - name: Preparar cobertura publicable
+        run: python guiones/ci/publicar_cobertura.py dotnet r
+      - name: Archivar informes QA de windows
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: qa-windows
+          if-no-files-found: warn
+          path: |
+            salidas/qa/reportes/*.xml
+            salidas/qa/publicable/*.xml
+            salidas/qa/publicable/resumen.html
 
   docker:
     name: Docker Linux y cálculo entre contenedores
@@ -205,3 +229,11 @@ jobs:
             trap 'rm -f -- "$RUTA_ESTADISTICA_ARCHIVO_SECRETO"; rmdir -- "${RUTA_ESTADISTICA_ARCHIVO_SECRETO%/*}"' EXIT
             docker compose down --remove-orphans --rmi local
           fi
+      - name: Archivar informes QA de docker
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: qa-docker
+          if-no-files-found: warn
+          path: |
+            salidas/qa/reportes/*.xml
