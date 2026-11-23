@@ -55,3 +55,9 @@ class ModeloCompose(unittest.TestCase):
                 self.assertEqual(float(servicio["cpus"]), cpu)
                 self.assertEqual(int(servicio["mem_limit"]), mib * 1024**2)
                 self.assertEqual(servicio["pids_limit"], 64)
+
+    def test_solo_lectura(self):
+        for nombre in ("aplicacion", "motor"):
+            self.assertIs(self.config["services"][nombre]["read_only"], True)
+        tmpfs = self.config["services"]["motor"]["tmpfs"]
+        self.assertTrue(any(item.startswith("/tmp:") and "size=" in item for item in tmpfs))
