@@ -19,6 +19,20 @@ from reportes import Reporte, ResultadoWeb
 
 
 class PruebasInforme(unittest.TestCase):
+    def test_fallo_de_proceso_publica_el_codigo_y_descarta_la_salida_privada(self):
+        reporte = Reporte("integracion")
+        with TemporaryDirectory() as directorio:
+            carpeta = Path(directorio)
+            orden = [sys.executable, "-c", "print('dato-sintetico-privado'); raise SystemExit(3)"]
+            with self.assertRaisesRegex(ValueError, "código de salida 3"):
+                ejecutar.ejecutar_caso(reporte, "calculo", carpeta, os.environ, orden, 10)
+            xml = carpeta / "integracion.xml"
+            reporte.guardar(xml)
+            self.assertEqual(ET.parse(xml).getroot().get("failures"), "1")
+            self.assertIn("código de salida 3", xml.read_text("utf-8"))
+            self.assertNotIn("dato-sintetico-privado", xml.read_text("utf-8"))
+            self.assertFalse((carpeta / "paso.log").exists())
+
     def test_truncar_evidencia_invalida_la_huella_del_manifiesto(self):
         with TemporaryDirectory() as carpeta, patch.object(ejecutar, "SALIDA", Path(carpeta)):
             ruta = Path(carpeta) / "02-arranque.txt"
