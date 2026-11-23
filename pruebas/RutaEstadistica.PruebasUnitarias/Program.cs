@@ -59,6 +59,11 @@ try
         var confirmada = ImportadorDatos.ConfirmarRoles(muestra, new Dictionary<string, string> { ["c001"] = "identificador" }, new());
         Verificar(confirmada.Filas.Single()[0] == codigoLargo, "Un identificador largo conserva todos sus dígitos");
     }
+    {
+        var muestra = await ImportarMuestra("Valor\n-1.234,5E-1\n");
+        var confirmada = ImportadorDatos.ConfirmarRoles(muestra, new Dictionary<string, string> { ["c001"] = "numerica" }, new(Miles: '.'));
+        Verificar(confirmada.Filas.Single()[0] == "-123.45" && muestra.Filas.Single()[0] == "-1.234,5E-1", "Conversión con miles y exponente conserva el original");
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
