@@ -195,3 +195,10 @@ class TrabajosHTTP(unittest.TestCase):
         self.assertEqual(final["estado"], "fallido")
         self.assertTrue(final["codigo_error"])
         self.assertEqual(self.http("GET", self.ruta(trabajo, "/resultado"))[0], 409)
+
+
+    def test_consultas_conservan_identidad(self):
+        trabajo = self.encolar(self.cargar("c001\n2\n4\n"))
+        for estado in self.esperar(trabajo):
+            self.assertEqual(estado["proyecto_id"], self.proyecto)
+            self.assertEqual(estado["trabajo_id"], trabajo["trabajo_id"])
