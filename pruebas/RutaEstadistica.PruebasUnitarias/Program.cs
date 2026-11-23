@@ -130,6 +130,11 @@ try
         var json = System.Text.Json.JsonSerializer.SerializeToElement(estado, Serializacion.Opciones);
         Verificar(json.GetProperty("codigo_error").ValueKind == System.Text.Json.JsonValueKind.Null, "El diagnóstico ausente es null en JSON");
     }
+    {
+        var json = System.Text.Json.JsonSerializer.SerializeToElement(new DatosMotor("dato", new string('a', 64), 2, 3), Serializacion.Opciones);
+        var claves = json.EnumerateObject().Select(propiedad => propiedad.Name).ToHashSet();
+        Verificar(claves.SetEquals(["datos_id", "hash_datos", "filas", "columnas"]), "La carga conserva los nombres públicos en snake_case");
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
