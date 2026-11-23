@@ -4,6 +4,7 @@ import sys
 import json
 import os
 from pathlib import Path
+import re
 import secrets
 import subprocess
 import tempfile
@@ -145,3 +146,14 @@ class DespliegueCompose(unittest.TestCase):
                 assert not motor_disponible('http://motor:8787', 'sintetico')
         """)
         self.ejecutar("exec", "-T", "aplicacion", "python", "-", entrada=prueba.encode())
+
+    def test_uid_efectivo(self):
+        for nombre in ("aplicacion", "motor"):
+            with self.subTest(servicio=nombre):
+                ruta = "/proc/1/status"
+                if nombre == "motor":
+                    salida = self.ejecutar("exec", "-T", nombre, "cat", ruta).decode()
+                else:
+                    salida = self.ejecutar("exec","-T",nombre,"python","-c",f"print(open('{ruta}').read())").decode()
+                identidades = re.search(r"(?m)^Uid:\s+(\d+)\s+(\d+)", salida)
+                self.assertEqual(identidades.groups(), ("1654","1654"))
