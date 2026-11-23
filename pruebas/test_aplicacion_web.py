@@ -142,3 +142,10 @@ class InterfazWeb(unittest.TestCase):
             estado, _, cuerpo = self.solicitar("GET", "/salud")
         self.assertEqual((estado, json.loads(cuerpo)), (200, {"estado": "activo"}))
         sonda.assert_not_called()
+
+
+    def test_listo_consulta_destino(self):
+        with patch("web.motor_disponible", return_value=True) as sonda:
+            estado, _, cuerpo = self.solicitar("GET", "/listo")
+        self.assertEqual((estado, json.loads(cuerpo)), (200, {"listo": True}))
+        sonda.assert_called_once_with(self.servidor.destino, self.servidor.secreto)
