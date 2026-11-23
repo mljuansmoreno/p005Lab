@@ -357,6 +357,12 @@ El registro del 16 enlaza los escaneos de [Actions 43863992759](https://github.c
 
 En Windows también quedaron registrados [los controles HTTP del servicio](documentacion/informes/api_seguridad.json), [la consulta NuGet de dependencias directas y transitivas](documentacion/informes/vulnerabilidades.json) y [la revisión de permisos MCP](documentacion/informes/mcp_stdio.json). El registro de NuGet no devolvió paquetes vulnerables para el escritorio en esa consulta; los informes Windows no sustituyen el análisis de capas Linux.
 
+### Remediación y evidencia reciente
+
+- El [informe de remediación](documentacion/remediacion_imagenes.md) documenta la imagen web mínima, la retirada de OpenSSL del runtime HTTP local y la comprobación de SHA-256. La web limita los destinos del motor a la topología local autorizada y evita proxies y redirecciones en esa comunicación.
+- La revisión del historial y de archivos publicables, incluidos comprimidos, usa Gitleaks. Las [excepciones históricas de Jenkins](documentacion/secretos-historial-jenkins.md) se validan por huella individual y corresponden a versiones públicas de plugins. Los informes publicados conservan el estado del control y omiten los valores sensibles.
+- La [corrida del 23 de noviembre](https://github.com/mljuansmoreno/p005Lab/actions/runs/45198362075) verificó Windows, Docker Linux y secretos sobre `2e49ce8`. Los 75 JSON publicados para esa fecha quedaron en `correcto`, con cero coincidencias altas o críticas en ambas imágenes. El perfil exige una base de avisos de hasta 48 horas y conserva la huella del inventario CycloneDX, el identificador de imagen y la ejecución en los controles de escaneo.
+
 ## Evolución de la entrega
 
 | Etapa | Cambios incorporados |
@@ -366,7 +372,8 @@ En Windows también quedaron registrados [los controles HTTP del servicio](docum
 | Demo Docker y GitHub Actions | Dos servicios, puertos y redes separados, sondas de vida y disponibilidad, cálculo cruzado y recuperación. Se añadieron metadatos OCI, verificación de fuentes, huella de revisión, informes por intento y limpieza de recursos. En paralelo se conservó el trabajo nativo de Windows. |
 | Interfaz y seguridad | Tema claro predeterminado, selector de apariencia persistente y ajustes de contraste; formularios, tablas y avisos revisados. Se incorporaron controles de aislamiento, autenticación, publicación de secretos, SBOM y bloqueo por coincidencias altas o críticas. |
 | Jenkins y trazabilidad | Controlador y agente WebSocket, sondeo SCM, runner alojado y autoprueba aislada. Se ampliaron los plazos de arranque y escaneo a partir de fallos observados, se verificó la caché de herramientas y se agregó recuperación de limpieza por proyecto. JUnit, huellas, capturas autenticadas, evidencia de coexistencia y exportación a Word/PDF quedaron vinculados al build y a la revisión. |
-| Revisión de cierre y auditorías | El lote de Jenkins abarcó 84 commits desde `0b0a87d` hasta `295325f`, según la bitácora de cierre y el rango Git. Las revisiones de seguridad por control se registraron aparte. Los commits de este README documentan esa evidencia histórica. |
+| Cierre de Jenkins | El lote histórico de 84 commits llega a `295325f`. La entrega posterior de 155 commits parte de `baed0fb` y cierra en `2e49ce8`. La [trazabilidad y el cierre reproducible](Verificacion_Rubrica.md#trazabilidad-de-los-155-commits) identifican la entrega de 155 commits y sus evidencias. |
+| Auditorías y remediación | Los controles por fecha conservan el SHA evaluado y los estados publicados. La remediación separa los hallazgos históricos, los cambios del runtime y las comprobaciones posteriores. |
 
 Para ver los cambios de Jenkins en orden y abrir cualquier revisión desde el checkout:
 
