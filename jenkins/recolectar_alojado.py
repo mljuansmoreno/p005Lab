@@ -55,9 +55,10 @@ class Jenkins:
 
 
 def ejecutar(jenkins, numero, revision, *, sin_cache=False):
-    jenkins.esperar_json("computer/linux-docker/api/json?tree=offline", lambda datos: not datos["offline"], 120)
+    nodo = jenkins.esperar_json("computer/linux-docker/api/json?tree=displayName,offline,numExecutors", lambda datos: not datos["offline"], 180)
     carpeta = Path("salidas/jenkins-alojado") / f"build-{numero}"
     carpeta.mkdir(parents=True)
+    (carpeta / "agente.json").write_text(json.dumps(nodo, indent=2) + "\n", encoding="utf-8")
     consulta = quote("plugins[shortName,version,active]")
     plugins = json.loads(jenkins.pedir(f"pluginManager/api/json?tree={consulta}"))["plugins"]
     activos = {plugin["shortName"]: plugin["version"] for plugin in plugins if plugin["active"]}
