@@ -83,3 +83,9 @@ class TrabajosHTTP(unittest.TestCase):
     def test_salud_sin_credencial(self):
         estado, cuerpo = self.http("GET", "/salud", cabeceras={})
         self.assertEqual((estado, cuerpo), (403, b""))
+
+
+    def test_fallo_de_credencial_es_independiente(self):
+        estado, cuerpo = self.http("GET", "/salud", cabeceras={"Authorization": "Bearer " + "x" * 64})
+        self.assertEqual((estado, cuerpo), (403, b""))
+        self.assertEqual(self.http("GET", "/salud")[0], 200)
