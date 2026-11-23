@@ -119,6 +119,12 @@ try
         var confirmada = ImportadorDatos.ConfirmarRoles(muestra, new Dictionary<string, string> { ["c001"] = "categorica", ["c002"] = "numerica" }, new());
         Verificar(confirmada.Filas.Single().SequenceEqual(["01", "1"]) && confirmada.Columnas[0].Rol == "categorica", "El mismo literal conserva semánticas distintas por rol");
     }
+    {
+        const string privado = "valor sintetico reservado";
+        var muestra = await ImportarMuestra("Dato\n" + privado);
+        try { ImportadorDatos.ConfirmarRoles(muestra, new Dictionary<string,string> { ["c001"] = "numerica" }, new()); throw new Exception("Texto numérico admitido"); }
+        catch (ErrorAplicacion error) { Verificar(error.Message == "DATOS_NUMERO_INVALIDO" && !error.Message.Contains(privado), "El diagnóstico no incluye el valor de la fila"); }
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
