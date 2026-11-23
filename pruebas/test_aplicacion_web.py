@@ -14,6 +14,13 @@ from urllib.request import HTTPHandler, Request
 
 
 class ConfiguracionWeb(unittest.TestCase):
+    def test_esquema_invalido_sin_cliente(self):
+        with patch("web.cliente_http") as cliente:
+            for url in ("ftp://localhost:8787", "https://localhost:8787", "//localhost:8787"):
+                with self.subTest(url=url), self.assertRaises(ValueError):
+                    motor_disponible(url, "sintetico")
+            cliente.assert_not_called()
+
     def test_destino(self):
         self.assertEqual(configurar_destino("http://motor:8787/"), "http://motor:8787")
         for url in (
