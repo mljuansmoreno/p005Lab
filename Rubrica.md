@@ -1,5 +1,7 @@
 # Rúbrica de Jenkins y evidencias
 
+La [verificación por aspecto](Verificacion_Rubrica.md) identifica la base auditada, las comprobaciones y el seguimiento de esta entrega.
+
 Entrega de `p005Lab` sobre `main`. Las copias del [anexo versionado](documentacion/evidencias-jenkins/README.md) se pueden consultar desde un clon. Los enlaces a ejecuciones identifican el SHA completo y la causa en sus fichas.
 
 ## 1. Implementación de Jenkins — 25 puntos
