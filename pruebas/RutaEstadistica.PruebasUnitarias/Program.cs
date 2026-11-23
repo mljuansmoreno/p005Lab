@@ -102,6 +102,18 @@ try
         var seguro = ImportadorDatos.LeerDelimitado(ImportadorDatos.EscaparCsv(valor, true), ',');
         Verificar(ordinario.Single()[0] == valor && seguro.Single()[0] == "'" + valor, "CSV distingue representación de cálculo y apertura en hoja");
     }
+    {
+        var variante = Path.Combine(temporal, "cancelada.csv");
+        await File.WriteAllTextAsync(variante, "Dato\n1\n");
+        using var cancelacion = new CancellationTokenSource();
+        cancelacion.Cancel();
+        try { await ImportadorDatos.ImportarAsync(variante, new(), cancelacion: cancelacion.Token); throw new Exception("Lectura cancelada aceptada"); }
+        catch (OperationCanceledException)
+        {
+            using var exclusivo = new FileStream(variante, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+            Verificar(exclusivo.Length > 0, "La cancelación libera el archivo original para un acceso exclusivo");
+        }
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
