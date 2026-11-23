@@ -85,6 +85,13 @@ class InterfazWeb(unittest.TestCase):
         finally:
             cliente.close()
 
+    def test_dos_instancias_reciben_puertos_locales_distintos(self):
+        with ServidorWeb(("127.0.0.1", 0), "http://motor:8787", "e" * 64) as segundo:
+            self.assertEqual(segundo.server_address[0], "127.0.0.1")
+            self.assertGreater(segundo.server_port, 0)
+            self.assertNotEqual(self.direccion[1], segundo.server_port)
+            self.assertEqual(self.solicitar("GET", "/salud")[0], 200)
+
     def test_vida_y_disponibilidad(self):
         with patch("web.motor_disponible", return_value=False):
             self.assertEqual(self.solicitar("GET", "/salud")[0], 200)
