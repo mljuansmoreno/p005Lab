@@ -97,5 +97,13 @@ local({
   conteos <- vapply(res$tablas, function(fila) as.integer(fila$frecuencia), integer(1))
   verificar(conteos[match(c("A", "B", "C"), categorias)], c(3, 2, 1))
 })
+# Usa sólo respuestas válidas como denominador de porcentajes.
+local({
+  muestra <- data.frame(c001 = c("sí", "no", "sí", "", NA))
+  res <- analizar(crear_solicitud("cuestionario", "c001"), muestra, directorio)
+  porcentajes <- vapply(res$tablas, function(fila) as.numeric(fila$porcentaje), numeric(1))
+  verificar(sort(porcentajes), c(100/3, 200/3))
+  stopifnot(res$cifras$denominador_porcentajes == 3L, res$cifras$faltantes == 2L)
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
