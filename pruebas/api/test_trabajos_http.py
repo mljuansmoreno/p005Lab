@@ -2,7 +2,9 @@
 import contextlib
 from http.client import HTTPConnection
 import hashlib
+import io
 import json
+import zipfile
 import os
 from pathlib import Path
 import secrets
@@ -240,3 +242,15 @@ class TrabajosHTTP(unittest.TestCase):
         self.addCleanup(self.http, "DELETE", self.ruta(trabajo))
         codigo, contenido = self.http("GET", self.ruta(trabajo, "/resultado"))
         self.assertEqual((codigo, json.loads(contenido)), (409, {"codigo": "RESULTADO_NO_DISPONIBLE"}))
+
+    def test_zip_real(self):
+        carga = self.cargar("c001\n-2\n8\n")
+        trabajo = self.encolar(carga)
+        self.assertEqual(self.esperar(trabajo)[-1]["estado"], "completado")
+        estado, contenido = self.http("GET", self.ruta(trabajo, "/resultado"))
+        self.assertEqual(estado, 200)
+        with zipfile.ZipFile(io.BytesIO(contenido)) as paquete:
+            self.assertIsNone(paquete.testzip())
+            self.assertCountEqual(paquete.namelist(), ["resultado.json", "figura.png"])
+            informe = json.loads(paquete.read("resultado.json"))
+        self.assertEqual((informe["hash_datos"], informe["cifras"]["media"]), (carga["hash_datos"], 3))
