@@ -261,3 +261,12 @@ class InterfazWeb(unittest.TestCase):
         self.assertEqual(estado, 200)
         self.assertIn(b"A &lt; B &amp; C", cuerpo)
         self.assertNotIn(b"A < B & C", cuerpo)
+
+
+    def test_error_de_dominio_visible(self):
+        from web import ErrorMotor
+        with patch("web.analizar", side_effect=ErrorMotor("Falta una columna")):
+            estado, _, cuerpo = self.solicitar("POST", "/analizar")
+        self.assertEqual(estado, 502)
+        self.assertIn(b"Falta una columna", cuerpo)
+        self.assertNotIn(b"Traceback", cuerpo)
