@@ -14,3 +14,4 @@ El [run 45109084160](https://github.com/mljuansmoreno/p005Lab/actions/runs/45109
 | [00-entorno.json](artifact-salidas-jenkins-ci-00-entorno.json) | El agente recoge arquitectura, herramientas, espacio, proyecto Compose, checkout e identificadores de imagen. |
 | [01-compilacion.txt](artifact-salidas-jenkins-ci-01-compilacion.txt) | La salida procede del paso Build de este job y permite verificar cómo Docker resolvió sus etapas. |
 | [02-arranque.txt](artifact-salidas-jenkins-ci-02-arranque.txt) | La traza muestra el arranque de los servicios y la espera por las sondas de salud. |
+| [03-docker-ps.txt](artifact-salidas-jenkins-ci-03-docker-ps.txt) | La tabla de Compose permite contrastar salud, puertos y nombres de las dos instancias. |
