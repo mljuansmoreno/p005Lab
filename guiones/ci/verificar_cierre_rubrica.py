@@ -33,12 +33,28 @@ def historial(final):
     return registros
 
 
+def tabla(documento, registros):
+    filas = [linea for linea in documento.splitlines() if re.match(r"^\| [0-9]+ \| ", linea)]
+    if len(filas) != len(registros):
+        raise ValueError("El número de filas de trazabilidad difiere del historial")
+    for fila, item in zip(filas, registros):
+        ordinal, referencia, cambio, criterio = fila.strip("| ").split(" | ")
+        sha = item["sha"]
+        enlace = f"[{sha}]({REPO}/commit/{sha})"
+        if item["ordinal"] == TOTAL:
+            enlace = f"[SHA del cierre]({REPO}/commit/{ETIQUETA})"
+        if (ordinal, referencia, cambio, criterio) != (str(item["ordinal"]), enlace, item["cambio"],
+                                                      str(item["criterio"])):
+            raise ValueError(f"Fila de trazabilidad incorrecta: {ordinal}")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--revision", default="HEAD")
     args = parser.parse_args()
     revision = git("rev-parse", "--verify", args.revision + "^{commit}")
     registros = historial(revision)
+    tabla(DOCUMENTO.read_text(encoding="utf-8"), registros)
     print(json.dumps({"base": BASE, "final": revision, "commits": registros}, indent=2, ensure_ascii=False))
 
 
