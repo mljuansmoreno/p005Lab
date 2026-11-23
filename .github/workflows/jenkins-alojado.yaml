@@ -77,6 +77,19 @@ jobs:
           test "${#builds[@]}" -eq 1
           mkdir -p salidas/cierre-rubrica
           python3 guiones/ci/verificar_cierre_rubrica.py --revision "$GITHUB_SHA" --build "${builds[0]}" > salidas/cierre-rubrica/cierre.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          carpeta = Path("salidas/cierre-rubrica")
+          datos = json.loads((carpeta / "cierre.json").read_bytes())
+          sha = datos["final"]
+          doc = Path("Verificacion_Rubrica.md").read_text(encoding="utf-8")
+          doc = doc.replace("[SHA del cierre](https://github.com/mljuansmoreno/p005Lab/commit/rubrica-jenkins-155-baed0fb)",
+                            f"[{sha}](https://github.com/mljuansmoreno/p005Lab/commit/{sha})")
+          build = datos["jenkins"]
+          doc += f"\nCierre observado en Jenkins #{build['numero']} · {build['causa']} · **{build['resultado']}**.\n"
+          (carpeta / "Verificacion_Rubrica.md").write_text(doc, encoding="utf-8")
+          PY
       - name: Publicar el cierre de los 155 commits
         if: success() && hashFiles('salidas/cierre-rubrica/cierre.json') != ''
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
