@@ -316,3 +316,10 @@ class TrabajosHTTP(unittest.TestCase):
         reemplazo = self.encolar(carga)
         self.addCleanup(self.http, "DELETE", self.ruta(reemplazo))
         self.assertNotEqual(reemplazo["trabajo_id"], segundo["trabajo_id"])
+
+    @motor_controlado
+    def test_plazo_real(self):
+        trabajo = self.encolar(self.cargar("c001\n2\n"))
+        self.addCleanup(self.http, "DELETE", self.ruta(trabajo))
+        final = self.esperar(trabajo)[-1]
+        self.assertEqual((final["estado"], final["codigo_error"]), ("fallido", "TRABAJO_TIEMPO_AGOTADO"))
