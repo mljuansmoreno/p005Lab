@@ -1,6 +1,6 @@
 # Anexo de ejecuciones Jenkins
 
-[Criterios y enlaces de implementación](../../Rubrica.md). Las copias de esta carpeta se conservan en Git. El historial y el sondeo se exportaron del controlador permanente. Las capturas de #11001 corresponden al controlador desechable de Actions.
+[Piloto autenticado #11101](build-11101/README.md) · [Verificación vigente](../../Verificacion_Rubrica.md) · [Criterios y enlaces de implementación](../../Rubrica.md). Las copias de esta carpeta se conservan en Git. El historial y el sondeo se exportaron del controlador permanente. Las capturas de #11001 corresponden al controlador desechable de Actions.
 
 | Job y build | Revisión | Causa y resultado | Evidencia |
 | --- | --- | --- | --- |
