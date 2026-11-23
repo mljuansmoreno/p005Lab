@@ -245,3 +245,11 @@ class InterfazWeb(unittest.TestCase):
         _, cabeceras, _ = self.solicitar("GET", "/")
         directivas = {d.strip() for d in cabeceras["Content-Security-Policy"].split(";")}
         self.assertTrue({"form-action 'self'", "base-uri 'none'", "default-src 'none'"}.issubset(directivas))
+
+
+    def test_cabeceras_en_error(self):
+        with patch("web.analizar", side_effect=OSError()):
+            _, cabeceras, _ = self.solicitar("POST", "/analizar", {"Accept": "application/json"})
+        self.assertEqual(cabeceras["Cache-Control"], "no-store")
+        self.assertEqual(cabeceras["X-Content-Type-Options"], "nosniff")
+        self.assertEqual(cabeceras["Referrer-Policy"], "no-referrer")
