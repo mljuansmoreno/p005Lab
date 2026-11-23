@@ -301,3 +301,18 @@ class TrabajosHTTP(unittest.TestCase):
         estado, contenido = self.http("DELETE", self.ruta(trabajo))
         self.assertEqual((estado, json.loads(contenido)["estado"]), (200, "completado"))
         self.assertEqual(antes, leer())
+
+    @motor_controlado
+    def test_cola_limitada(self):
+        carga = self.cargar("c001\n2\n")
+        primero = self.encolar(carga)
+        self.addCleanup(self.http, "DELETE", self.ruta(primero))
+        self.esperar_ejecucion(primero)
+        segundo = self.encolar(carga)
+        self.addCleanup(self.http, "DELETE", self.ruta(segundo))
+        codigo, cuerpo = self.http("POST", "/trabajos", self.peticion(carga))
+        self.assertEqual((codigo, json.loads(cuerpo)), (429, {"codigo": "TRABAJO_COLA_LLENA"}))
+        self.assertEqual(self.http("DELETE", self.ruta(segundo))[0], 200)
+        reemplazo = self.encolar(carga)
+        self.addCleanup(self.http, "DELETE", self.ruta(reemplazo))
+        self.assertNotEqual(reemplazo["trabajo_id"], segundo["trabajo_id"])
