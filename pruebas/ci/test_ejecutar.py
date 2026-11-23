@@ -93,7 +93,8 @@ class PruebasEjecucion(unittest.TestCase):
             self.assertIsNotNone(xml.find("testcase[@name='limpieza']"))
 
     def test_compose_aislado_de_variables_heredadas(self):
-        with patch.dict(os.environ, {"COMPOSE_PROFILES": "ajeno", "COMPOSE_PROJECT_NAME": "demo"}):
+        entorno = dict(os.environ, COMPOSE_PROFILES="ajeno", COMPOSE_PROJECT_NAME="demo")
+        with patch.object(os, "environ", entorno):
             ruta = Path("/tmp/con espacios/secreto")
             env = ejecutar.entorno_compose("ruta-ci-prueba", ruta, 18180)
         self.assertNotIn("COMPOSE_PROFILES", env)
@@ -203,7 +204,8 @@ class PruebasEjecucion(unittest.TestCase):
 
     def test_procedencia_rechaza_revision_ci_distinta_al_checkout(self):
         with (patch.object(ejecutar, "revision", return_value="a" * 40),
-              patch.dict(os.environ, {"RUTA_ESTADISTICA_REVISION": "b" * 40}), patch.object(ejecutar, "texto") as docker):
+              patch.object(os, "environ", dict(os.environ, RUTA_ESTADISTICA_REVISION="b" * 40)),
+              patch.object(ejecutar, "texto") as docker):
             with self.assertRaisesRegex(ValueError, "no coincide con el checkout"):
                 ejecutar.procedencia_actual()
             docker.assert_not_called()
