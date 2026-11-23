@@ -74,6 +74,8 @@ pipeline {
                         def ruta = "${salida}/reportes/${informe}.xml"
                         if (fileExists(ruta)) {
                             junit testResults: ruta
+                        } else if (currentBuild.currentResult == 'SUCCESS') {
+                            error("Falta el informe obligatorio ${ruta}")
                         }
                     }
                 }
