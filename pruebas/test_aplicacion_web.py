@@ -14,6 +14,12 @@ from urllib.request import HTTPHandler, Request
 
 
 class ConfiguracionWeb(unittest.TestCase):
+    def test_direcciones_ipv6_permitidas(self):
+        self.assertEqual(configurar_destino("http://[::1]:1234"), "http://[::1]:1234")
+        with patch("web.cliente_http") as cliente, self.assertRaises(ValueError):
+            analizar("http://[2001:db8::1]:1234", "sintetico")
+        cliente.assert_not_called()
+
     def test_esquema_invalido_sin_cliente(self):
         with patch("web.cliente_http") as cliente:
             for url in ("ftp://localhost:8787", "https://localhost:8787", "//localhost:8787"):
