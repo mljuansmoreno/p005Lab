@@ -74,8 +74,10 @@ class DespliegueCompose(unittest.TestCase):
     def test_motor_no_publicado(self):
         motor = self.ejecutar("ps", "-q", "motor").decode().strip()
         puertos = json.loads(subprocess.check_output(["docker", "inspect", motor, "--format", "{{json .NetworkSettings.Ports}}"]))
-        self.assertIn("8787/tcp", puertos)
-        self.assertFalse(any(puertos.values()))
+        configuracion = json.loads(self.ejecutar("config", "--format", "json"))
+        self.assertIn("8787", [str(p).split("/")[0] for p in configuracion["services"]["motor"]["expose"]])
+        self.assertFalse(any((puertos or {}).values()))
+        self.assertEqual(subprocess.check_output(["docker", "port", motor]).strip(), b"")
 
     def test_publicacion_loopback(self):
         direccion = self.ejecutar("port", "aplicacion", "8080").decode().strip()
