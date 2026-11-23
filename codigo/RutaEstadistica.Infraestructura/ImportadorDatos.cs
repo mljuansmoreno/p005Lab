@@ -114,7 +114,7 @@ public static class ImportadorDatos
         var hojas = libro.Descendants(espacio + "sheet").ToList();
         if (hoja is null) throw new ErrorAplicacion("DATOS_HOJA_SIN_CONFIRMAR");
         var elegida = hojas.SingleOrDefault(elemento => (string?)elemento.Attribute("name") == hoja) ?? throw new ErrorAplicacion("DATOS_HOJA_INVALIDA");
-        var vinculos = LeerXml(archivo.GetEntry("xl/_rels/workbook.xml.rels")!);
+        var vinculos = LeerXml(archivo.GetEntry("xl/_rels/workbook.xml.rels") ?? throw new ErrorAplicacion("DATOS_LIBRO_INVALIDO"));
         var destino = (string?)vinculos.Root!.Elements().Single(elemento => (string?)elemento.Attribute("Id") == (string?)elegida.Attribute(relaciones + "id")).Attribute("Target");
         if (destino is null || destino.Contains("..") || destino.Contains(':')) throw new ErrorAplicacion("DATOS_LIBRO_INVALIDO");
         var ruta = destino.StartsWith('/') ? destino.TrimStart('/') : "xl/" + destino;

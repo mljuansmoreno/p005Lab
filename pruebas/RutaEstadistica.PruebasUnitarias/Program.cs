@@ -132,6 +132,14 @@ try
         var muestra = await ImportadorDatos.ImportarAsync(variante, new(), "Mediciones");
         Verificar(muestra.Filas.Select(f => f[0]).SequenceEqual(["42", "sin medir"]) && muestra.Columnas[0].Rol == "texto", "XLSX no infiere un rol numérico por la primera observación");
     }
+    {
+        var variante = Path.Combine(temporal, "sin_relaciones.xlsx");
+        File.Copy(libro, variante);
+        using (var archivo = ZipFile.Open(variante, ZipArchiveMode.Update))
+            archivo.GetEntry("xl/_rels/workbook.xml.rels")!.Delete();
+        try { await ImportadorDatos.ImportarAsync(variante, new(), "Mediciones"); throw new Exception("Libro sin relaciones admitido"); }
+        catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_LIBRO_INVALIDO", "XLSX sin relaciones devuelve un error de dominio"); }
+    }
     var datosLibro = await ImportadorDatos.ImportarAsync(libro, new(), "Mediciones");
     Verificar(datosLibro.Filas[0][0] == "001" && datosLibro.Filas[0][1] == "2.5", "XLSX conserva texto y valores originales");
     try { await ImportadorDatos.ImportarAsync(libro, new()); throw new Exception("Hoja no confirmada aceptada"); }
