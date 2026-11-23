@@ -1,0 +1,102 @@
+Started by user <operador>
+Obtained jenkins/Jenkinsfile.autoprueba from git https://github.com/mljuansmoreno/p005Lab.git
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on linux-docker in /var/tmp/ruta-estadistica-agente/workspace/ruta-estadistica-autoprueba
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] timeout
+[2026-11-15T22:20:54.880Z] Timeout set to expire in 35 min
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Preparar la autoprueba)
+[Pipeline] deleteDir
+[Pipeline] checkout
+[2026-11-15T22:20:55.328Z] Selected Git installation does not exist. Using Default
+[2026-11-15T22:20:55.328Z] The recommended git tool is: NONE
+[2026-11-15T22:20:55.395Z] No credentials specified
+[2026-11-15T22:20:55.413Z] Cloning the remote Git repository
+[2026-11-15T22:20:55.460Z] Cloning repository https://github.com/mljuansmoreno/p005Lab.git
+[2026-11-15T22:20:55.481Z]  > git init /var/tmp/ruta-estadistica-agente/workspace/ruta-estadistica-autoprueba # timeout=10
+[2026-11-15T22:20:55.559Z] Fetching upstream changes from https://github.com/mljuansmoreno/p005Lab.git
+[2026-11-15T22:20:55.560Z]  > git --version # timeout=10
+[2026-11-15T22:20:55.588Z]  > git --version # 'git version 2.53.0'
+[2026-11-15T22:20:55.590Z]  > git fetch --tags --force --progress -- https://github.com/mljuansmoreno/p005Lab.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-11-15T22:20:59.429Z] Avoid second fetch
+[2026-11-15T22:20:59.456Z] Checking out Revision d92408c867835d5c8a4e9953599b0832dd3951d7 (refs/remotes/origin/main)
+[2026-11-15T22:20:59.663Z] Commit message: "ci(autoprueba): reproduce una cancelación con Docker activo"
+[2026-11-15T22:20:59.322Z]  > git config remote.origin.url https://github.com/mljuansmoreno/p005Lab.git # timeout=10
+[2026-11-15T22:20:59.335Z]  > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-11-15T22:20:59.436Z]  > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+[2026-11-15T22:20:59.468Z]  > git config core.sparsecheckout # timeout=10
+[2026-11-15T22:20:59.484Z]  > git checkout -f d92408c867835d5c8a4e9953599b0832dd3951d7 # timeout=10
+[2026-11-15T22:20:59.678Z]  > git rev-list --no-walk 9b336d6b7a80c688800371481aa8e13e048efa8b # timeout=10
+[Pipeline] script
+[Pipeline] {
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] sh
+[2026-11-15T22:21:00.626Z] + python3 guiones/ci/ejecutar.py preparar
+[2026-11-15T22:21:29.837Z] Fuentes fijadas y 4 contratos JSON comprobados.
+[Pipeline] sh
+[2026-11-15T22:21:30.615Z] + python3 guiones/ci/ejecutar.py secretos
+[2026-11-15T22:21:41.896Z] [90m5:21PM[0m [32mINF[0m [1mscanned ~3020578 bytes (3.02 MB) in 4.04s[0m
+[2026-11-15T22:21:41.897Z] [90m5:21PM[0m [32mINF[0m [1mno leaks found[0m
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Verificar el escenario aislado)
+[Pipeline] sh
+[2026-11-15T22:21:42.705Z] + cat
+[2026-11-15T22:21:42.705Z] + python3 -
+[2026-11-15T22:21:43.027Z] Proyecto aislado ruta-ci-2e15dc6b024d99c2, web 127.0.0.1:55979
+[2026-11-15T22:21:43.027Z] Compose: configuracion
+[2026-11-15T22:21:44.277Z] Compose: compilacion
+[2026-11-15T22:22:27.167Z] Compose: arranque
+[2026-11-15T22:22:51.258Z] Compose: estado
+[2026-11-15T22:22:51.259Z] Compose: red
+[2026-11-15T22:22:52.423Z] Compose: aislamiento
+[2026-11-15T22:22:53.536Z] Compose: acceso
+[2026-11-15T22:22:53.536Z] Compose: autenticacion
+[2026-11-15T22:22:57.408Z] Compose: calculo
+Aborted by <operador>
+[2026-11-15T22:23:01.113Z] Sending interrupt signal to process
+[2026-11-15T22:23:09.029Z] Terminated
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] fileExists
+[Pipeline] sh
+[2026-11-15T22:23:13.238Z] + python3 guiones/ci/ejecutar.py finalizar
+[Pipeline] sh
+[2026-11-15T22:23:14.567Z] + python3 guiones/ci/ejecutar.py archivos
+[Pipeline] archiveArtifacts
+[2026-11-15T22:23:15.026Z] Archiving artifacts
+[2026-11-15T22:23:15.218Z] Recording fingerprints
+[Pipeline] fileExists
+[Pipeline] junit
+[2026-11-15T22:23:15.665Z] Recording test results
+[2026-11-15T22:23:15.893Z] [Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+Forcibly terminating running steps
+[Pipeline] // timestamps
+Terminating withEnv
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+org.jenkinsci.plugins.workflow.actions.ErrorAction$ErrorId: c45476b7-023a-47a8-b51a-a8db09b0b117
+Finished: ABORTED
