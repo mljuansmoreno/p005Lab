@@ -99,3 +99,8 @@ class TrabajosHTTP(unittest.TestCase):
         carga = json.loads(cuerpo)
         self.assertRegex(carga.pop("datos_id"), r"^[a-f0-9]{32}$")
         self.assertEqual(carga, {"filas": 2, "columnas": 2, "hash_datos": hashlib.sha256(csv.encode()).hexdigest()})
+
+
+    def test_json_incompleto(self):
+        self.assertEqual(self.http("POST", "/datos", b'{"csv":')[0], 400)
+        self.assertEqual(self.http("GET", "/salud")[0], 200)
