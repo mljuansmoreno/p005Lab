@@ -147,3 +147,11 @@ class TrabajosHTTP(unittest.TestCase):
         self.assertEqual(trabajo["proyecto_id"], self.proyecto)
         self.assertIsNone(trabajo["codigo_error"])
         self.assertRegex(trabajo["trabajo_id"], r"^[a-f0-9]{32}$")
+
+
+    def test_carga_desconocida(self):
+        carga = self.cargar("c001\n2\n4\n")
+        peticion = self.peticion(carga)
+        peticion["datos_id"] = uuid.uuid4().hex
+        estado, cuerpo = self.http("POST", "/trabajos", peticion)
+        self.assertEqual((estado, json.loads(cuerpo)), (404, {"codigo": "TRABAJO_NO_ENCONTRADO"}))
