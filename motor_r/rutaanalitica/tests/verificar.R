@@ -173,5 +173,13 @@ local({
                   data.frame(c001=c(1,3,9,27), c002=c(20,8,2,-10)), directorio)
   verificar(res$cifras$coeficiente, -1)
 })
+# Valida coeficientes y residuos de una recta con intercepto no nulo.
+local({
+  muestra <- data.frame(c001=c(2,4,3,10,8), c002=c(0,1,2,4,6))
+  res <- analizar(crear_solicitud("lineal"), muestra, directorio)
+  ajuste <- stats::lm(c001 ~ c002, data=muestra)
+  verificar(c(res$cifras$intercepto,res$cifras$pendiente), unname(coef(ajuste)))
+  verificar(res$cifras$residuos, unname(residuals(ajuste)))
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
