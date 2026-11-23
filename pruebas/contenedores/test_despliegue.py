@@ -61,3 +61,11 @@ class DespliegueCompose(unittest.TestCase):
         puertos = json.loads(subprocess.check_output(["docker", "inspect", motor, "--format", "{{json .NetworkSettings.Ports}}"]))
         self.assertIn("8787/tcp", puertos)
         self.assertFalse(any(puertos.values()))
+
+    def test_publicacion_loopback(self):
+        direccion = self.ejecutar("port", "aplicacion", "8080").decode().strip()
+        host, puerto = direccion.rsplit(":", 1)
+        self.assertEqual(host, "127.0.0.1")
+        self.assertGreater(int(puerto), 0)
+        with self.cliente.open("http://" + direccion + "/salud", timeout=5) as respuesta:
+            self.assertEqual(json.load(respuesta), {"estado": "activo"})
