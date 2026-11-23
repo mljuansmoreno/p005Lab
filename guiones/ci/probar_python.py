@@ -5,6 +5,7 @@ from pathlib import Path
 import os
 import subprocess
 import sys
+import unittest
 
 
 RAIZ = Path(__file__).resolve().parents[2]
@@ -23,7 +24,7 @@ def ejecutar_suites(nombres):
     estado = 0
     for nombre in nombres:
         directorio, patron = SUITES[nombre]
-        orden = [sys.executable, "-m", "unittest", "discover", "-s", directorio, "-p", patron]
+        orden = [sys.executable, __file__, "--descubrir", directorio, patron]
         resultado = subprocess.run(orden, cwd=RAIZ, env=entorno, timeout=300)
         if resultado.returncode:
             estado = 1
@@ -33,4 +34,11 @@ def ejecutar_suites(nombres):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=SUITES, action="append")
-    raise SystemExit(ejecutar_suites(parser.parse_args().suite or SUITES))
+    parser.add_argument("--descubrir", nargs=2, metavar=("DIRECTORIO", "PATRON"), help=argparse.SUPPRESS)
+    opciones = parser.parse_args()
+    if opciones.descubrir:
+        casos = unittest.TestLoader().discover(*opciones.descubrir)
+        if not casos.countTestCases():
+            parser.exit(2, "La suite no descubrió casos de prueba.\n")
+        raise SystemExit(0 if unittest.TextTestRunner().run(casos).wasSuccessful() else 1)
+    raise SystemExit(ejecutar_suites(opciones.suite or SUITES))

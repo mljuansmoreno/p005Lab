@@ -22,3 +22,6 @@ class EjecutorPython(unittest.TestCase):
         caso = "import unittest\nclass Caso(unittest.TestCase):\n    def test_valor(self):\n        "
         self.assertEqual(self.probar_fixture(caso + "self.assertEqual(2, 2)"), 0)
         self.assertNotEqual(self.probar_fixture(caso + "self.assertEqual(2, 3)"), 0)
+
+    def test_modulo_sin_casos_impide_aprobar_la_suite(self):
+        self.assertNotEqual(self.probar_fixture("VALOR = 2\n"), 0)
