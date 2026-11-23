@@ -135,6 +135,16 @@ try
         var claves = json.EnumerateObject().Select(propiedad => propiedad.Name).ToHashSet();
         Verificar(claves.SetEquals(["datos_id", "hash_datos", "filas", "columnas"]), "La carga conserva los nombres públicos en snake_case");
     }
+    {
+        var origen = Path.Combine(temporal, "fuente_html");
+        Directory.CreateDirectory(origen);
+        foreach (var nombre in new[] { "entrada.csv", "solicitud.json", "figura.png" }) File.WriteAllBytes(Path.Combine(origen, nombre), []);
+        File.WriteAllText(Path.Combine(origen, "resultado.json"), """{"interpretacion":"A < B & C","cifras":{},"tablas":[]}""");
+        var destino = Path.Combine(temporal, "salida_html");
+        Exportador.Exportar(origen, destino, false);
+        var informe = File.ReadAllText(Path.Combine(destino, "informe.html"));
+        Verificar(informe.Contains("A &lt; B &amp; C") && !informe.Contains("A < B & C"), "La interpretación se presenta como texto en el informe HTML");
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
