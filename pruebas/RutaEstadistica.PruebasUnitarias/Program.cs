@@ -124,6 +124,14 @@ try
         var muestra = await ImportadorDatos.ImportarAsync(variante, new(), "Mediciones");
         Verificar(muestra.Columnas.Single().Etiqueta == "Medición" && muestra.Filas.Single()[0] == "3", "XLSX concatena fragmentos enriquecidos en orden");
     }
+    {
+        var variante = Path.Combine(temporal, "mixta.xlsx");
+        File.Copy(libro, variante);
+        using (var archivo = ZipFile.Open(variante, ZipArchiveMode.Update))
+            CambiarParte(archivo, "xl/worksheets/sheet1.xml", $"<worksheet xmlns='{EspacioHoja}'><sheetData><row><c r='A1' t='inlineStr'><is><t>Dato</t></is></c></row><row><c r='A2'><v>42</v></c></row><row><c r='A3' t='inlineStr'><is><t>sin medir</t></is></c></row></sheetData></worksheet>");
+        var muestra = await ImportadorDatos.ImportarAsync(variante, new(), "Mediciones");
+        Verificar(muestra.Filas.Select(f => f[0]).SequenceEqual(["42", "sin medir"]) && muestra.Columnas[0].Rol == "texto", "XLSX no infiere un rol numérico por la primera observación");
+    }
     var datosLibro = await ImportadorDatos.ImportarAsync(libro, new(), "Mediciones");
     Verificar(datosLibro.Filas[0][0] == "001" && datosLibro.Filas[0][1] == "2.5", "XLSX conserva texto y valores originales");
     try { await ImportadorDatos.ImportarAsync(libro, new()); throw new Exception("Hoja no confirmada aceptada"); }
