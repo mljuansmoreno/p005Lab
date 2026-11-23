@@ -277,3 +277,14 @@ class TrabajosHTTP(unittest.TestCase):
         estado, contenido = self.http("DELETE", self.ruta(pendiente))
         self.assertEqual((estado, json.loads(contenido)["estado"]), (200, "cancelado"))
         self.assertEqual(json.loads(self.http("GET", self.ruta(activo))[1])["estado"], "ejecutando")
+
+    @motor_controlado
+    def test_cancelar_activo(self):
+        trabajo = self.encolar(self.cargar("c001\n2\n"))
+        self.addCleanup(self.http, "DELETE", self.ruta(trabajo))
+        self.esperar_ejecucion(trabajo)
+        for intento in range(2):
+            with self.subTest(intento=intento):
+                codigo, contenido = self.http("DELETE", self.ruta(trabajo))
+                estado = json.loads(contenido)
+                self.assertEqual((codigo, estado["estado"], estado["codigo_error"]), (200, "cancelado", "TRABAJO_CANCELADO"))
