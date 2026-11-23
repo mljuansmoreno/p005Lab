@@ -305,6 +305,7 @@ El perfil `p005Lab-2026-11` define **75 comprobaciones del proyecto** vinculadas
 | **SI-11** · Manejo de errores | [`http-404`](documentacion/informes/revisiones-seguridad/2026-11-23/http-404.json) |
 | **SI-4** · Monitoreo del sistema | [`aplicacion-salud`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-salud.json), [`http-disponibilidad`](documentacion/informes/revisiones-seguridad/2026-11-23/http-disponibilidad.json), [`http-vida`](documentacion/informes/revisiones-seguridad/2026-11-23/http-vida.json), [`motor-salud`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-salud.json) |
 | **SI-7** · Integridad de software, firmware e información | [`git-jsonlite-integridad`](documentacion/informes/revisiones-seguridad/2026-11-23/git-jsonlite-integridad.json) |
+| **SR-4** · Procedencia | [`git-acciones-fijadas`](documentacion/informes/revisiones-seguridad/2026-11-23/git-acciones-fijadas.json), [`git-base-python-fijada`](documentacion/informes/revisiones-seguridad/2026-11-23/git-base-python-fijada.json), [`git-bases-declaradas`](documentacion/informes/revisiones-seguridad/2026-11-23/git-bases-declaradas.json) |
 
 ### Resultados por fecha
 
