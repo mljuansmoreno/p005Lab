@@ -41,6 +41,14 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_json_anidado_acotado(self):
+        dato = None
+        for _ in range(70):
+            dato = [dato]
+        estado, _ = self.http("POST", "/datos", {"proyecto_id":self.proyecto,"csv":"c001\n1\n","extra":dato})
+        self.assertEqual(estado, 400)
+        self.assertEqual(self.http("GET","/salud")[0],200)
+
     def test_carga_exige_contenido(self):
         with tempfile.TemporaryDirectory() as directorio:
             ruta = Path(directorio) / 'muestra.csv'
