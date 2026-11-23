@@ -313,6 +313,7 @@ La columna NIST cuenta los JSON que contienen `referencia_nist`. Los informes hi
 
 | Fecha y revisión auditada | Correctos / evaluados | JSON con referencia NIST | Web: altas / críticas | Motor: altas / críticas |
 | --- | ---: | ---: | ---: | ---: |
+| [15 de noviembre de 2026](documentacion/informes/revisiones-seguridad/2026-11-15), `dbcafcb` | 72 / 75 | 0 | 54 / 3 | 3 / 0 |
 
 El 16 de noviembre, el control [de secretos en el historial de Git](documentacion/informes/revisiones-seguridad/2026-11-16/git-historial-secretos.json) quedó marcado como hallazgo. El registro no identifica una credencial concreta ni documenta el cierre del hallazgo. Es un resultado separado del escaneo de imágenes.
 
