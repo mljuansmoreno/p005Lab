@@ -1,5 +1,6 @@
 """Regresiones de la interfaz web sin depender del motor R."""
 
+import json
 import tempfile
 import unittest
 from http.client import HTTPConnection
@@ -134,3 +135,10 @@ class InterfazWeb(unittest.TestCase):
         self.assertEqual((estado, cabeceras["Content-Type"]), (200, "text/html; charset=utf-8"))
         self.assertEqual(int(cabeceras["Content-Length"]), len(cuerpo))
         self.assertIn("Ruta Estadística", cuerpo.decode("utf-8"))
+
+
+    def test_vida_sin_motor(self):
+        with patch("web.motor_disponible", side_effect=AssertionError("consulta inesperada")) as sonda:
+            estado, _, cuerpo = self.solicitar("GET", "/salud")
+        self.assertEqual((estado, json.loads(cuerpo)), (200, {"estado": "activo"}))
+        sonda.assert_not_called()
