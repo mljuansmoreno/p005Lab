@@ -328,6 +328,12 @@ try
         foreach (var valor in new[] { hash[..63], hash + "0", new string('g', 64), hash + "\n" })
             Rechazar(() => Validacion.Validar(solicitud with { HashDatos = valor }, preparados), "DATOS_HASH_INVALIDO");
     }
+    {
+        var otraPreparacion = new string('b', 64);
+        Validacion.Validar(solicitud with { HashPreparacion = otraPreparacion }, preparados);
+        foreach (var valor in new[] { otraPreparacion.ToUpperInvariant(), otraPreparacion + "\n", "" })
+            Rechazar(() => Validacion.Validar(solicitud with { HashPreparacion = valor }, preparados), "DATOS_HASH_INVALIDO");
+    }
         var primero = gestor.Encolar(new(carga.DatosId, solicitud));
         var plazoInicio = DateTimeOffset.UtcNow.AddSeconds(10);
         while (gestor.Consultar(primero.TrabajoId, proyecto.Id).Estado == "pendiente" && DateTimeOffset.UtcNow < plazoInicio) await Task.Delay(10);
