@@ -1,0 +1,5 @@
+ruta-ci-7e7c5a7bb431a634_analisis (bridge)
+ruta-ci-7e7c5a7bb431a634-aplicacion-1 172.19.0.3/16
+ruta-ci-7e7c5a7bb431a634-motor-1 172.19.0.2/16
+true
+127.0.0.1:51053
