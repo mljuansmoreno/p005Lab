@@ -367,6 +367,11 @@ try
         var leida = System.Text.Json.JsonSerializer.Deserialize<SolicitudAnalisis>(objeto.ToJsonString(), opciones)!;
         Verificar(!leida.InferenciaConfirmada, "Una solicitud sin consentimiento explícito mantiene la inferencia desactivada");
     }
+    {
+        var pares = solicitud with { Tipo = "pareado", Columnas = ["c001", "c002"], InferenciaConfirmada = true };
+        Rechazar(() => Validacion.Validar(pares with { PareamientoConfirmado = false }, preparados), "ANALISIS_PAREAMIENTO_NO_CONFIRMADO");
+        Validacion.Validar(pares with { PareamientoConfirmado = true, InferenciaConfirmada = false }, preparados);
+    }
         var primero = gestor.Encolar(new(carga.DatosId, solicitud));
         var plazoInicio = DateTimeOffset.UtcNow.AddSeconds(10);
         while (gestor.Consultar(primero.TrabajoId, proyecto.Id).Estado == "pendiente" && DateTimeOffset.UtcNow < plazoInicio) await Task.Delay(10);
