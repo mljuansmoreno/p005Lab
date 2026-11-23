@@ -71,13 +71,22 @@ def verificar_enlaces(documento, revision):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--revision", default="HEAD")
+    parser.add_argument("--build", type=Path, help="Anexo de la ejecución automática de cierre")
     args = parser.parse_args()
     revision = git("rev-parse", "--verify", args.revision + "^{commit}")
     registros = historial(revision)
     documento = DOCUMENTO.read_text(encoding="utf-8")
     tabla(documento, registros)
     verificar_enlaces(documento, revision)
-    print(json.dumps({"base": BASE, "final": revision, "commits": registros}, indent=2, ensure_ascii=False))
+    resultado = {"base": BASE, "final": revision, "commits": registros}
+    if args.build:
+        from auditar_entrega import auditar_build
+        build = auditar_build(args.build)
+        if (build["revision"] != revision or build["resultado"] != "SUCCESS" or
+                "SCMTrigger$SCMTriggerCause" not in build["causa"].split(", ")):
+            raise ValueError("La ejecución de cierre no acredita el SHA por Poll SCM")
+        resultado["jenkins"] = build
+    print(json.dumps(resultado, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":
