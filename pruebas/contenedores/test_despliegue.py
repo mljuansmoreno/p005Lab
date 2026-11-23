@@ -55,3 +55,9 @@ class DespliegueCompose(unittest.TestCase):
         motor = self.ejecutar("ps", "-q", "motor").decode().strip()
         redes = json.loads(subprocess.check_output(["docker", "inspect", motor, "--format", "{{json .NetworkSettings.Networks}}"]))
         self.assertEqual(set(datos), {redes[self.proyecto + "_analisis"]["IPAddress"]})
+
+    def test_motor_no_publicado(self):
+        motor = self.ejecutar("ps", "-q", "motor").decode().strip()
+        puertos = json.loads(subprocess.check_output(["docker", "inspect", motor, "--format", "{{json .NetworkSettings.Ports}}"]))
+        self.assertIn("8787/tcp", puertos)
+        self.assertFalse(any(puertos.values()))
