@@ -41,6 +41,14 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    @motor_controlado
+    def test_cancelacion_sin_sondeo(self):
+        trabajo = self.encolar(self.cargar("c001\n2\n4\n"))
+        codigo, cuerpo = self.http("DELETE", self.ruta(trabajo))
+        self.assertEqual(codigo, 200)
+        self.assertEqual(json.loads(cuerpo)["estado"], "cancelado")
+        self.assertEqual(json.loads(self.http("GET", self.ruta(trabajo))[1])["estado"], "cancelado")
+
     def test_error_sin_detalles_del_servidor(self):
         codigo,cuerpo = self.http("POST","/datos",{"proyecto_id":self.proyecto,"csv":"etiqueta-privada\n2\n"})
         self.assertEqual((codigo,json.loads(cuerpo)),(400,{"codigo":"DATOS_CSV_INVALIDO"}))
