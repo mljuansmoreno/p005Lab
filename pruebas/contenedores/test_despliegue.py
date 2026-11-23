@@ -170,3 +170,11 @@ class DespliegueCompose(unittest.TestCase):
                 montajes = json.loads(subprocess.check_output(["docker","inspect",identificador,"--format","{{json .Mounts}}"]))
                 secretos = [m for m in montajes if m["Destination"].startswith("/run/secrets/")]
                 self.assertEqual([(m["Destination"],m["RW"]) for m in secretos], [("/run/secrets/motor", False)])
+
+    def test_secreto_ausente_en_imagen(self):
+        for servicio in ("aplicacion","motor"):
+            identificador = self.ejecutar("images","-q",servicio).decode().strip()
+            historial = subprocess.check_output(["docker","history","--no-trunc",identificador],timeout=30)
+            config = subprocess.check_output(["docker","image","inspect",identificador],timeout=30)
+            self.assertFalse(self.valor.encode() in historial or self.valor.encode() in config,
+                             "La credencial efímera apareció en los metadatos de la imagen")
