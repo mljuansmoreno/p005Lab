@@ -67,5 +67,10 @@ local({
   res <- analizar(crear_solicitud("descriptivo", "c001"), data.frame(c001 = c(0, 0, 6)), directorio)
   verificar(res$cifras$desviacion_muestral, sqrt(12))
 })
+# Fija cuartiles interpolados en una muestra con salto grande.
+local({
+  res <- analizar(crear_solicitud("descriptivo", "c001"), data.frame(c001 = c(-4, 0, 20)), directorio)
+  verificar(c(res$cifras$cuartil_inferior, res$cifras$cuartil_superior), c(-2, 10))
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
