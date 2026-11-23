@@ -348,6 +348,12 @@ try
             if (!univariada) Rechazar(() => Validacion.Validar(valida with { Columnas = ["c002", "c002"] }, preparados), "DATOS_COLUMNA_INVALIDA");
         }
     }
+    {
+        foreach (var confianza in new[] { .8, .99 })
+            Validacion.Validar(solicitud with { Confianza = confianza }, preparados);
+        foreach (var confianza in new[] { Math.BitDecrement(.8), Math.BitIncrement(.99), double.NaN })
+            Rechazar(() => Validacion.Validar(solicitud with { Confianza = confianza }, preparados), "ANALISIS_OPCION_INVALIDA");
+    }
         var primero = gestor.Encolar(new(carga.DatosId, solicitud));
         var plazoInicio = DateTimeOffset.UtcNow.AddSeconds(10);
         while (gestor.Consultar(primero.TrabajoId, proyecto.Id).Estado == "pendiente" && DateTimeOffset.UtcNow < plazoInicio) await Task.Delay(10);
