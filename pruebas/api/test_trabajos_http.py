@@ -41,6 +41,11 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_origen_de_navegador(self):
+        cabeceras = {"Authorization": "Bearer " + self.credencial, "Origin": f"http://127.0.0.1:{self.puerto}"}
+        estado, cuerpo = self.http("GET", "/salud", cabeceras=cabeceras)
+        self.assertEqual((estado, cuerpo), (403, b""))
+
     def setUp(self):
         temporal = tempfile.TemporaryDirectory()
         self.addCleanup(temporal.cleanup)
