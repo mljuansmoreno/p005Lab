@@ -22,6 +22,10 @@ try
         var muestra = await ImportarMuestra("Ciudad;Región\nBogotá;Nariño\nQuibdó;Chocó\n");
         Verificar(muestra.Filas[1].SequenceEqual(["Quibdó", "Chocó"]) && muestra.Columnas[1].Etiqueta == "Región", "CSV UTF-8 preserva etiquetas y valores con tildes");
     }
+    {
+        var muestra = await ImportarMuestra("\uFEFFCiudad\nSan\uFEFFAndrés\n");
+        Verificar(muestra.Columnas[0].Etiqueta == "Ciudad" && muestra.Filas.Single()[0] == "San\uFEFFAndrés", "El BOM inicial no elimina caracteres interiores");
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
