@@ -206,5 +206,14 @@ local({
   verificar(trasladada$media - origen$media, 13)
   verificar(trasladada$desviacion_muestral, origen$desviacion_muestral)
 })
+# Verifica la transformación de la pendiente al escalar la respuesta.
+local({
+  muestra <- data.frame(c001=c(2,5,4,9,8),c002=c(0,1,2,4,6))
+  base <- analizar(crear_solicitud("lineal"), muestra, directorio)$cifras
+  muestra$c001 <- -2 * muestra$c001 + 7
+  cambio <- analizar(crear_solicitud("lineal"), muestra, directorio)$cifras
+  verificar(cambio$pendiente, -2 * base$pendiente)
+  verificar(cambio$intercepto, 7 - 2 * base$intercepto)
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
