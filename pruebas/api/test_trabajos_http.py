@@ -41,6 +41,13 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_exceso_filas(self):
+        csv = "c001\n" + "1\n" * 100001
+        codigo, cuerpo = self.http("POST", "/datos", {"proyecto_id":self.proyecto,"csv":csv})
+        self.assertEqual((codigo,json.loads(cuerpo)),(400,{"codigo":"DATOS_LIMITE_EXCEDIDO"}))
+        for i in range(4):
+            self.assertEqual(self.cargar(f"c001\n{i}\n")["filas"],1)
+
     def test_limite_de_cabecera(self):
         cabeceras = {"Authorization":"Bearer "+self.credencial, "X-Fixture": "a" * (33 * 1024)}
         self.assertEqual(self.http("GET", "/salud", cabeceras=cabeceras)[0], 431)
