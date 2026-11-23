@@ -104,3 +104,9 @@ class TrabajosHTTP(unittest.TestCase):
     def test_json_incompleto(self):
         self.assertEqual(self.http("POST", "/datos", b'{"csv":')[0], 400)
         self.assertEqual(self.http("GET", "/salud")[0], 200)
+
+
+    def test_proyecto_invalido(self):
+        estado, cuerpo = self.http("POST", "/datos", {"proyecto_id": "invalido", "csv": "c001\n1\n"})
+        self.assertEqual(estado, 400)
+        self.assertEqual(json.loads(cuerpo), {"codigo": "CONTRATO_SOLICITUD_INVALIDA"})
