@@ -57,6 +57,11 @@ jobs:
       - name: Verificar cifras, integración, documentación y nombres
         shell: pwsh
         run: ./guiones/ejecutar_pruebas.ps1 -RutaR $env:RUTA_ESTADISTICA_R_CI
+      - name: Verificar permutaciones con el paquete R nativo
+        shell: pwsh
+        run: |
+          $env:R_LIBS_USER = (Resolve-Path .dependencias/R/biblioteca).Path
+          Rscript --vanilla pruebas/numericas/verificar_permutaciones.R
       - name: Compilar escritorio
         shell: pwsh
         run: ./guiones/compilar.ps1
