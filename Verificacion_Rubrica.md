@@ -49,6 +49,8 @@ El controlador permanente y el controlador alojado tienen historiales independie
 
 **Puntaje de la rúbrica:** 25 puntos.
 
+- El [Jenkinsfile declarativo](Jenkinsfile) y el [job Pipeline script from SCM](jenkins/trabajo-main.xml) definen Checkout, Build y Test. La [exportación del job permanente](documentacion/evidencias-jenkins/configuracion-permanente.json) confirma la fuente SCM.
+
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
 | Pipeline desde SCM | Comparar definition, scm, rama y scriptPath. | La exportación confirma CpsScmFlowDefinition, GitSCM, */main y Jenkinsfile. | [trabajo-main.xml](https://github.com/mljuansmoreno/p005Lab/blob/64903be883027dd1600d7f7a6c026f5d5079b988/jenkins/trabajo-main.xml) · [configuracion-permanente.json](https://github.com/mljuansmoreno/p005Lab/blob/9d0783bf09436e28d060fc26fb0964caf66354b4/documentacion/evidencias-jenkins/configuracion-permanente.json) |
