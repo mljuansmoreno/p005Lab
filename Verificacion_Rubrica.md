@@ -45,7 +45,9 @@ El controlador permanente y el controlador alojado tienen historiales independie
 | Protección del valor | Revisar montaje, permisos, retiro de la variable y campos exportados. | El runner usa un archivo privado montado de solo lectura. La ficha pública conserva ID, tipo, dominio y permiso. La limpieza elimina el archivo temporal. | [ejecutar_alojado.sh](https://github.com/mljuansmoreno/p005Lab/blob/d78d9aa9a003326846b0a6bb4cbdbd81ecffdfd1/jenkins/ejecutar_alojado.sh) · [recolectar_alojado.py](https://github.com/mljuansmoreno/p005Lab/blob/6e2bece553c44ae2731a69a5ee9c5e474a9fef1a/jenkins/recolectar_alojado.py) |
 | Hallazgo histórico | Comparar las 23 huellas con las versiones públicas y el control del 22 de noviembre. | El hallazgo se clasificó como versiones públicas de plugins. El control posterior sobre 154c56ea registró estado correcto. | [secretos-historial-jenkins.md](https://github.com/mljuansmoreno/p005Lab/blob/7f2f7e295feced854051636fe57df786a82d976c/documentacion/secretos-historial-jenkins.md) · [git-historial-secretos.json](https://github.com/mljuansmoreno/p005Lab/blob/43a48b49d22edcbc2b314d8549efe38187dc9361/documentacion/informes/revisiones-seguridad/2026-11-22/git-historial-secretos.json) |
 
-## 3. Pipeline como código
+## Pipeline como código
+
+**Puntaje de la rúbrica:** 25 puntos.
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
