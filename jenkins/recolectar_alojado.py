@@ -130,6 +130,8 @@ def ejecutar(jenkins, numero, revision, *, sin_cache=False):
             archivo.write_bytes(jenkins.pedir(ruta + "artifact/" + relativa))
 
     print(f"Jenkins #{numero}: {build['result']} en {build['duration'] / 1000:.1f} s", flush=True)
+    if not consola.rstrip().endswith(f"Finished: {build['result']}"):
+        raise ValueError("El final de Console Output no coincide con la API")
     registro = auditar_build(carpeta)
     if registro["revision"] != revision:
         raise ValueError("El SHA de Jenkins difiere del checkout de GitHub Actions")
