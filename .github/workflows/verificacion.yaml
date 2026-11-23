@@ -18,6 +18,8 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Verificar inventario QA antes de las suites
+        run: python3 guiones/ci/probar_python.py --suite rapida
       - name: Probar validación del detector y excepciones
         run: |
           python3 -m unittest discover -s pruebas/ci -p "test_*secretos.py"
