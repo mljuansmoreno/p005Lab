@@ -20,6 +20,7 @@
 7.3.1-1013.v0835a_879ec6d	font-awesome-api
 5.11.0	git
 6.7.1	git-client
+1.47.0	github
 2.15.0-212.v085f60a_8093b_	gson-api
 203.v15e81a_1b_7a_38	instance-identity
 94.vcc3065403257	ionicons-api
