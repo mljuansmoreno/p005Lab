@@ -19,6 +19,15 @@ from reportes import Reporte, ResultadoWeb
 
 
 class PruebasInforme(unittest.TestCase):
+    def test_secretos_fuera_del_indice(self):
+        nombres = ["credenciales/motor.secreto", ".env", ".env.local", "respaldo.pfx"]
+        for nombre in nombres:
+            with self.subTest(nombre=nombre):
+                ignorado = subprocess.run(["git","check-ignore","--no-index","-q","--",nombre], cwd=ejecutar.RAIZ)
+                self.assertEqual(ignorado.returncode, 0)
+        rastreados = subprocess.check_output(["git","ls-files","-z"],cwd=ejecutar.RAIZ).decode().split("\0")
+        self.assertFalse(any(n in rastreados for n in nombres))
+
     def test_fallo_de_proceso_publica_el_codigo_y_descarta_la_salida_privada(self):
         reporte = Reporte("integracion")
         with TemporaryDirectory() as directorio:
