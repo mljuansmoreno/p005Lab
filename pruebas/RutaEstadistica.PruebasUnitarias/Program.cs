@@ -421,6 +421,13 @@ try
         var idHistorial = Guid.NewGuid().ToString("N");
         var trabajo = Path.Combine(proyecto.Directorio, "trabajo_" + idHistorial);
         var resultado = await new MotorRLocal(Path.GetFullPath(args[0])).EjecutarAsync(solicitud, csv, trabajo, CancellationToken.None);
+    {
+        var contenido = resultado.Contenido;
+        Verificar(contenido.GetProperty("solicitud_id").GetString() == solicitud.SolicitudId
+            && contenido.GetProperty("proyecto_id").GetString() == solicitud.ProyectoId
+            && contenido.GetProperty("hash_preparacion").GetString() == solicitud.HashPreparacion
+            && contenido.GetProperty("hash_datos").GetString() == solicitud.HashDatos, "El resultado conserva la procedencia de la solicitud");
+    }
         Verificar(resultado.Contenido.GetProperty("cifras").GetProperty("media").GetDouble() == 2, "Trabajador R real devuelve media conocida con exclusión");
         Verificar(PresentacionResultados.Cifras(resultado).Any(fila => fila.Indicador == "Media" && fila.Valor == "2"), "Tabla nativa presenta la media calculada por R");
         Verificar(PresentacionResultados.Frecuencias(resultado).Count == 0, "Una ruta numérica no inventa frecuencias categóricas");
