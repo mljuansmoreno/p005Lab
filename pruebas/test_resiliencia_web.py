@@ -13,6 +13,14 @@ from web import analizar, ErrorMotor
 
 
 class ResilienciaWeb(unittest.TestCase):
+    def test_caida_en_ejecucion(self):
+        activo = dict(self.trabajo, estado="ejecutando")
+        final = dict(self.trabajo, estado="completado")
+        resultado = self.ejecutar([self.carga, self.trabajo, activo, URLError("corte"), final, self.paquete_valido])
+        self.assertEqual(resultado["media"], 25 / 6)
+        self.assertEqual(self.llamadas.count(("POST", "/trabajos")), 1)
+        self.assertEqual(self.llamadas.count(("GET", self.consulta)), 3)
+
     def test_caida_en_pendiente(self):
         with self.assertRaisesRegex(ErrorMotor, "Error HTTP"):
             self.ejecutar([self.carga, self.trabajo, URLError("sin conexión"), URLError("sin conexión")])
