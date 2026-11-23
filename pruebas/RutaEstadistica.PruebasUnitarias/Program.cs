@@ -42,6 +42,13 @@ try
         var muestra = await ImportarMuestra("Texto\r\n\"a\r\nb\"\n\"c\nd\"");
         Verificar(muestra.Filas.Select(f => f[0]).SequenceEqual(["a\r\nb", "c\nd"]), "CSV conserva saltos internos con terminadores mixtos");
     }
+    {
+        foreach (var fila in new[] { "uno", "uno;dos;tres" })
+        {
+            try { await ImportarMuestra("A;B\n" + fila); throw new Exception("Fila desigual admitida"); }
+            catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_DIMENSIONES_INVALIDAS", "Las dimensiones inválidas tienen un código estable"); }
+        }
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
