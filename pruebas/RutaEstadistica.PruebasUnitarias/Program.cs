@@ -338,6 +338,16 @@ try
         foreach (var tipo in new[] { "Welch", "pearson ", "regresion", "" })
             Rechazar(() => Validacion.Validar(solicitud with { Tipo = tipo }, preparados), "ANALISIS_NO_ADMITIDO");
     }
+    {
+        foreach (var tipo in Validacion.Tipos)
+        {
+            var univariada = tipo is "descriptivo" or "cuestionario";
+            var valida = solicitud with { Tipo = tipo, PareamientoConfirmado = true, Columnas = univariada ? ["c002"] : ["c001", "c002"] };
+            Validacion.Validar(valida, preparados);
+            Rechazar(() => Validacion.Validar(valida with { Columnas = univariada ? ["c001", "c002"] : ["c002"] }, preparados), "DATOS_COLUMNA_INVALIDA");
+            if (!univariada) Rechazar(() => Validacion.Validar(valida with { Columnas = ["c002", "c002"] }, preparados), "DATOS_COLUMNA_INVALIDA");
+        }
+    }
         var primero = gestor.Encolar(new(carga.DatosId, solicitud));
         var plazoInicio = DateTimeOffset.UtcNow.AddSeconds(10);
         while (gestor.Consultar(primero.TrabajoId, proyecto.Id).Estado == "pendiente" && DateTimeOffset.UtcNow < plazoInicio) await Task.Delay(10);
