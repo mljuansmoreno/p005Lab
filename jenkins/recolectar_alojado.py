@@ -15,7 +15,7 @@ from auditar_entrega import EVIDENCIAS_OBLIGATORIAS, auditar_build, sha
 
 URL = "http://127.0.0.1:9090/"
 TRABAJO = "job/ruta-estadistica-main/"
-CAMPOS = "number,url,result,building,duration,actions[causes[shortDescription]],artifacts[relativePath]"
+CAMPOS = "number,url,result,building,timestamp,duration,actions[causes[shortDescription]],artifacts[relativePath]"
 RUTA_ARCHIVO = "salidas/jenkins-ci/"
 PLUGINS_REQUERIDOS = {"git", "github", "pipeline-stage-view", "workflow-job", "pipeline-model-definition", "docker-workflow", "credentials"}
 LINEA_SEGURA = re.compile(
