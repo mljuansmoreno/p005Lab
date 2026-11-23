@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="integracion" tests="15" time="157.601407" failures="0" errors="0" skipped="0">
+  <testcase name="configuracion" classname="compose" time="0.264814" />
+  <testcase name="compilacion" classname="compose" time="33.938277" />
+  <testcase name="arranque" classname="compose" time="11.494240" />
+  <testcase name="estado" classname="compose" time="0.114294" />
+  <testcase name="red" classname="compose" time="0.314845" />
+  <testcase name="aislamiento" classname="compose" time="0.264646" />
+  <testcase name="runtime_web" classname="compose" time="0.615447" />
+  <testcase name="acceso" classname="compose" time="0.032202" />
+  <testcase name="autenticacion" classname="compose" time="0.414986" />
+  <testcase name="calculo" classname="compose" time="1.016828" />
+  <testcase name="recuperacion" classname="compose" time="9.436753" />
+  <testcase name="pruebas_r" classname="compose" time="1.016547" />
+  <testcase name="detener_servicios" classname="compose" time="0.665751" />
+  <testcase name="escaneo" classname="compose" time="97.073765" />
+  <testcase name="limpieza" classname="compose" time="0.281944" />
+</testsuite>
