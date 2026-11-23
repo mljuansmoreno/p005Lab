@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="integracion" tests="10" time="87.975073" failures="1" errors="0" skipped="0">
+  <testcase name="configuracion" classname="compose" time="1.249869" />
+  <testcase name="compilacion" classname="compose" time="40.504677" />
+  <testcase name="arranque" classname="compose" time="24.340703" />
+  <testcase name="estado" classname="compose" time="0.678708" />
+  <testcase name="red" classname="compose" time="2.462021" />
+  <testcase name="aislamiento" classname="compose" time="1.282475" />
+  <testcase name="acceso" classname="compose" time="0.220288" />
+  <testcase name="autenticacion" classname="compose" time="3.063716" />
+  <testcase name="calculo" classname="compose" time="5.099979">
+    <failure message="calculo: código de salida 143" />
+  </testcase>
+  <testcase name="limpieza" classname="compose" time="9.005320" />
+</testsuite>
