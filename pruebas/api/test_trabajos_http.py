@@ -41,6 +41,18 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_resultados_del_mismo_proyecto(self):
+        cargas = [self.cargar(f"c001\n{i}\n{i + 2}\n") for i in (2, 8)]
+        trabajos = [self.encolar(carga) for carga in cargas]
+        self.assertNotEqual(trabajos[0]["trabajo_id"], trabajos[1]["trabajo_id"])
+        for trabajo, carga, media in zip(trabajos, cargas, (3, 9)):
+            self.assertEqual(self.esperar(trabajo)[-1]["estado"], "completado")
+            codigo, cuerpo = self.http("GET", self.ruta(trabajo, "/resultado"))
+            self.assertEqual(codigo, 200)
+            with zipfile.ZipFile(io.BytesIO(cuerpo)) as paquete:
+                resultado = json.loads(paquete.read("resultado.json"))
+            self.assertEqual((resultado["hash_datos"], resultado["cifras"]["media"]), (carga["hash_datos"], media))
+
     def test_cancelacion_concurrente(self):
         from concurrent.futures import ThreadPoolExecutor
         trabajo = self.encolar(self.cargar("c001\n2\n4\n"))
