@@ -49,5 +49,11 @@ datos_empates <- data.frame(c001 = c("1", "1", "2", "3"), c002 = c("3", "2", "2"
 resultado <- analizar(crear_solicitud("spearman"), datos_empates, directorio)
 verificar(resultado$cifras$coeficiente, stats::cor(c(1, 1, 2, 3), c(3, 2, 2, 1), method = "spearman"))
 stopifnot(file.exists(file.path(directorio, "figura.png")))
+# Contrasta la media con suma exacta en una muestra asimétrica.
+local({
+  muestra <- data.frame(c001 = c(-8, -2, 1, 21))
+  res <- analizar(crear_solicitud("descriptivo", "c001"), muestra, directorio)
+  verificar(res$cifras$media, 3)
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
