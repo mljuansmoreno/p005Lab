@@ -150,6 +150,12 @@ try
         var contenido = await File.ReadAllBytesAsync(variante);
         Rechazar(() => ImportadorDatos.ListarHojas(contenido), "DATOS_LIBRO_INVALIDO");
     }
+    {
+        var variante = Path.Combine(temporal, "truncado.xlsx");
+        await File.WriteAllBytesAsync(variante, (await File.ReadAllBytesAsync(libro))[..12]);
+        try { await ImportadorDatos.ImportarAsync(variante, new(), "Mediciones"); throw new Exception("Libro truncado admitido"); }
+        catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_LIBRO_INVALIDO", "XLSX incompleto devuelve diagnóstico estable"); }
+    }
     var datosLibro = await ImportadorDatos.ImportarAsync(libro, new(), "Mediciones");
     Verificar(datosLibro.Filas[0][0] == "001" && datosLibro.Filas[0][1] == "2.5", "XLSX conserva texto y valores originales");
     try { await ImportadorDatos.ImportarAsync(libro, new()); throw new Exception("Hoja no confirmada aceptada"); }

@@ -101,7 +101,9 @@ public static class ImportadorDatos
     }
     private static ZipArchive AbrirLibro(byte[] contenido)
     {
-        var archivo = new ZipArchive(new MemoryStream(contenido));
+        ZipArchive archivo;
+        try { archivo = new ZipArchive(new MemoryStream(contenido)); }
+        catch (InvalidDataException) { throw new ErrorAplicacion("DATOS_LIBRO_INVALIDO"); }
         if (archivo.Entries.Count > 1000 || archivo.Entries.Sum(entrada => entrada.Length) > 200 * 1024 * 1024 || archivo.Entries.Any(entrada => entrada.FullName.Contains("vbaProject", StringComparison.OrdinalIgnoreCase) || entrada.FullName.Contains("externalLinks", StringComparison.OrdinalIgnoreCase))) { archivo.Dispose(); throw new ErrorAplicacion("DATOS_LIBRO_INVALIDO"); }
         return archivo;
     }
