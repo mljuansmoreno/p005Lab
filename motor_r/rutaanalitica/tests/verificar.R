@@ -55,5 +55,12 @@ local({
   res <- analizar(crear_solicitud("descriptivo", "c001"), muestra, directorio)
   verificar(res$cifras$media, 3)
 })
+# Fija la mediana con tamaños par e impar y valores repetidos.
+local({
+  for (valores in list(c(10, 2, 2, 8), c(7, -2, 7))) {
+    res <- analizar(crear_solicitud("descriptivo", "c001"), data.frame(c001 = valores), directorio)
+    verificar(res$cifras$mediana, if (length(valores) == 4L) 5 else 7)
+  }
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
