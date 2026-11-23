@@ -28,5 +28,16 @@ def resumir(datos):
     return {"n": len(valores), "p50": percentil(valores, .50), "p95": percentil(valores, .95)}
 
 
+def comparar_medianas(base, actual):
+    previo = base["p50"]["intervalo_ms"]
+    nuevo = actual["p50"]["intervalo_ms"]
+    if None not in (*previo, *nuevo):
+        if nuevo[0] > previo[1]:
+            return "mayor"
+        if nuevo[1] < previo[0]:
+            return "menor"
+    return "inconclusa"
+
+
 if __name__ == "__main__":
     print(json.dumps({Path(p).name: resumir(json.loads(Path(p).read_text("utf-8-sig"))) for p in sys.argv[1:]}))
