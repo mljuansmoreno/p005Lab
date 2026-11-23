@@ -96,6 +96,12 @@ try
         try { await ImportadorDatos.ImportarAsync(variante, new()); throw new Exception("Exceso de tamaño admitido"); }
         catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_LIMITE_EXCEDIDO", "Un byte sobre el límite rechaza la carga"); }
     }
+    {
+        const string valor = " -12";
+        var ordinario = ImportadorDatos.LeerDelimitado(ImportadorDatos.EscaparCsv(valor), ',');
+        var seguro = ImportadorDatos.LeerDelimitado(ImportadorDatos.EscaparCsv(valor, true), ',');
+        Verificar(ordinario.Single()[0] == valor && seguro.Single()[0] == "'" + valor, "CSV distingue representación de cálculo y apertura en hoja");
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
