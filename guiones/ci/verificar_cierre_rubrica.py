@@ -48,13 +48,35 @@ def tabla(documento, registros):
             raise ValueError(f"Fila de trazabilidad incorrecta: {ordinal}")
 
 
+def verificar_enlaces(documento, revision):
+    destinos = set(re.findall(r"\]\(([^()\s]+)\)", documento))
+    objetos = set()
+    for url in destinos:
+        if url.startswith(REPO + "/blob/"):
+            referencia, ruta = url.removeprefix(REPO + "/blob/").split("/", 1)
+            if not re.fullmatch("[0-9a-f]{40}", referencia):
+                raise ValueError(f"Enlace de código sin SHA permanente: {ruta}")
+            objetos.add((f"{referencia}:{ruta.split('#')[0]}", "blob"))
+        elif url.startswith(REPO + "/commit/"):
+            ref = url.removeprefix(REPO + "/commit/").split("/")[0]
+            objetos.add((revision if ref == ETIQUETA else ref, "commit"))
+        elif "://" not in url and not url.startswith("#"):
+            objetos.add((f"{revision}:{url.split('#')[0]}", "blob"))
+    for objeto, tipo in objetos:
+        if git("cat-file", "-t", objeto) != tipo:
+            raise ValueError(f"Destino incorrecto: {objeto}")
+    return len(objetos)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--revision", default="HEAD")
     args = parser.parse_args()
     revision = git("rev-parse", "--verify", args.revision + "^{commit}")
     registros = historial(revision)
-    tabla(DOCUMENTO.read_text(encoding="utf-8"), registros)
+    documento = DOCUMENTO.read_text(encoding="utf-8")
+    tabla(documento, registros)
+    verificar_enlaces(documento, revision)
     print(json.dumps({"base": BASE, "final": revision, "commits": registros}, indent=2, ensure_ascii=False))
 
 
