@@ -1,0 +1,38 @@
+{
+  "job": "ruta-estadistica-main",
+  "controlador": "permanente",
+  "build": 32,
+  "resultado": null,
+  "revision": "62a80479ee21b1f9c018ae1f83e42ff65df6ad5c",
+  "revisiones_checkout": [
+    "62a80479ee21b1f9c018ae1f83e42ff65df6ad5c"
+  ],
+  "causas": [
+    "SCMTriggerCause"
+  ],
+  "fecha_utc": "2026-11-23T03:53:13.430000+00:00",
+  "revision_anterior_construida": "17d9ab10f9e32e97aa9a51fe7584820cad661456",
+  "revision_detectada_por_sondeo": "baed0fbf6cbe9ff72fe3ce213811770fdd4f15b6",
+  "rango_entre_checkouts": "https://github.com/mljuansmoreno/p005Lab/compare/17d9ab10f9e32e97aa9a51fe7584820cad661456...62a80479ee21b1f9c018ae1f83e42ff65df6ad5c",
+  "commits_de_esta_entrega_en_checkout": [
+    "c06fb25ff4b3abe43b56ddb8b31418d033954853",
+    "468dc736c88f840758f220b1a9b8f9f9c36ea3c8",
+    "aecb9021d42135fe2fb3e4539152653725a9ca7d",
+    "7f2f7e295feced854051636fe57df786a82d976c",
+    "a7df9b243aee93ddc22a12cfc3292353167add63",
+    "6e754e7844e2b4630f6ce0ed11b360b64cdcda56",
+    "a1080b318595726544b95e396fafd32ae30af04a",
+    "c7988a03226729d813dae8f48386e58c98be5a78",
+    "ee290f7c2eff8c8a15b610c1c4acb82c4de624ee",
+    "c84542bfa3a94aa60fd50a3702f37e0215c979a2",
+    "b3672b96243e7ef6178c0fb9827412ec10ff259e",
+    "6c21e4be5faddb1f0edc980077f44087172d8745",
+    "855dc194f7673bdce4720f73d12df599b2a77202",
+    "b81f267b6e9aadc94f9c30278b162b3413b1c4f7",
+    "faefcf673875ee29d87cf9e9fe84429b6ea0bc5d",
+    "7bf966c14aca664cd43fa26572c3f91870fdb49a",
+    "62a80479ee21b1f9c018ae1f83e42ff65df6ad5c"
+  ],
+  "nota": "El sondeo detectó la base. Mientras esperaba el agente, main avanzó hasta el commit 17. La causa de disparo corresponde a la base y la revisión de ejecución corresponde al checkout.",
+  "estado_al_exportar": "en ejecución"
+}
