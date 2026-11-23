@@ -167,5 +167,11 @@ local({
   res <- analizar(crear_solicitud("spearman"), muestra, directorio)
   verificar(res$cifras$coeficiente, stats::cor(c(3.5,1.5,1.5,5,3.5), c(1,3.5,3.5,2,5)))
 })
+# Comprueba la anticorrelación perfecta de rangos no equidistantes.
+local({
+  res <- analizar(crear_solicitud("spearman", inferencia=FALSE),
+                  data.frame(c001=c(1,3,9,27), c002=c(20,8,2,-10)), directorio)
+  verificar(res$cifras$coeficiente, -1)
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
