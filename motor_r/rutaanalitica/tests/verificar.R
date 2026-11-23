@@ -121,5 +121,12 @@ local({
   verificar(res$cifras$estadistico, unname(ref$statistic))
   verificar(res$cifras$grados_libertad, unname(ref$parameter))
 })
+# Conserva la orientación de Welch con grupos de distinto tamaño.
+local({
+  muestra <- data.frame(c001 = c(7, 2, 8, 4, 6), c002 = c("Z", "A", "Z", "A", "A"))
+  res <- analizar(crear_solicitud("welch"), muestra, directorio)
+  stopifnot(res$cifras$grupo_primero == "Z", res$cifras$n_primero == 2L, res$cifras$n_segundo == 3L)
+  verificar(res$cifras$diferencia_medias, 3.5)
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
