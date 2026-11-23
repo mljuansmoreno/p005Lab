@@ -44,6 +44,11 @@ def lectura = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, idLec
 assert SystemCredentialsProvider.getInstance().getStore().addDomain(dominio, [lectura])
 def plantilla = new File('/opt/ruta-ci/trabajo-main.xml').getText('UTF-8')
 def configuracion = plantilla.replace('</url>', "</url><credentialsId>${idLectura}</credentialsId>")
+// El destino de un push sigue siendo reproducible aunque main avance durante la cola.
+def revision = System.getenv('RUTA_CI_REVISION')
+assert revision ==~ /[0-9a-f]{40}/
+configuracion = configuracion.replace('<name>*/main</name>', "<name>${revision}</name>")
+    .replace('<lightweight>true</lightweight>', '<lightweight>false</lightweight>')
 new ByteArrayInputStream(configuracion.getBytes('UTF-8')).withCloseable { xml ->
     def trabajo = controlador.createProjectFromXML('ruta-estadistica-main', xml)
     trabajo.updateNextBuildNumber(numero)
