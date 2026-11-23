@@ -215,3 +215,12 @@ class InterfazWeb(unittest.TestCase):
                 with self.subTest(metodo=metodo):
                     self.assertEqual(self.solicitar(metodo, "/ruta-ausente")[0], 404)
         calcular.assert_not_called()
+
+
+    def test_redireccion_relativa(self):
+        from urllib.error import HTTPError
+        from urllib.request import Request
+        peticion = Request("http://localhost:8787/salud", headers={"Authorization": "Bearer sintetico"})
+        with self.assertRaises(HTTPError) as recibido:
+            cliente_http().error("http", peticion, None, 307, "redirección", {"Location": "/otro"})
+        self.assertEqual(recibido.exception.code, 307)
