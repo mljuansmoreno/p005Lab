@@ -41,3 +41,9 @@ class ModeloCompose(unittest.TestCase):
             with self.subTest(servicio=nombre):
                 self.assertEqual(servicios[nombre]["build"]["dockerfile"], dockerfile)
                 self.assertTrue((RAIZ / dockerfile).is_file())
+
+    def test_dependencia_salud(self):
+        servicios = self.config["services"]
+        self.assertEqual(servicios["aplicacion"]["depends_on"]["motor"]["condition"], "service_healthy")
+        self.assertIn("healthcheck", servicios["aplicacion"])
+        self.assertIn("/listo", " ".join(servicios["aplicacion"]["healthcheck"]["test"]))
