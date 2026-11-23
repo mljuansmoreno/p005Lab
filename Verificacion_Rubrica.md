@@ -87,6 +87,7 @@ El controlador permanente y el controlador alojado tienen historiales independie
 **Puntaje de la rúbrica:** 20 puntos.
 
 - [Compose](docker-compose.yml) define `aplicacion` y `motor` desde el mismo checkout. Consulte sus [Dockerfiles de aplicación](aplicacion/Dockerfile) y [motor](contenedores/Dockerfile) y el [comando de construcción](guiones/ci/ejecutar.py).
+- La [salida completa de compilación](documentacion/evidencias-jenkins/build-11001/01-compilacion.txt) y los [IDs OCI y modo sin caché](documentacion/evidencias-jenkins/build-11001/ejecucion.json) pertenecen a `ruta-estadistica-main` alojado #11001 en `295325f`, `SUCCESS` por disparo manual. El [origen de Actions](documentacion/evidencias-jenkins/build-11001/origen-actions.json) registra el parámetro solicitado.
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
