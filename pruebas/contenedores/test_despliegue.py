@@ -21,6 +21,13 @@ from datos_sinteticos import CSV_SINTETICO
 
 
 class DespliegueCompose(unittest.TestCase):
+    def test_logs_sin_secreto(self):
+        self.assertEqual(self.calcular()["estado"], "completado")
+        for servicio in ("motor","aplicacion"):
+            with self.subTest(servicio=servicio):
+                contenido = self.ejecutar("logs","--no-color",servicio)
+                self.assertFalse(self.valor.encode() in contenido, "Credencial presente en el registro de servicio")
+
     @classmethod
     def setUpClass(cls):
         temporal = tempfile.TemporaryDirectory()
