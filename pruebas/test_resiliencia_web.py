@@ -13,6 +13,11 @@ from web import analizar, ErrorMotor
 
 
 class ResilienciaWeb(unittest.TestCase):
+    def test_caida_en_pendiente(self):
+        with self.assertRaisesRegex(ErrorMotor, "Error HTTP"):
+            self.ejecutar([self.carga, self.trabajo, URLError("sin conexión"), URLError("sin conexión")])
+        self.assertEqual(self.llamadas[2:], [("GET", self.consulta)] * 2)
+
     def test_desconexion_tras_carga(self):
         with self.assertRaisesRegex(ErrorMotor, "/trabajos"):
             self.ejecutar([self.carga, TimeoutError("acuse perdido")])
