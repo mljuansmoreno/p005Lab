@@ -178,3 +178,11 @@ class DespliegueCompose(unittest.TestCase):
             config = subprocess.check_output(["docker","image","inspect",identificador],timeout=30)
             self.assertFalse(self.valor.encode() in historial or self.valor.encode() in config,
                              "La credencial efímera apareció en los metadatos de la imagen")
+
+    def test_repeticion_limpia(self):
+        previo = self.calcular()
+        self.ejecutar("down", "-v")
+        self.ejecutar("up","-d","--no-build","--wait","--wait-timeout","90")
+        posterior = self.calcular()
+        self.assertEqual((previo["sha256"], previo["media"]), (posterior["sha256"], posterior["media"]))
+        self.assertNotEqual(previo["trabajo_id"], posterior["trabajo_id"])
