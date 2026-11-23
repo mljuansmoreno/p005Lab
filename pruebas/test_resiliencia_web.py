@@ -13,6 +13,11 @@ from web import analizar, ErrorMotor
 
 
 class ResilienciaWeb(unittest.TestCase):
+    def test_desconexion_tras_carga(self):
+        with self.assertRaisesRegex(ErrorMotor, "/trabajos"):
+            self.ejecutar([self.carga, TimeoutError("acuse perdido")])
+        self.assertEqual(self.llamadas, [("POST", "/datos"), ("POST", "/trabajos")])
+
     def test_desconexion_antes_de_cargar(self):
         with self.assertRaisesRegex(ErrorMotor, "/datos"):
             self.ejecutar([URLError("conexión rechazada")])
