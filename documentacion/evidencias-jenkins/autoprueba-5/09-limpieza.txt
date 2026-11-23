@@ -1,0 +1,1 @@
+Proyecto ruta-ci-2e15dc6b024d99c2: contenedores, redes, volúmenes e imágenes retirados.
