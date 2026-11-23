@@ -217,6 +217,7 @@ class TrabajosHTTP(unittest.TestCase):
             entorno["RUTA_ESTADISTICA_RECURSOS_MOTOR"] = str(simulacion)
         proceso = subprocess.Popen([dotnet, str(servidor)], env=entorno, stdout=subprocess.DEVNULL,
                                    stderr=subprocess.DEVNULL)
+        self.pid_servidor = proceso.pid
         def cerrar():
             proceso.terminate()
             try:
