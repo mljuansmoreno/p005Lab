@@ -294,6 +294,12 @@ try
         Rechazar(() => repositorio.ImportarProyecto(paquete), "PROYECTO_ARCHIVO_INSEGURO");
         Verificar(repositorio.Listar().Count == anteriores, "Un paquete ambiguo no crea un proyecto parcial");
     }
+    {
+        var paquete = Path.Combine(temporal, "cantidad.rutaestadistica");
+        using (var archivo = ZipFile.Open(paquete, ZipArchiveMode.Create))
+            for (var indice = 0; indice <= 2000; indice++) archivo.CreateEntry($"{indice}.csv");
+        Rechazar(() => repositorio.ImportarProyecto(paquete), "PROYECTO_ARCHIVO_INSEGURO");
+    }
     var portatil = Path.Combine(temporal, "exportado.rutaestadistica"); repositorio.ExportarProyecto(proyecto.Id, portatil); var copia = repositorio.ImportarProyecto(portatil);
     Verificar(copia.Id != proyecto.Id && repositorio.LeerDatos(copia.Id)!.HashOriginal == datos.HashOriginal, "Archivo portátil valida hashes y crea identidad nueva");
     var malicioso = Path.Combine(temporal, "malicioso.zip"); using (var archivo = ZipFile.Open(malicioso, ZipArchiveMode.Create)) { using var escritor = new StreamWriter(archivo.CreateEntry("../escape.json").Open()); escritor.Write("{}"); }
