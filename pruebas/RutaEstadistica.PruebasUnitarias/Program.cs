@@ -221,6 +221,13 @@ try
     Verificar(conFilaVacia.Filas.Count == 2 && conFilaVacia.Filas[0][0] == "" && conFilaVacia.Filas[1][0] == "3", "XLSX conserva filas vacías explícitas para revisar sus faltantes sin excluirlas automáticamente");
     var repositorio = new RepositorioProyectos(Path.Combine(temporal, "proyectos")); var proyecto = repositorio.Crear("Prueba con tildes á"); repositorio.GuardarDatos(proyecto.Id, preparados, original);
     Verificar(new RepositorioProyectos(repositorio.Raiz).LeerDatos(proyecto.Id)!.Filas[0][0] == "001", "SQLite y datos se reabren sin pérdida");
+    {
+        var editado = proyecto with { Pregunta = "¿Cambió la media?", Contexto = "Mediciones pareadas" };
+        repositorio.Guardar(editado);
+        var recuperado = new RepositorioProyectos(repositorio.Raiz).Listar().Single(p => p.Id == proyecto.Id);
+        Verificar(recuperado.Pregunta == editado.Pregunta && recuperado.Contexto == editado.Contexto && recuperado.Nombre == proyecto.Nombre, "Los metadatos de investigación persisten");
+        repositorio.Guardar(proyecto);
+    }
     var portatil = Path.Combine(temporal, "exportado.rutaestadistica"); repositorio.ExportarProyecto(proyecto.Id, portatil); var copia = repositorio.ImportarProyecto(portatil);
     Verificar(copia.Id != proyecto.Id && repositorio.LeerDatos(copia.Id)!.HashOriginal == datos.HashOriginal, "Archivo portátil valida hashes y crea identidad nueva");
     var malicioso = Path.Combine(temporal, "malicioso.zip"); using (var archivo = ZipFile.Open(malicioso, ZipArchiveMode.Create)) { using var escritor = new StreamWriter(archivo.CreateEntry("../escape.json").Open()); escritor.Write("{}"); }
