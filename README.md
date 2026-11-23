@@ -289,6 +289,7 @@ El perfil `p005Lab-2026-11` define **75 comprobaciones del proyecto** vinculadas
 
 | Control de SP 800-53 | Comprobaciones de este repositorio |
 | --- | --- |
+| **AC-3** · Aplicación del control de acceso | [`http-motor-autenticacion`](documentacion/informes/revisiones-seguridad/2026-11-23/http-motor-autenticacion.json) |
 
 ### Resultados por fecha
 
