@@ -26,6 +26,13 @@ try
         var muestra = await ImportarMuestra("\uFEFFCiudad\nSan\uFEFFAndrés\n");
         Verificar(muestra.Columnas[0].Etiqueta == "Ciudad" && muestra.Filas.Single()[0] == "San\uFEFFAndrés", "El BOM inicial no elimina caracteres interiores");
     }
+    {
+        foreach (var separador in new[] { ',', ';', '\t' })
+        {
+            var muestra = await ImportarMuestra($"Nombre{separador}Texto\nA{separador}\"B{separador}C\"\n", new(Separador: separador));
+            Verificar(muestra.Filas.Single().SequenceEqual(["A", $"B{separador}C"]), "El separador explícito respeta el campo entre comillas");
+        }
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
