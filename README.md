@@ -36,6 +36,8 @@ La demo usa [`docker-compose.yml`](docker-compose.yml) en la raíz y publica la 
 
 [Arquitectura](documentacion/arquitectura.md) · [Mapa del código](documentacion/mapa_codigo.md) · [API y contratos](documentacion/contratos_y_api.md) · [Métodos en R](documentacion/motor_r_y_metodos.md).
 
+El repositorio separa las herramientas de ejecución, los contratos y sus comprobaciones. `contratos/` define los formatos compartidos; `motor_r/` concentra el cálculo estadístico y `pruebas/` cubre unidades y flujos de integración. El [bloqueo de imágenes base](contenedores/bases.lock.json) permite cotejar los Dockerfiles con sus fuentes y huellas. [Mapa del código](documentacion/mapa_codigo.md).
+
 ## Demostración de dos servicios con Docker
 
 ### 1. Preparar el entorno y clonar
