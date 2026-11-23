@@ -13,6 +13,11 @@ from web import analizar, ErrorMotor
 
 
 class ResilienciaWeb(unittest.TestCase):
+    def test_zip_incompleto(self):
+        with self.assertRaises(zipfile.BadZipFile):
+            self.ejecutar([self.carga, dict(self.trabajo, estado="completado"), lambda: self.paquete_valido()[:-22]])
+        self.assertEqual(self.llamadas[-1], ("GET", self.consulta + "/resultado"))
+
     def test_respuesta_fuera_de_orden(self):
         ajeno = dict(self.trabajo, estado="completado", trabajo_id="b" * 32)
         with self.assertRaisesRegex(ErrorMotor, "otro trabajo"):
