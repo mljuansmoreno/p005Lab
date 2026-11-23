@@ -33,3 +33,11 @@ class ModeloCompose(unittest.TestCase):
         self.assertEqual(self.config["name"], self.proyecto)
         self.assertNotIn(self.valor, json.dumps(self.config))
         self.assertEqual(Path(self.config["secrets"]["motor"]["file"]).name, "motor.secreto")
+
+    def test_servicios_y_dockerfiles(self):
+        servicios = self.config["services"]
+        self.assertCountEqual(servicios, ["aplicacion", "motor"])
+        for nombre, dockerfile in (("aplicacion", "aplicacion/Dockerfile"), ("motor", "contenedores/Dockerfile")):
+            with self.subTest(servicio=nombre):
+                self.assertEqual(servicios[nombre]["build"]["dockerfile"], dockerfile)
+                self.assertTrue((RAIZ / dockerfile).is_file())
