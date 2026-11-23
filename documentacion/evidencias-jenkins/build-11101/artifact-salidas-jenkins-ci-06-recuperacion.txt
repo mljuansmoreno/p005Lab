@@ -1,0 +1,24 @@
+ Container ruta-ci-7e7c5a7bb431a634-motor-1  Stopping
+ Container ruta-ci-7e7c5a7bb431a634-motor-1  Stopped
+true
+Vida web con motor detenido HTTP 200
+Disponibilidad con motor detenido: HTTP 503
+ Container ruta-ci-7e7c5a7bb431a634-motor-1  Recreate
+ Container ruta-ci-7e7c5a7bb431a634-motor-1  Recreated
+ Container ruta-ci-7e7c5a7bb431a634-motor-1  Starting
+ Container ruta-ci-7e7c5a7bb431a634-motor-1  Started
+ Container ruta-ci-7e7c5a7bb431a634-motor-1  Waiting
+ Container ruta-ci-7e7c5a7bb431a634-motor-1  Healthy
+ID del motor antes d9b888c7592fde3ef5bb2c12956af82511e122e22916902710a10ebcd4b5cdd4
+ID del motor recuperado ac3e50e7439697c4228918bc672b2396e86820c82e17b5a20c5f77cc64bbc54e
+true
+Disponibilidad recuperada HTTP 200
+{
+  "destino": "motor:8787",
+  "trabajo_id": "d875ac21997f4a0693d5505fc714ac68",
+  "solicitud_id": "0c45a4a025aa47c0ad6761a389ea8637",
+  "estado": "completado",
+  "sha256": "4c4bcaecdea0a6f5169163dbd34fc0c82d8982148e354f92d4431d6114120499",
+  "filas_analizadas": 6,
+  "media": 4.16666666666667
+}

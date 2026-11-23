@@ -17,3 +17,4 @@ El [run 45109084160](https://github.com/mljuansmoreno/p005Lab/actions/runs/45109
 | [03-docker-ps.txt](artifact-salidas-jenkins-ci-03-docker-ps.txt) | La tabla de Compose permite contrastar salud, puertos y nombres de las dos instancias. |
 | [04-red.txt](artifact-salidas-jenkins-ci-04-red.txt) | La prueba identifica las redes que comparten los servicios y su aislamiento. |
 | [05-calculo.txt](artifact-salidas-jenkins-ci-05-calculo.txt) | La respuesta contiene el destino, la huella del conjunto de datos, los identificadores y el resultado numérico. |
+| [06-recuperacion.txt](artifact-salidas-jenkins-ci-06-recuperacion.txt) | La traza recoge la respuesta durante la caída, el reemplazo del motor y una nueva operación concluida. |
