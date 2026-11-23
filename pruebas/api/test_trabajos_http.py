@@ -110,3 +110,14 @@ class TrabajosHTTP(unittest.TestCase):
         estado, cuerpo = self.http("POST", "/datos", {"proyecto_id": "invalido", "csv": "c001\n1\n"})
         self.assertEqual(estado, 400)
         self.assertEqual(json.loads(cuerpo), {"codigo": "CONTRATO_SOLICITUD_INVALIDA"})
+
+    def cargar(self, csv, proyecto=None):
+        codigo, cuerpo = self.http("POST", "/datos", {"proyecto_id": proyecto or self.proyecto, "csv": csv})
+        self.assertEqual(codigo, 201)
+        return json.loads(cuerpo)
+    def test_recarga_idempotente(self):
+        primero = self.cargar("c001\n1\n")
+        self.assertEqual(self.cargar("c001\n1\n"), primero)
+        segundo = self.cargar("c001\n2\n")
+        self.assertNotEqual(primero["datos_id"], segundo["datos_id"])
+        self.assertNotEqual(primero["hash_datos"], segundo["hash_datos"])
