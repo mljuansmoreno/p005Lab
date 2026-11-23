@@ -41,6 +41,11 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_esquema_de_credencial(self):
+        for esquema in ("Basic", "Token"):
+            with self.subTest(esquema=esquema):
+                self.assertEqual(self.http("GET", "/salud", cabeceras={"Authorization": esquema+" "+self.credencial}), (403,b""))
+
     def test_host_no_admitido(self):
         cabeceras = {"Authorization": "Bearer " + self.credencial, "Host": "ejemplo.invalid"}
         self.assertEqual(self.http("GET", "/salud", cabeceras=cabeceras), (403, b""))
