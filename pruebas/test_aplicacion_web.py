@@ -207,3 +207,11 @@ class InterfazWeb(unittest.TestCase):
             estado, _, _ = self.solicitar("PUT", "/analizar")
         self.assertEqual(estado, 501)
         calcular.assert_not_called()
+
+
+    def test_ruta_desconocida(self):
+        with patch("web.analizar") as calcular:
+            for metodo in ("GET", "POST"):
+                with self.subTest(metodo=metodo):
+                    self.assertEqual(self.solicitar(metodo, "/ruta-ausente")[0], 404)
+        calcular.assert_not_called()
