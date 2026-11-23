@@ -78,3 +78,8 @@ class TrabajosHTTP(unittest.TestCase):
         estado, cuerpo = self.http("GET", "/salud")
         self.assertEqual(estado, 200)
         self.assertEqual(json.loads(cuerpo), {"version_contrato": 1, "version_api": 2, "version_paquete": "0.1.0", "capacidad_trabajos": 1})
+
+
+    def test_salud_sin_credencial(self):
+        estado, cuerpo = self.http("GET", "/salud", cabeceras={})
+        self.assertEqual((estado, cuerpo), (403, b""))
