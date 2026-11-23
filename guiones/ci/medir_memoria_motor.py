@@ -37,6 +37,8 @@ def medir(filas):
             carga = caso.cargar("c001\n" + "7\n" * filas)
             if carga["filas"] != filas:
                 raise ValueError("El servidor no cargó todas las filas de la muestra")
+            if filas == 50000 and carga["columnas"] != 1:
+                raise ValueError("El escenario grande exige una sola columna")
             trabajo = caso.encolar(carga)
             if caso.esperar(trabajo)[-1]["estado"] != "completado":
                 raise ValueError("El trabajador no terminó el cálculo medido")
@@ -58,5 +60,5 @@ def medir(filas):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--filas", choices=(100,), type=int, default=100)
+    parser.add_argument("--filas", choices=(100, 50000), type=int, default=100)
     print(json.dumps(medir(parser.parse_args().filas)))
