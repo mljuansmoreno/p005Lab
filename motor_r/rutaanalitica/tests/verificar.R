@@ -83,5 +83,11 @@ local({
   stopifnot(is.null(res$cifras$desviacion_muestral), res$cifras$cantidad == 1L)
   verificar(c(res$cifras$media, res$cifras$mediana), c(-3, -3))
 })
+# Audita índices excluidos en posiciones no contiguas.
+local({
+  res <- analizar(crear_solicitud("descriptivo", "c001"), data.frame(c001 = c("", "6", NA, "2")), directorio)
+  verificar(unlist(res$filas_excluidas), c(1, 3))
+  verificar(c(res$filas_brutas, res$filas_analizadas, res$cifras$media), c(4, 2, 4))
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
