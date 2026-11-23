@@ -82,7 +82,9 @@ El controlador permanente y el controlador alojado tienen historiales independie
 | Disparador declarativo | Contrastar pollSCM con la causa de la ficha permanente. | La expresión H/2 * * * * establece el intervalo. El #29 registró SCMTrigger$SCMTriggerCause y SUCCESS en 1da71972. | [Jenkinsfile](https://github.com/mljuansmoreno/p005Lab/blob/9c80bc4980ba31737f10147d367075b88be064c2/Jenkinsfile) · [ejecucion.json](https://github.com/mljuansmoreno/p005Lab/blob/d3d2fa3d8bca4fb6aa4498149fdacc52c3b9afa7/documentacion/evidencias-jenkins/build-29/ejecucion.json) |
 | Push y ejecución alojada | Comparar head_sha del evento push, causa Jenkins y revisión de la evidencia. | El push activa el runner y el primer sondeo de su controlador nuevo programa el job. El recolector verifica causa SCM y coincidencia del checkout. El permanente conserva su propia línea base entre sondeos. | [jenkins-alojado.yaml](https://github.com/mljuansmoreno/p005Lab/blob/da8f6bd7cc611039dbc11fd96a421f9559aac79d/.github/workflows/jenkins-alojado.yaml) · [recolectar_alojado.py](https://github.com/mljuansmoreno/p005Lab/blob/6e2bece553c44ae2731a69a5ee9c5e474a9fef1a/jenkins/recolectar_alojado.py) |
 
-## 5. Construcción de los dos servicios
+## Construcción de los contenedores
+
+**Puntaje de la rúbrica:** 20 puntos.
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
