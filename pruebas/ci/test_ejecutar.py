@@ -19,6 +19,19 @@ from reportes import Reporte, ResultadoWeb
 
 
 class PruebasInforme(unittest.TestCase):
+    def test_almacenamiento_temporal_lleno(self):
+        import errno
+        reporte = Reporte("simulacion")
+        with TemporaryDirectory() as directorio:
+            carpeta = Path(directorio)
+            with patch.object(ejecutar, "comando", side_effect=OSError(errno.ENOSPC, "espacio agotado")):
+                with self.assertRaisesRegex(ValueError, "OSError"):
+                    ejecutar.ejecutar_caso(reporte, "calculo", carpeta, os.environ, ["simulado"], 1)
+            self.assertFalse((carpeta / "paso.log").exists())
+            destino = carpeta / "casos.xml"
+            reporte.guardar(destino)
+            self.assertEqual(ET.parse(destino).getroot().get("errors"), "1")
+
     def test_secretos_fuera_del_indice(self):
         nombres = ["credenciales/motor.secreto", ".env", ".env.local", "respaldo.pfx"]
         for nombre in nombres:
