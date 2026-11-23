@@ -134,6 +134,10 @@ Se espera HTTP 200 en `/salud` y HTTP 503 en `/listo` durante la caída; luego H
 
 [Operación y diagnóstico de Compose](documentacion/operacion_compose.md).
 
+### Compartir resultados de una prueba local
+
+Para una demostración pública use el CSV sintético del repositorio. Si usa el escritorio con datos propios, revise la exportación y el proyecto antes de compartirlos: pueden incluir datos originales, identificadores y resultados. Use una copia sintética para capturas, incidencias y pruebas de CI. Mantenga credenciales, `.env`, volcados y registros sin redactar fuera de Git y de los artefactos públicos. [Seguridad y privacidad](documentacion/seguridad_y_privacidad.md).
+
 ## Pruebas de Docker realizadas
 
 | Ejecución | Resultado observado |
