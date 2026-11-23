@@ -47,3 +47,11 @@ class ModeloCompose(unittest.TestCase):
         self.assertEqual(servicios["aplicacion"]["depends_on"]["motor"]["condition"], "service_healthy")
         self.assertIn("healthcheck", servicios["aplicacion"])
         self.assertIn("/listo", " ".join(servicios["aplicacion"]["healthcheck"]["test"]))
+
+    def test_recursos(self):
+        for nombre, cpu, mib in (("motor",2,1024),("aplicacion",1,128)):
+            servicio = self.config["services"][nombre]
+            with self.subTest(servicio=nombre):
+                self.assertEqual(float(servicio["cpus"]), cpu)
+                self.assertEqual(int(servicio["mem_limit"]), mib * 1024**2)
+                self.assertEqual(servicio["pids_limit"], 64)
