@@ -186,5 +186,16 @@ local({
   muestra <- data.frame(c001=c(1,2,3), c002=c(9,9,9))
   esperar_error(function() analizar(crear_solicitud("lineal"), muestra, directorio), "DATOS_CONSTANTES")
 })
+# Comprueba amplitud y extremos del intervalo en ambos niveles admitidos.
+local({
+  muestra <- data.frame(c001=c(1,4,2,9,7),c002=c(3,2,5,4,8))
+  for (nivel in c(.80,.99)) {
+    peticion <- crear_solicitud("pearson")
+    peticion$confianza <- nivel
+    res <- analizar(peticion, muestra, directorio)
+    ref <- stats::cor.test(muestra$c001, muestra$c002, conf.level=nivel)
+    verificar(res$cifras$intervalo, unname(ref$conf.int))
+  }
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
