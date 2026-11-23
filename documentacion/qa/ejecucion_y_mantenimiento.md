@@ -4,7 +4,7 @@ Ejecute las órdenes desde la raíz. El coste describe los recursos requeridos. 
 
 | Alcance | Plataforma | Coste y dependencia | Orden |
 |---|---|---|---|
-| Contrato documental | Windows o Linux | Bajo. Lee esquemas, suite R y documentación sin lanzar servicios | `python -m unittest discover -s pruebas/ci -p test_inventario_qa.py` |
+| Contrato documental | Windows o Linux | Bajo. Lee esquemas, suite R y documentación sin lanzar servicios | `python guiones/ci/probar_python.py --suite rapida` |
 | Coordinador y web | Windows o Linux | Medio. Python, Git con historial, puertos de loopback y procesos hijos. Las pruebas POSIX pueden omitirse en Windows | `python guiones/ci/probar_python.py` |
 | Integración nativa | Windows | Medio. SDK .NET 10, R y biblioteca del proyecto preparados | `./guiones/ejecutar_pruebas.ps1` |
 | API con R real | Windows | Medio. Servidor compilado y recursos del trabajador en salidas/recursos | `python guiones/probar_api.py` |
