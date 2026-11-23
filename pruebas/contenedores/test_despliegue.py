@@ -162,3 +162,11 @@ class DespliegueCompose(unittest.TestCase):
         estado = self.ejecutar("exec","-T","aplicacion","python","-c","print(open('/proc/1/status').read())").decode()
         self.assertEqual(int(re.search(r"(?m)^CapEff:\s+([0-9a-fA-F]+)", estado)[1], 16), 0)
         self.assertEqual(re.search(r"(?m)^NoNewPrivs:\s+(\d+)", estado)[1], "1")
+
+    def test_montajes_de_secreto(self):
+        for servicio in ("aplicacion", "motor"):
+            with self.subTest(servicio=servicio):
+                identificador = self.ejecutar("ps","-q",servicio).decode().strip()
+                montajes = json.loads(subprocess.check_output(["docker","inspect",identificador,"--format","{{json .Mounts}}"]))
+                secretos = [m for m in montajes if m["Destination"].startswith("/run/secrets/")]
+                self.assertEqual([(m["Destination"],m["RW"]) for m in secretos], [("/run/secrets/motor", False)])
