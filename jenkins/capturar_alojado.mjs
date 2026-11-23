@@ -23,7 +23,7 @@ const build = `${trabajo}${numero}/`;
 const paginas = [
   { archivo: 'estado-build.png', ruta: build },
   { archivo: 'resultado-junit.png', ruta: `${build}testReport/` },
-  { archivo: 'etapas-pipeline.png', ruta: trabajo, etapa: 'Construir y verificar con Docker' },
+  { archivo: 'etapas-pipeline.png', ruta: trabajo, etapas: ['Checkout', 'Build', 'Test'] },
 ];
 const carpeta = resolve('salidas', 'jenkins-capturas', `build-${numero}`);
 const capturas = [];
@@ -50,8 +50,8 @@ try {
       throw new Error(`Jenkins devolvió HTTP ${respuesta?.status()} en ${new URL(pagina.url()).pathname}, ` +
         `se esperaba ${pantalla.ruta}`);
     }
-    if (pantalla.etapa) {
-      await pagina.getByText(pantalla.etapa, { exact: true }).first().waitFor();
+    for (const etapa of pantalla.etapas ?? []) {
+      await pagina.getByText(etapa, { exact: true }).first().waitFor();
     }
     const ruta = join(carpeta, pantalla.archivo);
     await pagina.locator('#main-panel').screenshot({ path: ruta, animations: 'disabled' });
