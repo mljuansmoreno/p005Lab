@@ -156,3 +156,13 @@ class InterfazWeb(unittest.TestCase):
             estados = [self.solicitar("GET", "/listo") for _ in range(3)]
         self.assertEqual([(e, json.loads(c)["listo"]) for e, _, c in estados],
                          [(200, True), (503, False), (200, True)])
+
+
+    def test_calculo_json(self):
+        resultado = {"media": 2.5, "filas_analizadas": 4, "estado": "completado"}
+        with patch("web.analizar", return_value=resultado) as calcular:
+            estado, cabeceras, cuerpo = self.solicitar("POST", "/analizar", {"Accept": "application/json"})
+        self.assertEqual(estado, 200)
+        self.assertEqual(cabeceras["Content-Type"], "application/json; charset=utf-8")
+        self.assertEqual(json.loads(cuerpo), resultado)
+        calcular.assert_called_once_with(self.servidor.destino, self.servidor.secreto)
