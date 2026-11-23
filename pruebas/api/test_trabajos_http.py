@@ -41,6 +41,13 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_capacidad_tras_fallo(self):
+        mala = self.cargar("c001\nno-numérico\n")
+        for _ in range(2):
+            self.assertEqual(self.esperar(self.encolar(mala))[-1]["estado"],"fallido")
+        buena = self.cargar("c001\n2\n8\n")
+        self.assertEqual(self.esperar(self.encolar(buena))[-1]["estado"],"completado")
+
     def test_almacen_lleno(self):
         cargas = [self.cargar(f"c001\n{i}\n") for i in range(4)]
         codigo, cuerpo = self.http("POST","/datos",{"proyecto_id":self.proyecto,"csv":"c001\n4\n"})
