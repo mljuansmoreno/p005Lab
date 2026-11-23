@@ -29,6 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
       - name: Preparar captura opcional
         if: github.event_name == 'push' || inputs.capturas
@@ -43,6 +44,7 @@ jobs:
         id: ejecutar
         env:
           RUTA_CI_GITHUB_LECTURA: ${{ github.token }}
+          RUTA_CI_ANTES_PUSH: ${{ github.event.before }}
           PYTHONPATH: guiones/ci
           RUTA_CI_CAPTURAS: ${{ github.event_name == 'push' || inputs.capturas }}
           RUTA_CI_ALOJADO_SIN_CACHE: ${{ inputs.sin_cache }}

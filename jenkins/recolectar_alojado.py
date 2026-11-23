@@ -114,6 +114,14 @@ def ejecutar(jenkins, numero, revision, *, sin_cache=False):
     procedencia = {"url": url_actions, "revision_esperada": revision,
                    "modo_compilacion_solicitado": "sin_cache" if sin_cache else "cache_permitida"}
     (carpeta / "origen-actions.json").write_text(json.dumps(procedencia) + "\n", encoding="utf-8")
+    if origen.get("GITHUB_EVENT_NAME") == "push":
+        anterior = sha(origen["RUTA_CI_ANTES_PUSH"])
+        rango = revision if anterior == "0" * 40 else f"{anterior}..{revision}"
+        commits = subprocess.check_output(["git", "rev-list", "--reverse", rango], text=True).splitlines()
+        if not commits or commits[-1] != revision:
+            raise ValueError("El rango publicado no termina en la revisión de Jenkins")
+        lote = {"antes": anterior, "checkout": revision, "commits": commits}
+        (carpeta / "push.json").write_text(json.dumps(lote, indent=2) + "\n", encoding="utf-8")
     archivados = {artefacto["relativePath"] for artefacto in build["artifacts"]}
     for nombre in sorted(EVIDENCIAS_OBLIGATORIAS | {"manifest.json"}):
         relativa = RUTA_ARCHIVO + nombre
