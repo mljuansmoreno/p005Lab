@@ -1,0 +1,10 @@
+{
+  "id": "github-p005lab-lectura",
+  "tipo": "Username with password",
+  "dominio": "github.com",
+  "alcance_jenkins": "GLOBAL",
+  "repositorio": "mljuansmoreno/p005Lab",
+  "permiso_workflow": "contents: read",
+  "uso": "checkout scm",
+  "build": 11101
+}
