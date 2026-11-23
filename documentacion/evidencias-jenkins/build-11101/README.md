@@ -9,3 +9,4 @@ El [run 45109084160](https://github.com/mljuansmoreno/p005Lab/actions/runs/45109
 | [plugins-activos.json](plugins-activos.json) | Las versiones proceden de pluginManager y se cotejaron con el inventario antes del build. |
 | [credencial.json](credencial.json) | El plugin Git confirmó el uso de la credencial cuyo dominio, clase y permiso aparecen en la ficha. |
 | [linter.txt](linter.txt) | El endpoint de validación devolvió una respuesta exitosa para el Jenkinsfile del push. |
+| [etapas.json](etapas.json) | La API wfapi identifica por separado Checkout, Build, Test y las acciones post. |
