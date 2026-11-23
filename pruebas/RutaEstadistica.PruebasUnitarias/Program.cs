@@ -116,6 +116,14 @@ try
         try { await intermediario.AtenderAsync(new("obtener_resumen_datos", proyecto.Id)); throw new Exception("Revocación ignorada"); }
         catch (ErrorAplicacion error) { Verificar(error.Codigo == "MCP_DESHABILITADO", "Revocación MCP es inmediata"); }
     }
+    var reloj = new RelojPrueba();
+    await using (var almacen = new GestorTrabajosMotor(new MotorEsperaControlada(), temporal, reloj))
+    {
+        var carga = new CargaDatosMotor(proyecto.Id, "c001\n1\n");
+        var inicial = almacen.Cargar(carga);
+        reloj.Avanzar(TimeSpan.FromMinutes(16));
+        Verificar(almacen.Cargar(carga).DatosId != inicial.DatosId, "Una carga inactiva caduca al superar quince minutos");
+    }
     await using (var gestor = new GestorTrabajosMotor(new MotorEsperaControlada(), temporal))
     {
         var csv = ImportadorDatos.CsvNormalizado(preparados); var hash = ImportadorDatos.Hash(Encoding.UTF8.GetBytes(csv));
@@ -194,4 +202,11 @@ sealed class MotorEsperaControlada : IMotorAnalisis
         await Task.Delay(Timeout.Infinite, cancelacion);
         throw new ErrorAplicacion("MOTOR_CALCULO_FALLIDO");
     }
+}
+
+sealed class RelojPrueba : TimeProvider
+{
+    private DateTimeOffset instante = DateTimeOffset.UnixEpoch;
+    public override DateTimeOffset GetUtcNow() => instante;
+    public void Avanzar(TimeSpan intervalo) => instante += intervalo;
 }
