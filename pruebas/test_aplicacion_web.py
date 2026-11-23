@@ -239,3 +239,9 @@ class InterfazWeb(unittest.TestCase):
                 with self.subTest(destino=destino), self.assertRaises(ValueError):
                     analizar(destino, "sintetico")
             cliente.assert_not_called()
+
+
+    def test_politica_de_formulario(self):
+        _, cabeceras, _ = self.solicitar("GET", "/")
+        directivas = {d.strip() for d in cabeceras["Content-Security-Policy"].split(";")}
+        self.assertTrue({"form-action 'self'", "base-uri 'none'", "default-src 'none'"}.issubset(directivas))
