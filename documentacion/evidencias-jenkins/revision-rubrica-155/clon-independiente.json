@@ -1,0 +1,15 @@
+{
+  "revision_clonada": "d18669bbe9e6c33a2e67be9a0afbe55d23c174f4",
+  "origen": "https://github.com/mljuansmoreno/p005Lab.git",
+  "rama": "main",
+  "commits_desde_base": 146,
+  "arbol_limpio": true,
+  "destinos_git_comprobados": 109,
+  "capturas_png_con_huella_verificada": 3,
+  "jenkins_piloto": 11101,
+  "reproduccion": [
+    "python3 guiones/ci/auditar_capturas.py documentacion/evidencias-jenkins/build-11101 documentacion/evidencias-jenkins/build-11101",
+    "git status --porcelain"
+  ],
+  "alcance": "Verificación previa al cierre. El check del commit 155 vuelve a resolver la tabla, los destinos y el build definitivo."
+}
