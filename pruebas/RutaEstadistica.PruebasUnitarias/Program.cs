@@ -12,6 +12,16 @@ void Rechazar(Action accion, string codigo) { try { accion(); throw new Exceptio
 var temporal = Path.Combine(Path.GetTempPath(), "ruta_pruebas_" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(temporal);
 try
 {
+    async Task<ConjuntoDatos> ImportarMuestra(string contenido, OpcionesImportacion? opciones = null)
+    {
+        var archivo = Path.Combine(temporal, "muestra.csv");
+        await File.WriteAllTextAsync(archivo, contenido, new UTF8Encoding(false));
+        return await ImportadorDatos.ImportarAsync(archivo, opciones ?? new());
+    }
+    {
+        var muestra = await ImportarMuestra("Ciudad;Región\nBogotá;Nariño\nQuibdó;Chocó\n");
+        Verificar(muestra.Filas[1].SequenceEqual(["Quibdó", "Chocó"]) && muestra.Columnas[1].Etiqueta == "Región", "CSV UTF-8 preserva etiquetas y valores con tildes");
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
