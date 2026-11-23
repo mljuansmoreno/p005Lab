@@ -105,5 +105,11 @@ local({
   verificar(sort(porcentajes), c(100/3, 200/3))
   stopifnot(res$cifras$denominador_porcentajes == 3L, res$cifras$faltantes == 2L)
 })
+# Conserva las etiquetas Unicode del cuestionario.
+local({
+  etiquetas <- c("Bogotá", "Nariño", "Chocó")
+  res <- analizar(crear_solicitud("cuestionario", "c001"), data.frame(c001 = etiquetas[c(3,1,2,1)]), directorio)
+  stopifnot(setequal(vapply(res$tablas, function(fila) fila$categoria, character(1)), etiquetas))
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
