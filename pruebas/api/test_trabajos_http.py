@@ -41,6 +41,11 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_limite_de_cabecera(self):
+        cabeceras = {"Authorization":"Bearer "+self.credencial, "X-Fixture": "a" * (33 * 1024)}
+        self.assertEqual(self.http("GET", "/salud", cabeceras=cabeceras)[0], 431)
+        self.assertEqual(self.http("GET", "/salud")[0], 200)
+
     def test_json_anidado_acotado(self):
         dato = None
         for _ in range(70):
