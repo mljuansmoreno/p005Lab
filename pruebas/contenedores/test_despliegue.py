@@ -157,3 +157,8 @@ class DespliegueCompose(unittest.TestCase):
                     salida = self.ejecutar("exec","-T",nombre,"python","-c",f"print(open('{ruta}').read())").decode()
                 identidades = re.search(r"(?m)^Uid:\s+(\d+)\s+(\d+)", salida)
                 self.assertEqual(identidades.groups(), ("1654","1654"))
+
+    def test_capacidades_efectivas(self):
+        estado = self.ejecutar("exec","-T","aplicacion","python","-c","print(open('/proc/1/status').read())").decode()
+        self.assertEqual(int(re.search(r"(?m)^CapEff:\s+([0-9a-fA-F]+)", estado)[1], 16), 0)
+        self.assertEqual(re.search(r"(?m)^NoNewPrivs:\s+(\d+)", estado)[1], "1")
