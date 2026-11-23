@@ -156,5 +156,10 @@ local({
   referencia <- sum(centrar(x)*centrar(y)) / sqrt(sum(centrar(x)^2)*sum(centrar(y)^2))
   verificar(res$cifras$coeficiente, referencia)
 })
+# Detecta una segunda variable constante tras excluir una fila.
+local({
+  muestra <- data.frame(c001=c(1,2,3,NA), c002=c(7,7,7,9))
+  esperar_error(function() analizar(crear_solicitud("pearson"), muestra, directorio), "DATOS_CONSTANTES")
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
