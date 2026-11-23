@@ -120,7 +120,9 @@ El controlador permanente y el controlador alojado tienen historiales independie
 | Salida no cero y JUnit | Localizar el failure del caso calculo y su mensaje. | El JUnit del #4 registra un fallo en diez casos y el mensaje calculo: código de salida 1. | [Jenkinsfile.autoprueba](https://github.com/mljuansmoreno/p005Lab/blob/d92408c867835d5c8a4e9953599b0832dd3951d7/jenkins/Jenkinsfile.autoprueba) · [integracion.xml](https://github.com/mljuansmoreno/p005Lab/blob/0c9bc27f94b7afa11d636f55d381c79f2c508151/documentacion/evidencias-jenkins/autoprueba-4/integracion.xml) |
 | Limpieza tras fallo | Identificar el proyecto desmontado y cotejar su build con el JUnit. | La autoprueba #3 conservó la retirada de recursos a pesar de la aserción fallida. En #4 limpieza también figura como caso aprobado. | [ejecutar.py](https://github.com/mljuansmoreno/p005Lab/blob/257e7916369cb43b4d145903a5486f5f02e53c2d/guiones/ci/ejecutar.py) · [09-limpieza.txt](https://github.com/mljuansmoreno/p005Lab/blob/0e501d3de3fbda78561c0ae449c12d7fe27602e1/documentacion/evidencias-jenkins/autoprueba-3/09-limpieza.txt) |
 
-## 7. Evidencias de ejecución
+## Evidencias de ejecución
+
+**Puntaje de la rúbrica:** 15 puntos.
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
