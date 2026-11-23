@@ -29,3 +29,4 @@ El [run 45109084160](https://github.com/mljuansmoreno/p005Lab/actions/runs/45109
 | [manifest.json](artifact-salidas-jenkins-ci-manifest.json) | El importador contrastó el manifiesto con los bytes descargados y con los nombres archivados por Jenkins. |
 | [estado-build.png](estado-build.png) | La captura muestra la página del build en el controlador alojado. |
 | [etapas-pipeline.png](etapas-pipeline.png) | La captura fue tomada después de localizar las tres etapas vigentes en la página del job. |
+| [resultado-junit.png](resultado-junit.png) | La captura de testReport complementa los dos informes XML del mismo build. |
