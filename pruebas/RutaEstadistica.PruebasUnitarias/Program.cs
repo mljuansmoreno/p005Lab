@@ -106,6 +106,24 @@ try
         try { await ImportadorDatos.ImportarAsync(libro, new(), "Ausente"); throw new Exception("Hoja inexistente admitida"); }
         catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_HOJA_INVALIDA", "XLSX exige la hoja nombrada"); }
     }
+    const string EspacioHoja = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+    static void CambiarParte(ZipArchive archivo, string nombre, string contenido)
+    {
+        archivo.GetEntry(nombre)?.Delete();
+        using var escritor = new StreamWriter(archivo.CreateEntry(nombre).Open());
+        escritor.Write(contenido);
+    }
+    {
+        var variante = Path.Combine(temporal, "compartidas.xlsx");
+        File.Copy(libro, variante);
+        using (var archivo = ZipFile.Open(variante, ZipArchiveMode.Update))
+        {
+            CambiarParte(archivo, "xl/sharedStrings.xml", $"<sst xmlns='{EspacioHoja}'><si><r><t>Medici</t></r><r><t>ón</t></r></si></sst>");
+            CambiarParte(archivo, "xl/worksheets/sheet1.xml", $"<worksheet xmlns='{EspacioHoja}'><sheetData><row><c r='A1' t='s'><v>0</v></c></row><row><c r='A2'><v>3</v></c></row></sheetData></worksheet>");
+        }
+        var muestra = await ImportadorDatos.ImportarAsync(variante, new(), "Mediciones");
+        Verificar(muestra.Columnas.Single().Etiqueta == "Medición" && muestra.Filas.Single()[0] == "3", "XLSX concatena fragmentos enriquecidos en orden");
+    }
     var datosLibro = await ImportadorDatos.ImportarAsync(libro, new(), "Mediciones");
     Verificar(datosLibro.Filas[0][0] == "001" && datosLibro.Filas[0][1] == "2.5", "XLSX conserva texto y valores originales");
     try { await ImportadorDatos.ImportarAsync(libro, new()); throw new Exception("Hoja no confirmada aceptada"); }
