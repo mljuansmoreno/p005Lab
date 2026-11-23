@@ -197,5 +197,14 @@ local({
     verificar(res$cifras$intervalo, unname(ref$conf.int))
   }
 })
+# Prueba traslación de medias sin alterar la dispersión.
+local({
+  x <- c(-2,0,7,20)
+  describir <- function(v) analizar(crear_solicitud("descriptivo","c001"), data.frame(c001=v), directorio)$cifras
+  origen <- describir(x)
+  trasladada <- describir(x + 13)
+  verificar(trasladada$media - origen$media, 13)
+  verificar(trasladada$desviacion_muestral, origen$desviacion_muestral)
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
