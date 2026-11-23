@@ -66,6 +66,8 @@ jobs:
       - name: Verificar API y adaptador con R real en Windows
         shell: pwsh
         run: python guiones/probar_api.py
+      - name: Verificar contratos del servidor .NET por HTTP
+        run: python -m unittest discover -s pruebas/api -v
       - name: Compilar host MCP
         shell: pwsh
         run: dotnet build codigo/RutaEstadistica.ServidorMcp -c Release --no-restore
