@@ -127,3 +127,10 @@ class InterfazWeb(unittest.TestCase):
         self.assertEqual(estado, 503)
         self.assertEqual(cabeceras["Retry-After"], "2")
         self.assertIn(b"capacidad_ocupada", cuerpo)
+
+
+    def test_portada_utf8(self):
+        estado, cabeceras, cuerpo = self.solicitar("GET", "/")
+        self.assertEqual((estado, cabeceras["Content-Type"]), (200, "text/html; charset=utf-8"))
+        self.assertEqual(int(cabeceras["Content-Length"]), len(cuerpo))
+        self.assertIn("Ruta Estadística", cuerpo.decode("utf-8"))
