@@ -127,3 +127,9 @@ class DespliegueCompose(unittest.TestCase):
         resultado = self.calcular()
         self.assertEqual(resultado["filas_analizadas"], 6)
         self.assertAlmostEqual(resultado["media"], (1+2+3+5+6+8)/6, places=11)
+
+    def test_salud_compatible(self):
+        sonda = "from web import motor_disponible, leer_secreto; assert motor_disponible('http://motor:8787', leer_secreto('/run/secrets/motor'))"
+        self.ejecutar("exec", "-T", "aplicacion", "python", "-c", sonda)
+        with self.cliente.open(self.url_web() + "/listo", timeout=5) as respuesta:
+            self.assertEqual(json.load(respuesta), {"listo": True})
