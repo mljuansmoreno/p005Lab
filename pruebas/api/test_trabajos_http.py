@@ -41,6 +41,15 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_carga_exige_contenido(self):
+        with tempfile.TemporaryDirectory() as directorio:
+            ruta = Path(directorio) / 'muestra.csv'
+            ruta.write_text('c001\n73\n', encoding='utf-8')
+            estado, cuerpo = self.http('POST', '/datos', {'proyecto_id': self.proyecto, 'ruta': str(ruta)})
+            self.assertEqual(estado, 400)
+            self.assertNotIn(str(ruta).encode(), cuerpo)
+            self.assertEqual(self.cargar(ruta.read_text('utf-8'))['filas'], 1)
+
     def test_nombres_exportados_independientes(self):
         for valores in ('3\n7', '9\n1'):
             carga = self.cargar('c001\n' + valores + '\n')
