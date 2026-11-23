@@ -253,3 +253,11 @@ class InterfazWeb(unittest.TestCase):
         self.assertEqual(cabeceras["Cache-Control"], "no-store")
         self.assertEqual(cabeceras["X-Content-Type-Options"], "nosniff")
         self.assertEqual(cabeceras["Referrer-Policy"], "no-referrer")
+
+
+    def test_resultado_html_escapado(self):
+        with patch("web.analizar", return_value={"etiqueta": "A < B & C"}):
+            estado, _, cuerpo = self.solicitar("POST", "/analizar")
+        self.assertEqual(estado, 200)
+        self.assertIn(b"A &lt; B &amp; C", cuerpo)
+        self.assertNotIn(b"A < B & C", cuerpo)
