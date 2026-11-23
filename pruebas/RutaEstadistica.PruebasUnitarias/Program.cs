@@ -228,6 +228,15 @@ try
         Verificar(recuperado.Pregunta == editado.Pregunta && recuperado.Contexto == editado.Contexto && recuperado.Nombre == proyecto.Nombre, "Los metadatos de investigación persisten");
         repositorio.Guardar(proyecto);
     }
+    {
+        var destino = Path.Combine(temporal, "destino_ocupado");
+        Directory.CreateDirectory(destino);
+        try { RepositorioProyectos.EscribirAtomico(destino, "contenido"); throw new Exception("Reemplazo de directorio aceptado"); }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+            Verificar(Directory.Exists(destino) && !Directory.EnumerateFiles(temporal, "destino_ocupado.*.tmp").Any(), "Una escritura fallida conserva el directorio y retira el temporal");
+        }
+    }
     var portatil = Path.Combine(temporal, "exportado.rutaestadistica"); repositorio.ExportarProyecto(proyecto.Id, portatil); var copia = repositorio.ImportarProyecto(portatil);
     Verificar(copia.Id != proyecto.Id && repositorio.LeerDatos(copia.Id)!.HashOriginal == datos.HashOriginal, "Archivo portátil valida hashes y crea identidad nueva");
     var malicioso = Path.Combine(temporal, "malicioso.zip"); using (var archivo = ZipFile.Open(malicioso, ZipArchiveMode.Create)) { using var escritor = new StreamWriter(archivo.CreateEntry("../escape.json").Open()); escritor.Write("{}"); }
