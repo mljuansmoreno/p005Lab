@@ -38,6 +38,10 @@ try
         var recuperadas = ImportadorDatos.LeerDelimitado(ImportadorDatos.CsvNormalizado(muestra), ',');
         Verificar(recuperadas[1].Single() == "Ana \"Luz\"", "Las comillas dobles sobreviven a la normalización");
     }
+    {
+        var muestra = await ImportarMuestra("Texto\r\n\"a\r\nb\"\n\"c\nd\"");
+        Verificar(muestra.Filas.Select(f => f[0]).SequenceEqual(["a\r\nb", "c\nd"]), "CSV conserva saltos internos con terminadores mixtos");
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
