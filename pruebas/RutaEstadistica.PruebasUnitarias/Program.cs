@@ -114,6 +114,11 @@ try
             Verificar(exclusivo.Length > 0, "La cancelación libera el archivo original para un acceso exclusivo");
         }
     }
+    {
+        var muestra = await ImportarMuestra("Grupo;Valor\n01;01\n");
+        var confirmada = ImportadorDatos.ConfirmarRoles(muestra, new Dictionary<string, string> { ["c001"] = "categorica", ["c002"] = "numerica" }, new());
+        Verificar(confirmada.Filas.Single().SequenceEqual(["01", "1"]) && confirmada.Columnas[0].Rol == "categorica", "El mismo literal conserva semánticas distintas por rol");
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
