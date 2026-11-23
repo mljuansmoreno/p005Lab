@@ -25,7 +25,9 @@ El controlador permanente y el controlador alojado tienen historiales independie
 | Disco del agente | Examinar preflight y espacio_checkout_bytes del #29. | La comprobación exige 3 GiB libres en el checkout y la guía recomienda 30 GiB en el almacenamiento de Docker. El #29 observó 1 012 241 244 160 bytes libres en su checkout. | [ejecutar.py](https://github.com/mljuansmoreno/p005Lab/blob/257e7916369cb43b4d145903a5486f5f02e53c2d/guiones/ci/ejecutar.py) · [ejecucion.json](https://github.com/mljuansmoreno/p005Lab/blob/d3d2fa3d8bca4fb6aa4498149fdacc52c3b9afa7/documentacion/evidencias-jenkins/build-29/ejecucion.json) |
 | Software del agente | Revisar las comprobaciones de herramientas y la plataforma exportada. | El #29 registró Python 3.14.4, Docker 29.9.3, Compose 5.7.0 y x86_64. El agente necesita Java para Remoting y Compose con up --wait-timeout. | [ejecutar.py](https://github.com/mljuansmoreno/p005Lab/blob/257e7916369cb43b4d145903a5486f5f02e53c2d/guiones/ci/ejecutar.py) · [ejecucion.json](https://github.com/mljuansmoreno/p005Lab/blob/d3d2fa3d8bca4fb6aa4498149fdacc52c3b9afa7/documentacion/evidencias-jenkins/build-29/ejecucion.json) |
 
-## 2. Configuración operativa y credenciales
+## Instalación y configuración
+
+**Puntaje de la rúbrica:** 20 puntos.
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
