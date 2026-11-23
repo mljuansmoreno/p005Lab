@@ -51,6 +51,7 @@ El controlador permanente y el controlador alojado tienen historiales independie
 
 - El [Jenkinsfile declarativo](Jenkinsfile) y el [job Pipeline script from SCM](jenkins/trabajo-main.xml) definen Checkout, Build y Test. La [exportación del job permanente](documentacion/evidencias-jenkins/configuracion-permanente.json) confirma la fuente SCM.
 - El [linter declarativo de Jenkins](documentacion/evidencias-jenkins/validacion-local/linter.txt) verificó la sintaxis en el controlador desechable. La [ejecución de unittest y web en WSL2](documentacion/evidencias-jenkins/validacion-local/pruebas-wsl.txt) verifica el lanzador y las pruebas de aplicación.
+- `ruta-estadistica-main` [#90001](documentacion/evidencias-jenkins/validacion-local/build-90001/ejecucion.json) ejecutó manualmente `f4d4f5d` desde una copia local de `main`. [Pipeline Stage View REST](documentacion/evidencias-jenkins/validacion-local/build-90001/etapas.json) registra Checkout, Build, Test y post en `SUCCESS`. La [consola](documentacion/evidencias-jenkins/validacion-local/build-90001/consola.txt), el [JUnit](documentacion/evidencias-jenkins/validacion-local/build-90001/integracion.xml) y la [limpieza](documentacion/evidencias-jenkins/validacion-local/build-90001/09-limpieza.txt) corresponden al pipeline separado.
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
