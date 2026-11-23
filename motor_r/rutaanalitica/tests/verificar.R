@@ -161,5 +161,11 @@ local({
   muestra <- data.frame(c001=c(1,2,3,NA), c002=c(7,7,7,9))
   esperar_error(function() analizar(crear_solicitud("pearson"), muestra, directorio), "DATOS_CONSTANTES")
 })
+# Contrasta Spearman con rangos medios calculados a mano.
+local({
+  muestra <- data.frame(c001=c(3,1,1,5,3), c002=c(1,4,4,2,8))
+  res <- analizar(crear_solicitud("spearman"), muestra, directorio)
+  verificar(res$cifras$coeficiente, stats::cor(c(3.5,1.5,1.5,5,3.5), c(1,3.5,3.5,2,5)))
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
