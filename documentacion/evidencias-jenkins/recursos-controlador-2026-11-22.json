@@ -1,0 +1,29 @@
+{
+  "fecha_bogota": "2026-11-22",
+  "controlador": "ruta-estadistica-jenkins-controlador-1",
+  "limite_memoria_bytes": 1073741824,
+  "cuota_cpu_nanocpus": 0,
+  "volumen": "ruta-estadistica-jenkins_jenkins_home",
+  "destino": "/var/jenkins_home",
+  "disco_disponible_bloques_1024": 987341880,
+  "daemon": {
+    "os": "linux",
+    "arquitectura": "x86_64",
+    "cpu_compartidas": 4,
+    "memoria_compartida_bytes": 4010336256
+  },
+  "http_login_loopback": 200,
+  "puerto_host": 9090,
+  "puerto_contenedor": 8080,
+  "agente": "linux-docker",
+  "transporte": "WebSocket",
+  "estado_remoting": "Connected",
+  "version_remoting": "3386.v353e57a_1b_ea_0",
+  "medicion": [
+    "docker inspect (HostConfig.Memory, HostConfig.NanoCpus, Mounts, NetworkSettings.Ports)",
+    "docker info (OSType, Architecture, NCPU, MemTotal)",
+    "docker exec ruta-estadistica-jenkins-controlador-1 df -Pk /var/jenkins_home",
+    "GET http://127.0.0.1:9090/login",
+    "Registro INFO del proceso jenkins/iniciar_agente.sh"
+  ]
+}
