@@ -13,6 +13,13 @@ from web import analizar, ErrorMotor
 
 
 class ResilienciaWeb(unittest.TestCase):
+    def test_respuesta_fuera_de_plazo(self):
+        from web import TIEMPO_ANALISIS
+        with patch("web.time.monotonic", side_effect=[0, 0, TIEMPO_ANALISIS + 1]):
+            with self.assertRaisesRegex(ErrorMotor, "agotó el tiempo"):
+                self.ejecutar([self.carga])
+        self.assertEqual(self.llamadas, [("POST", "/datos")])
+
     def test_disponibilidad_recuperada(self):
         with self.assertRaises(ErrorMotor):
             self.ejecutar([URLError("motor detenido")])
