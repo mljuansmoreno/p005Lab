@@ -376,6 +376,24 @@ try
             reloj.Avanzar(TimeSpan.FromMinutes(14));
             Verificar(almacen.Cargar(solicitudCarga).DatosId == vigente.DatosId, "Una recarga reciente conserva la misma revisión");
         }
+        {
+            var csvPrueba = "c001\n4\n6\n";
+            var datosPrueba = almacen.Cargar(new(proyecto.Id, csvPrueba));
+            var peticionPrueba = new SolicitudAnalisis(1, Guid.NewGuid().ToString("N"), proyecto.Id, datosPrueba.HashDatos, datosPrueba.HashDatos, "descriptivo", ["c001"]);
+            var admitido = almacen.Encolar(new(datosPrueba.DatosId, peticionPrueba));
+            almacen.Cancelar(admitido.TrabajoId, proyecto.Id);
+            var limiteReal = System.Diagnostics.Stopwatch.StartNew();
+            var depurado = false;
+            while (limiteReal.Elapsed < TimeSpan.FromSeconds(5) && !depurado)
+            {
+                reloj.Avanzar(TimeSpan.FromMinutes(16));
+                almacen.Cargar(new(proyecto.Id, csvPrueba));
+                try { almacen.Consultar(admitido.TrabajoId, proyecto.Id); }
+                catch (ErrorAplicacion error) when (error.Codigo == "TRABAJO_NO_ENCONTRADO") { depurado = true; }
+                if (!depurado) await Task.Delay(10);
+            }
+            Verificar(depurado, "La depuración retira un trabajo cancelado una vez finalizada la tarea");
+        }
         reloj.Avanzar(TimeSpan.FromMinutes(16));
         Verificar(almacen.Cargar(carga).DatosId != inicial.DatosId, "Una carga inactiva caduca al superar quince minutos");
     }
