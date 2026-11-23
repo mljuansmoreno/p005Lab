@@ -41,6 +41,18 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_cancelacion_concurrente(self):
+        from concurrent.futures import ThreadPoolExecutor
+        trabajo = self.encolar(self.cargar("c001\n2\n4\n"))
+        with ThreadPoolExecutor(max_workers=2) as hilos:
+            operaciones = [hilos.submit(self.http, "DELETE", self.ruta(trabajo)) for _ in range(2)]
+            respuestas = [operacion.result(timeout=10) for operacion in operaciones]
+        self.assertEqual([r[0] for r in respuestas], [200, 200])
+        estados = [json.loads(r[1])["estado"] for r in respuestas]
+        observado = json.loads(self.http("GET", self.ruta(trabajo))[1])["estado"]
+        self.assertIn(observado, ("cancelado", "completado"))
+        self.assertEqual(estados, [observado, observado])
+
     @motor_controlado
     def test_cancelacion_sin_sondeo(self):
         trabajo = self.encolar(self.cargar("c001\n2\n4\n"))
