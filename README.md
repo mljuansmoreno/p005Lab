@@ -279,10 +279,23 @@ El build local #17 agotó el plazo de escaneo anterior después de archivar el i
 
 Los registros corresponden a inspecciones defensivas de este repositorio, sus contenedores e imágenes. Cada JSON conserva la fecha de Bogotá, el control y el SHA auditado. El [informe inicial](documentacion/informes/revision_ciberseguridad.md) conserva por separado el antecedente sobre `0aad2e5`.
 
-| Fecha y revisión auditada | Controles correctos / evaluados | Web: altas / críticas | Motor: altas / críticas |
-| --- | ---: | ---: | ---: |
-| [15 de noviembre de 2026](documentacion/informes/revisiones-seguridad/2026-11-15), `dbcafcb` | 72 / 75 | 54 / 3 | 3 / 0 |
-| [16 de noviembre de 2026](documentacion/informes/revisiones-seguridad/2026-11-16), `295325f` | 74 / 75 | 0 / 0 | 0 / 0 |
+### Perfil NIST y métodos de evaluación
+
+El perfil `p005Lab-2026-11` define **75 comprobaciones del proyecto** vinculadas a **17 controles** de [NIST SP 800-53 Rev. 5, versión 5.2.0](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final). La tabla muestra las correspondencias que registró el [lote del 23 de noviembre](documentacion/informes/revisiones-seguridad/2026-11-23).
+
+[NIST SP 800-53A Rev. 5, versión 5.2.0](https://csrc.nist.gov/pubs/sp/800/53/a/r5/final) guía **51 exámenes** de configuración, artefactos y estado observado, y **24 pruebas** que ejecutan comprobaciones y comparan sus resultados con los criterios del perfil. El perfil no usa entrevistas. Las correspondencias documentan el alcance de esta evaluación del repositorio.
+
+[NIST SP 800-190 (2017)](https://csrc.nist.gov/pubs/sp/800/190/final) guía la revisión de imágenes y contenedores. El perfil referencia §4.1.1 para vulnerabilidades de imágenes, §4.1.4 para secretos incorporados, §4.1.5 para confianza y procedencia de imágenes, §4.3.3 para separación de redes, §4.4.3 para configuración de ejecución y §4.4.4 para vulnerabilidades de las aplicaciones. El JSON de cada comprobación conserva la sección aplicable cuando el perfil la asigna.
+
+| Control de SP 800-53 | Comprobaciones de este repositorio |
+| --- | --- |
+
+### Resultados por fecha
+
+La columna NIST cuenta los JSON que contienen `referencia_nist`. Los informes históricos se presentan como se publicaron. «Sin detalle» indica que el JSON no permite verificar el número de coincidencias del escaneo. La ficha de imagen identifica la ejecución cuando está disponible.
+
+| Fecha y revisión auditada | Correctos / evaluados | JSON con referencia NIST | Web: altas / críticas | Motor: altas / críticas |
+| --- | ---: | ---: | ---: | ---: |
 
 El 16 de noviembre, el control [de secretos en el historial de Git](documentacion/informes/revisiones-seguridad/2026-11-16/git-historial-secretos.json) quedó marcado como hallazgo. El registro no identifica una credencial concreta ni documenta el cierre del hallazgo. Es un resultado separado del escaneo de imágenes.
 
