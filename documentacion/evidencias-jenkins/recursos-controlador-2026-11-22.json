@@ -24,6 +24,8 @@
     "docker info (OSType, Architecture, NCPU, MemTotal)",
     "docker exec ruta-estadistica-jenkins-controlador-1 df -Pk /var/jenkins_home",
     "GET http://127.0.0.1:9090/login",
-    "Registro INFO del proceso jenkins/iniciar_agente.sh"
-  ]
+    "Registro INFO del proceso jenkins/iniciar_agente.sh",
+    "HEAD /login en loopback, cabecera X-Jenkins"
+  ],
+  "version_controlador_http": "2.580.2"
 }
