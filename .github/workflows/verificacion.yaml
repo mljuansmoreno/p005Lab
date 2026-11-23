@@ -59,7 +59,11 @@ jobs:
           ./guiones/preparar_desarrollo.ps1 -RutaR $rutaR -AdquirirJson
       - name: Verificar cifras, integración, documentación y nombres
         shell: pwsh
-        run: ./guiones/ejecutar_pruebas.ps1 -RutaR $env:RUTA_ESTADISTICA_R_CI
+        run: |
+          $herramientas = Join-Path $env:RUNNER_TEMP 'coverage-dotnet'
+          dotnet tool install dotnet-coverage --version 18.12.0 --tool-path $herramientas
+          if ($LASTEXITCODE) { throw 'Falló la instalación de dotnet-coverage' }
+          ./guiones/ejecutar_pruebas.ps1 -RutaR $env:RUTA_ESTADISTICA_R_CI -HerramientaCobertura "$herramientas/dotnet-coverage.exe"
       - name: Verificar permutaciones con el paquete R nativo
         shell: pwsh
         run: |
