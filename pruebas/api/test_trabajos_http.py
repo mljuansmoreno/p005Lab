@@ -41,6 +41,11 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_error_sin_detalles_del_servidor(self):
+        codigo,cuerpo = self.http("POST","/datos",{"proyecto_id":self.proyecto,"csv":"etiqueta-privada\n2\n"})
+        self.assertEqual((codigo,json.loads(cuerpo)),(400,{"codigo":"DATOS_CSV_INVALIDO"}))
+        self.assertNotIn(b"etiqueta-privada", cuerpo)
+
     def test_capacidad_tras_fallo(self):
         mala = self.cargar("c001\nno-numérico\n")
         for _ in range(2):
