@@ -323,3 +323,7 @@ class TrabajosHTTP(unittest.TestCase):
         self.addCleanup(self.http, "DELETE", self.ruta(trabajo))
         final = self.esperar(trabajo)[-1]
         self.assertEqual((final["estado"], final["codigo_error"]), ("fallido", "TRABAJO_TIEMPO_AGOTADO"))
+
+    def test_endpoint_heredado(self):
+        codigo, cuerpo = self.http("POST", "/analisis", {})
+        self.assertEqual((codigo, json.loads(cuerpo)), (410, {"codigo": "DOCKER_VERSION_INCOMPATIBLE"}))
