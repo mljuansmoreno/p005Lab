@@ -1,0 +1,21 @@
+{
+  "revision": "2dea63d73b8c2bcf6f4171814283382aebadca37",
+  "fecha_utc": "2026-11-23T04:22:02.415246+00:00",
+  "entorno": "Ubuntu WSL2",
+  "suites": [
+    {
+      "comando": "python3 -m unittest discover -s pruebas/ci",
+      "casos": 76,
+      "duracion_s": 34.801,
+      "codigo": 0,
+      "estado": "OK"
+    },
+    {
+      "comando": "python3 -m unittest discover -s pruebas -p test_aplicacion_web.py",
+      "casos": 12,
+      "duracion_s": 0.217,
+      "codigo": 0,
+      "estado": "OK"
+    }
+  ]
+}
