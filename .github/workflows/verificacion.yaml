@@ -72,6 +72,13 @@ jobs:
       - name: Compilar escritorio
         shell: pwsh
         run: ./guiones/compilar.ps1
+      - name: Medir cobertura del paquete R nativo
+        shell: pwsh
+        run: |
+          $env:R_LIBS_USER = (Resolve-Path .dependencias/R/biblioteca).Path
+          Rscript --vanilla -e 'install.packages(c("covr","xml2"), repos="https://cloud.r-project.org", type="binary", quiet=TRUE)'
+          if ($LASTEXITCODE) { throw 'Falló la instalación de dependencias de cobertura R' }
+          Rscript --vanilla guiones/ci/medir_cobertura_r.R
       - name: Compilar API de trabajos
         shell: pwsh
         run: dotnet build codigo/RutaEstadistica.ServidorLocal -c Release --no-restore
