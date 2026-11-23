@@ -76,6 +76,8 @@ def ejecutar(jenkins, numero, revision, *, sin_cache=False):
     build = jenkins.esperar_json(ruta + f"api/json?tree={quote(CAMPOS)}",
                                  lambda datos: not datos["building"] and bool(datos["result"]), 37 * 60)
     (carpeta / "build.json").write_text(json.dumps(build, indent=2) + "\n", encoding="utf-8")
+    etapas = jenkins.pedir(ruta + "wfapi/describe")
+    (carpeta / "etapas.json").write_bytes(etapas)
     consola = jenkins.pedir(ruta + "consoleText").decode("utf-8", errors="replace")
     hitos = [linea for linea in consola.splitlines() if LINEA_SEGURA.fullmatch(linea)]
     (carpeta / "consoleText").write_text("\n".join(hitos) + "\n", encoding="utf-8")
