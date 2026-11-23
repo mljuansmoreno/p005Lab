@@ -149,3 +149,10 @@ class InterfazWeb(unittest.TestCase):
             estado, _, cuerpo = self.solicitar("GET", "/listo")
         self.assertEqual((estado, json.loads(cuerpo)), (200, {"listo": True}))
         sonda.assert_called_once_with(self.servidor.destino, self.servidor.secreto)
+
+
+    def test_disponibilidad_se_actualiza(self):
+        with patch("web.motor_disponible", side_effect=[True, False, True]):
+            estados = [self.solicitar("GET", "/listo") for _ in range(3)]
+        self.assertEqual([(e, json.loads(c)["listo"]) for e, _, c in estados],
+                         [(200, True), (503, False), (200, True)])
