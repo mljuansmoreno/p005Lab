@@ -1,4 +1,6 @@
-# Verificación de la rúbrica de Jenkins
+# Rúbrica de Jenkins y verificación de evidencias
+
+Cada criterio reúne su alcance, puntaje, implementación y comprobaciones. Las copias del [anexo versionado](documentacion/evidencias-jenkins/README.md) se pueden consultar desde un clon.
 
 La revisión parte de [`baed0fbf6cbe9ff72fe3ce213811770fdd4f15b6`](https://github.com/mljuansmoreno/p005Lab/commit/baed0fbf6cbe9ff72fe3ce213811770fdd4f15b6), confirmado con `git ls-remote origin refs/heads/main`. La entrega comprende 155 commits propios sobre esa base. La calificación corresponde al profesor.
 
