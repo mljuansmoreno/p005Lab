@@ -125,6 +125,11 @@ try
         try { ImportadorDatos.ConfirmarRoles(muestra, new Dictionary<string,string> { ["c001"] = "numerica" }, new()); throw new Exception("Texto numérico admitido"); }
         catch (ErrorAplicacion error) { Verificar(error.Message == "DATOS_NUMERO_INVALIDO" && !error.Message.Contains(privado), "El diagnóstico no incluye el valor de la fila"); }
     }
+    {
+        var estado = new EstadoTrabajoMotor("trabajo", "proyecto", "completado", null);
+        var json = System.Text.Json.JsonSerializer.SerializeToElement(estado, Serializacion.Opciones);
+        Verificar(json.GetProperty("codigo_error").ValueKind == System.Text.Json.JsonValueKind.Null, "El diagnóstico ausente es null en JSON");
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
