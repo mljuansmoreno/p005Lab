@@ -25,3 +25,14 @@ Estado: no ejecutado. Usar Narrador en una sesión interactiva con el proyecto s
 Transcribir las locuciones del botón, del encabezado y de la tabla «Cifras calculadas por R». En la tabla, comprobar que la cifra se puede asociar a su indicador. Al llegar al gráfico, verificar que el nombre accesible dirige hacia cifras, recuentos y método. Anotar si la lectura continúa en orden y si vuelve al control esperado al cerrar un diálogo.
 
 Aprobar solo si se identifica cada control por función y nombre y el lector comunica las cifras del ejemplo. Conservar la transcripción y el primer control que falle. Desactivar Narrador con el mismo atajo al finalizar.
+
+## Instalación y primera ejecución de MSIX
+
+Estado: no ejecutado. Se requiere una VM Windows x64 compatible, una cuenta estándar y un MSIX firmado con un certificado de confianza para esa VM. El [empaquetador](../../guiones/empaquetar_tienda.ps1) produce un archivo terminado en `_x64_sin_firma.msix`. Registrar SHA-256, identidad, editor, versión y estado de la firma del paquete que realmente se somete a prueba.
+
+1. En una instantánea limpia, confirmar que el paquete no está instalado en la cuenta. Ejecutar `Get-AuthenticodeSignature` y `Get-FileHash -Algorithm SHA256` sobre el MSIX recibido. Si la firma no es válida, registrar el bloqueo antes de instalar.
+2. En la cuenta estándar ejecutar `Add-AppxPackage -Path <paquete-firmado.msix>`. Comprobar con `Get-AppxPackage -Name <identidad>` que editor y versión coinciden y que el procedimiento no solicitó elevación.
+3. Abrir la aplicación desde Inicio, activar «Probar ejemplo», calcular y consultar resultados. Cerrar y volver a abrir. Verificar que el proyecto sintético aparece y que sus resultados son accesibles.
+4. Registrar el estado de cada paso y el primer error de despliegue o inicio. Revertir la instantánea de la VM después de recoger la evidencia.
+
+La validación requiere el recorrido dentro de la cuenta estándar. La generación de un paquete por sí sola se registra como empaquetado.
