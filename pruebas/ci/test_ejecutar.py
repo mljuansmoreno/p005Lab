@@ -19,6 +19,17 @@ from reportes import Reporte, ResultadoWeb
 
 
 class PruebasInforme(unittest.TestCase):
+    def test_artefacto_no_escribible(self):
+        reporte = Reporte("simulacion")
+        reporte.caso("calculo", "prueba", 0)
+        with TemporaryDirectory() as directorio:
+            carpeta = Path(directorio)
+            with self.assertRaises(OSError):
+                reporte.guardar(carpeta)
+            ruta = carpeta / "casos.xml"
+            reporte.guardar(ruta)
+            self.assertEqual(ET.parse(ruta).getroot().find("testcase").get("name"), "calculo")
+
     def test_almacenamiento_temporal_lleno(self):
         import errno
         reporte = Reporte("simulacion")
