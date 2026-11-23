@@ -334,6 +334,10 @@ try
         foreach (var valor in new[] { otraPreparacion.ToUpperInvariant(), otraPreparacion + "\n", "" })
             Rechazar(() => Validacion.Validar(solicitud with { HashPreparacion = valor }, preparados), "DATOS_HASH_INVALIDO");
     }
+    {
+        foreach (var tipo in new[] { "Welch", "pearson ", "regresion", "" })
+            Rechazar(() => Validacion.Validar(solicitud with { Tipo = tipo }, preparados), "ANALISIS_NO_ADMITIDO");
+    }
         var primero = gestor.Encolar(new(carga.DatosId, solicitud));
         var plazoInicio = DateTimeOffset.UtcNow.AddSeconds(10);
         while (gestor.Consultar(primero.TrabajoId, proyecto.Id).Estado == "pendiente" && DateTimeOffset.UtcNow < plazoInicio) await Task.Delay(10);
