@@ -121,3 +121,10 @@ class TrabajosHTTP(unittest.TestCase):
         segundo = self.cargar("c001\n2\n")
         self.assertNotEqual(primero["datos_id"], segundo["datos_id"])
         self.assertNotEqual(primero["hash_datos"], segundo["hash_datos"])
+
+
+    def test_cargas_por_proyecto(self):
+        primero = self.cargar("c001\n1\n")
+        segundo = self.cargar("c001\n1\n", uuid.uuid4().hex)
+        self.assertEqual(primero["hash_datos"], segundo["hash_datos"])
+        self.assertNotEqual(primero["datos_id"], segundo["datos_id"])
