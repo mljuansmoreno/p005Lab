@@ -428,6 +428,13 @@ try
             && contenido.GetProperty("hash_preparacion").GetString() == solicitud.HashPreparacion
             && contenido.GetProperty("hash_datos").GetString() == solicitud.HashDatos, "El resultado conserva la procedencia de la solicitud");
     }
+    {
+        var imagen = await File.ReadAllBytesAsync(Path.Combine(trabajo, "figura.png"));
+        Verificar(imagen.AsSpan(0, 8).SequenceEqual(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 })
+            && Encoding.ASCII.GetString(imagen, 12, 4) == "IHDR"
+            && System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(imagen.AsSpan(16, 4)) == 1400
+            && System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(imagen.AsSpan(20, 4)) == 900, "PNG del trabajador declara sus dimensiones reales");
+    }
         Verificar(resultado.Contenido.GetProperty("cifras").GetProperty("media").GetDouble() == 2, "Trabajador R real devuelve media conocida con exclusión");
         Verificar(PresentacionResultados.Cifras(resultado).Any(fila => fila.Indicador == "Media" && fila.Valor == "2"), "Tabla nativa presenta la media calculada por R");
         Verificar(PresentacionResultados.Frecuencias(resultado).Count == 0, "Una ruta numérica no inventa frecuencias categóricas");
