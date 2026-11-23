@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import re
+import subprocess
 import time
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urlencode
@@ -98,6 +99,11 @@ def ejecutar(jenkins, numero, revision, *, sin_cache=False):
                  "alcance_jenkins": "GLOBAL", "repositorio": "mljuansmoreno/p005Lab",
                  "permiso_workflow": "contents: read", "uso": "checkout scm", "build": numero}
         (carpeta / "credencial.json").write_text(json.dumps(ficha, indent=2) + "\n", encoding="utf-8")
+    detector = os.environ.get("RUTA_CI_GITLEAKS_CONSOLA")
+    if detector:
+        subprocess.run([detector, "stdin", "--no-banner", "--redact=100"], input=consola.encode("utf-8"),
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=90, check=True)
+        (carpeta / "consola-completa.txt").write_bytes(consola.encode("utf-8"))
     origen = os.environ
     url_actions = f"{origen['GITHUB_SERVER_URL']}/{origen['GITHUB_REPOSITORY']}/actions/runs/{origen['GITHUB_RUN_ID']}"
     procedencia = {"url": url_actions, "revision_esperada": revision,

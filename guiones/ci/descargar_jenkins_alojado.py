@@ -14,7 +14,7 @@ from zipfile import BadZipFile, ZipFile
 from auditar_entrega import EVIDENCIAS_OBLIGATORIAS, auditar_build, datos, sha, validar_origen_actions
 
 REPOSITORIO = "repos/mljuansmoreno/p005Lab/actions"
-ARCHIVOS = {"build.json", "consoleText", "origen-actions.json", "plugins-activos.json", "linter.txt", "etapas.json", "credencial.json"} | {
+ARCHIVOS = {"build.json", "consoleText", "origen-actions.json", "plugins-activos.json", "linter.txt", "etapas.json", "credencial.json", "consola-completa.txt"} | {
     "artifact-salidas-jenkins-ci-" + nombre.replace("/", "-")
     for nombre in EVIDENCIAS_OBLIGATORIAS | {"manifest.json"}
 }

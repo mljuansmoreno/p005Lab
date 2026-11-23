@@ -24,7 +24,7 @@ limpiar() {
   if "$agente_creado"; then
     rm -f -- "$agente/conexion.secreto"
   fi
-  rm -f -- "$privado/api" "$privado/netrc" "$privado/github"
+  rm -f -- "$privado/gitleaks" "$privado/gitleaks.tar.gz" "$privado/api" "$privado/netrc" "$privado/github"
 }
 trap limpiar EXIT
 trap 'exit 130' INT
@@ -65,7 +65,9 @@ opciones=()
 if [[ "${RUTA_CI_ALOJADO_SIN_CACHE:-false}" == true ]]; then
   opciones+=(--sin-cache)
 fi
-python3 jenkins/recolectar_alojado.py "$privado/api" "$numero" "$GITHUB_SHA" "${opciones[@]}"
+source guiones/ci/herramientas.sh
+obtener_gitleaks_ci "$privado"
+RUTA_CI_GITLEAKS_CONSOLA="$privado/gitleaks" python3 jenkins/recolectar_alojado.py "$privado/api" "$numero" "$GITHUB_SHA" "${opciones[@]}"
 if [[ "${RUTA_CI_CAPTURAS:-false}" == true ]]; then
   node jenkins/capturar_alojado.mjs "$privado/api" "$numero" "$GITHUB_SHA"
 fi
