@@ -191,3 +191,12 @@ class InterfazWeb(unittest.TestCase):
         self.assertEqual(estado, 502)
         self.assertEqual(json.loads(cuerpo), {"error": "motor_no_disponible"})
         self.assertNotIn(b"referencia-sintetica", cuerpo)
+
+
+    def test_alerta_mantiene_formulario(self):
+        with patch("web.analizar", side_effect=ValueError("detalle de lectura")):
+            estado, _, cuerpo = self.solicitar("POST", "/analizar")
+        self.assertEqual(estado, 502)
+        self.assertIn(b'role="alert"', cuerpo)
+        self.assertIn(b'<form action="/analizar" method="post">', cuerpo)
+        self.assertNotIn(b"detalle de lectura", cuerpo)
