@@ -61,3 +61,10 @@ class ModeloCompose(unittest.TestCase):
             self.assertIs(self.config["services"][nombre]["read_only"], True)
         tmpfs = self.config["services"]["motor"]["tmpfs"]
         self.assertTrue(any(item.startswith("/tmp:") and "size=" in item for item in tmpfs))
+
+    def test_aislamiento_de_nombres(self):
+        segundo = self.proyecto + "-otro"
+        otro = json.loads(compose(segundo, self.entorno, "config", "--format", "json"))
+        self.assertTrue({n["name"] for n in otro["networks"].values()}.isdisjoint(
+                        {n["name"] for n in self.config["networks"].values()}))
+        self.assertNotEqual(self.config["name"], otro["name"])
