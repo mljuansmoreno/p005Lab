@@ -26,3 +26,4 @@ El [run 45109084160](https://github.com/mljuansmoreno/p005Lab/actions/runs/45109
 | [seguridad-motor.json](artifact-salidas-jenkins-ci-seguridad-motor.json) | El informe identifica el segundo servicio por su propio digest y conserva su inventario y política de severidad. |
 | [reportes-web.xml](artifact-salidas-jenkins-ci-reportes-web.xml) | El informe JUnit se publica junto a las pruebas de integración del mismo build. Registra 12 casos. |
 | [reportes-integracion.xml](artifact-salidas-jenkins-ci-reportes-integracion.xml) | El XML permite revisar cada fase y su resultado, incluido el desmontaje. Registra 15 casos. |
+| [manifest.json](artifact-salidas-jenkins-ci-manifest.json) | El importador contrastó el manifiesto con los bytes descargados y con los nombres archivados por Jenkins. |

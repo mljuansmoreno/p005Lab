@@ -1,0 +1,65 @@
+{
+  "revision": "62a80479ee21b1f9c018ae1f83e42ff65df6ad5c",
+  "archivos": {
+    "00-entorno.json": {
+      "sha256": "20b5a29c5f9c3fa64af4625af1ce6bf750fdbfcc1eb69ae63655b5671a417dc5",
+      "bytes": 1330
+    },
+    "01-compilacion.txt": {
+      "sha256": "c7634d555ff116c4469fcf6e25b498b2e94ec2fff9cf60a61b1cc0b53f3f7b5f",
+      "bytes": 42126
+    },
+    "02-arranque.txt": {
+      "sha256": "947c121577effe14ba0828cb559a621ba8317b70cc0a1f49c659d5fe78936476",
+      "bytes": 984
+    },
+    "03-docker-ps.txt": {
+      "sha256": "5df52cf8df4ec6640e3256f1e78c3f9a19fd1a2a119a3d4a7e9e85acf95935ce",
+      "bytes": 512
+    },
+    "04-red.txt": {
+      "sha256": "31ca2ea3317df34e57d4c79f7039d197e8ed5f46c69b361bfc056adbabed9fda",
+      "bytes": 163
+    },
+    "05-calculo.txt": {
+      "sha256": "b369c97159500438adca5ad0db014eb1fc4e15a3e05a27612073cc3cc3f51ea4",
+      "bytes": 296
+    },
+    "06-recuperacion.txt": {
+      "sha256": "95dea79bc744de445cf7e88f35c1683b1e893f4a9f5da5f06e0ab9d662472e3d",
+      "bytes": 1024
+    },
+    "07-aislamiento.json": {
+      "sha256": "13a4fac2f26252aa09a02a9fc33a03894b2f038121130ed3158cde98dbb7fa31",
+      "bytes": 540
+    },
+    "08-pruebas-r.txt": {
+      "sha256": "b9b570fcfb5732af09dcc1e5ad953f91fdea011ce6f44eb038211bf98f431530",
+      "bytes": 190
+    },
+    "09-limpieza.txt": {
+      "sha256": "c1cde91bd81ebdcdcba24f6a5e9b71f7cb55b2c254f48644064f271a7f219f0b",
+      "bytes": 90
+    },
+    "10-autenticacion.txt": {
+      "sha256": "d09e9243ce308243f1595a29b428cffd3dc0803418eb8ba05c70d4a3cd01f9ba",
+      "bytes": 65
+    },
+    "seguridad-aplicacion.json": {
+      "sha256": "ad311af6d8467d82762696108c2a99213b894f45c178b673f1c03dd0a2766105",
+      "bytes": 426
+    },
+    "seguridad-motor.json": {
+      "sha256": "650be41f78544d6902be87f164d2dbc50b4ba4a9ed51d9e074d9e72700c99adc",
+      "bytes": 428
+    },
+    "reportes/web.xml": {
+      "sha256": "c935b07e93b8c308ae473b6b46b03b2efd1e8a5493502675f49de09edfad6e31",
+      "bytes": 1457
+    },
+    "reportes/integracion.xml": {
+      "sha256": "dd9b13f5c72f3dbb5e7b3b45ac0ae54c2a24043706be7914a0f3062a6b467605",
+      "bytes": 1177
+    }
+  }
+}
