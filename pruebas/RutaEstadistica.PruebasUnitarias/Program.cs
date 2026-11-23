@@ -314,6 +314,11 @@ try
         foreach (var version in new[] { 0, 2, int.MaxValue })
             Rechazar(() => Validacion.Validar(solicitud with { VersionContrato = version }, preparados), "CONTRATO_VERSION_NO_ADMITIDA");
     }
+    {
+        Validacion.Validar(solicitud with { ProyectoId = new string('p', 64) }, preparados);
+        foreach (var id in new[] { "", " ", new string('p', 65) })
+            Rechazar(() => Validacion.Validar(solicitud with { ProyectoId = id }, preparados), "CONTRATO_SOLICITUD_INVALIDA");
+    }
         var primero = gestor.Encolar(new(carga.DatosId, solicitud));
         var plazoInicio = DateTimeOffset.UtcNow.AddSeconds(10);
         while (gestor.Consultar(primero.TrabajoId, proyecto.Id).Estado == "pendiente" && DateTimeOffset.UtcNow < plazoInicio) await Task.Delay(10);
