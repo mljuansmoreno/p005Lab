@@ -66,6 +66,25 @@ jobs:
           path: salidas/jenkins-capturas/
           if-no-files-found: error
           retention-days: 30
+      - name: Verificar el cierre de la rúbrica
+        if: github.event_name == 'push' && github.event.head_commit.message == 'C7 · Cierra la verificación de los 155 commits de Jenkins'
+        env:
+          PYTHONUTF8: "1"
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse refs/tags/rubrica-jenkins-155-baed0fb^{commit})" = "$GITHUB_SHA"
+          builds=(salidas/jenkins-alojado/build-*)
+          test "${#builds[@]}" -eq 1
+          mkdir -p salidas/cierre-rubrica
+          python3 guiones/ci/verificar_cierre_rubrica.py --revision "$GITHUB_SHA" --build "${builds[0]}" > salidas/cierre-rubrica/cierre.json
+      - name: Publicar el cierre de los 155 commits
+        if: success() && hashFiles('salidas/cierre-rubrica/cierre.json') != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cierre-rubrica-155-${{ github.sha }}
+          path: salidas/cierre-rubrica/
+          if-no-files-found: error
+          retention-days: 90
       - name: Identificar el anexo publicado
         if: ${{ always() && steps.evidencia.outputs.artifact-id != '' }}
         env:
