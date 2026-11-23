@@ -196,7 +196,8 @@ class Pagina(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'")
         self.send_header("X-Content-Type-Options", "nosniff")
-        self.send_header("Referrer-Policy", "no-referrer")
+        # El navegador necesita conservar Origin para enviar el formulario al mismo sitio.
+        self.send_header("Referrer-Policy", "same-origin" if tipo == "text/html" else "no-referrer")
         if reintentar is not None:
             self.send_header("Retry-After", str(reintentar))
         self.end_headers()

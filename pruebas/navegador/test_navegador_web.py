@@ -1,5 +1,7 @@
 """Pruebas de la web local en un navegador Chromium real."""
+import json
 import os
+from urllib.parse import urlsplit
 import re
 from pathlib import Path
 import sys
@@ -71,3 +73,19 @@ class NavegadorWeb(unittest.TestCase):
         self.assertGreaterEqual(rectangulo["x"], 0)
         self.assertLessEqual(rectangulo["x"] + rectangulo["width"], 320)
         self.assertLessEqual(self.pagina.evaluate("document.documentElement.scrollWidth"), 320)
+
+    def test_calculo_real(self):
+        destino = os.environ["RUTA_QA_WEB_REAL"]
+        url = urlsplit(destino)
+        self.assertIn(url.hostname, ("localhost", "127.0.0.1"))
+        self.assertEqual(url.scheme, "http")
+        self.pagina.goto(destino)
+        with self.pagina.expect_navigation(timeout=80000) as navegacion:
+            self.pagina.get_by_role("button", name="Calcular ejemplo").click()
+        respuesta = navegacion.value
+        self.assertEqual(respuesta.status, 200, f"Origen observado: {respuesta.request.header_value('origin')}")
+        resultado = json.loads(self.pagina.locator("pre").inner_text())
+        self.assertEqual(resultado["estado"], "completado")
+        self.assertEqual(resultado["filas_analizadas"], 6)
+        self.assertAlmostEqual(resultado["media"], 25 / 6)
+        self.assertRegex(resultado["solicitud_id"], r"^[0-9a-f]{32}$")
