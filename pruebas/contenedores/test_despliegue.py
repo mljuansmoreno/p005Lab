@@ -6,6 +6,7 @@ import secrets
 import subprocess
 import tempfile
 import unittest
+from urllib.error import HTTPError
 from urllib.request import ProxyHandler, build_opener, Request
 
 
@@ -69,3 +70,21 @@ class DespliegueCompose(unittest.TestCase):
         self.assertGreater(int(puerto), 0)
         with self.cliente.open("http://" + direccion + "/salud", timeout=5) as respuesta:
             self.assertEqual(json.load(respuesta), {"estado": "activo"})
+
+    def calcular(self):
+        peticion = Request(self.url_web() + "/analizar", data=b"", headers={"Accept": "application/json"})
+        with self.cliente.open(peticion, timeout=80) as respuesta:
+            self.assertEqual(respuesta.status, 200)
+            return json.load(respuesta)
+
+    def test_recuperacion(self):
+        self.ejecutar("stop", "motor")
+        try:
+            with self.cliente.open(self.url_web() + "/salud", timeout=5) as respuesta:
+                self.assertEqual(respuesta.status, 200)
+            with self.assertRaises(HTTPError) as error:
+                self.cliente.open(self.url_web() + "/listo", timeout=5)
+            self.assertEqual(error.exception.code, 503)
+        finally:
+            self.ejecutar("up", "-d", "--no-build", "--wait", "--wait-timeout", "90", "motor")
+        self.assertEqual(self.calcular()["estado"], "completado")
