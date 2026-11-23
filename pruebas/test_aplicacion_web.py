@@ -224,3 +224,10 @@ class InterfazWeb(unittest.TestCase):
         with self.assertRaises(HTTPError) as recibido:
             cliente_http().error("http", peticion, None, 307, "redirección", {"Location": "/otro"})
         self.assertEqual(recibido.exception.code, 307)
+
+
+    def test_proxy_global(self):
+        import os
+        with patch.object(os, "environ", dict(os.environ, ALL_PROXY="http://proxy.invalid:8080")):
+            cliente = cliente_http()
+        self.assertFalse(any(hasattr(manejador, "proxy_open") for manejador in cliente.handlers))
