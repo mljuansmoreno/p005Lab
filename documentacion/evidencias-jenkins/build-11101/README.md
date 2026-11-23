@@ -22,3 +22,4 @@ El [run 45109084160](https://github.com/mljuansmoreno/p005Lab/actions/runs/45109
 | [08-pruebas-r.txt](artifact-salidas-jenkins-ci-08-pruebas-r.txt) | El resultado permite distinguir las pruebas internas del motor de la solicitud web de integración. |
 | [09-limpieza.txt](artifact-salidas-jenkins-ci-09-limpieza.txt) | La marca de limpieza identifica el mismo proyecto registrado en el entorno del job. |
 | [10-autenticacion.txt](artifact-salidas-jenkins-ci-10-autenticacion.txt) | La salida registra el resultado de la comprobación entre servicios y omite los valores de la credencial. |
+| [seguridad-aplicacion.json](artifact-salidas-jenkins-ci-seguridad-aplicacion.json) | El informe contiene ID de imagen, huella de inventario, fecha de base y conteo por severidad. |
