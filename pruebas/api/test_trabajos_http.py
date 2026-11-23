@@ -128,3 +128,22 @@ class TrabajosHTTP(unittest.TestCase):
         segundo = self.cargar("c001\n1\n", uuid.uuid4().hex)
         self.assertEqual(primero["hash_datos"], segundo["hash_datos"])
         self.assertNotEqual(primero["datos_id"], segundo["datos_id"])
+
+    def peticion(self, carga):
+        solicitud = {"version_contrato": 1, "solicitud_id": uuid.uuid4().hex,
+                     "proyecto_id": self.proyecto, "hash_datos": carga["hash_datos"],
+                     "hash_preparacion": carga["hash_datos"], "tipo": "descriptivo",
+                     "columnas": ["c001"], "confianza": .95, "politica_faltantes": "rechazar",
+                     "inferencia_confirmada": False, "pareamiento_confirmado": False}
+        return {"datos_id": carga["datos_id"], "solicitud": solicitud}
+
+    def encolar(self, carga):
+        codigo, cuerpo = self.http("POST", "/trabajos", self.peticion(carga))
+        self.assertEqual(codigo, 202)
+        return json.loads(cuerpo)
+    def test_admision_pendiente(self):
+        trabajo = self.encolar(self.cargar("c001\n2\n4\n"))
+        self.assertEqual(trabajo["estado"], "pendiente")
+        self.assertEqual(trabajo["proyecto_id"], self.proyecto)
+        self.assertIsNone(trabajo["codigo_error"])
+        self.assertRegex(trabajo["trabajo_id"], r"^[a-f0-9]{32}$")
