@@ -6,3 +6,4 @@ El [run 45109084160](https://github.com/mljuansmoreno/p005Lab/actions/runs/45109
 | --- | --- |
 | [build.json](build.json) | La API identifica el build, la causa, la hora de inicio, la duración y el resultado. |
 | [origen-actions.json](origen-actions.json) | El run padre declara el SHA esperado y el modo de compilación solicitado. |
+| [plugins-activos.json](plugins-activos.json) | Las versiones proceden de pluginManager y se cotejaron con el inventario antes del build. |
