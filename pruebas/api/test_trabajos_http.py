@@ -41,6 +41,12 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_almacen_lleno(self):
+        cargas = [self.cargar(f"c001\n{i}\n") for i in range(4)]
+        codigo, cuerpo = self.http("POST","/datos",{"proyecto_id":self.proyecto,"csv":"c001\n4\n"})
+        self.assertEqual((codigo,json.loads(cuerpo)),(429,{"codigo":"MOTOR_ALMACEN_LLENO"}))
+        self.assertEqual(self.cargar("c001\n0\n"),cargas[0])
+
     def test_exceso_filas(self):
         csv = "c001\n" + "1\n" * 100001
         codigo, cuerpo = self.http("POST", "/datos", {"proyecto_id":self.proyecto,"csv":csv})
