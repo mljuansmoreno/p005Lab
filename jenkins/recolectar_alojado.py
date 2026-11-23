@@ -85,6 +85,14 @@ def ejecutar(jenkins, numero, revision, *, sin_cache=False):
         estados = {e["name"]: e["status"] for e in json.loads(etapas)["stages"]}
         if any(estados.get(etapa) != "SUCCESS" for etapa in ("Checkout", "Build", "Test")):
             raise ValueError("Stage View no acredita las tres etapas en SUCCESS")
+    if build["result"] == "SUCCESS":
+        identificador = "github-p005lab-lectura"
+        if f"using credential {identificador}" not in consola:
+            raise ValueError("Git no registró el uso de la credencial de lectura")
+        ficha = {"id": identificador, "tipo": "Username with password", "dominio": "github.com",
+                 "alcance_jenkins": "GLOBAL", "repositorio": "mljuansmoreno/p005Lab",
+                 "permiso_workflow": "contents: read", "uso": "checkout scm", "build": numero}
+        (carpeta / "credencial.json").write_text(json.dumps(ficha, indent=2) + "\n", encoding="utf-8")
     origen = os.environ
     url_actions = f"{origen['GITHUB_SERVER_URL']}/{origen['GITHUB_REPOSITORY']}/actions/runs/{origen['GITHUB_RUN_ID']}"
     procedencia = {"url": url_actions, "revision_esperada": revision,
