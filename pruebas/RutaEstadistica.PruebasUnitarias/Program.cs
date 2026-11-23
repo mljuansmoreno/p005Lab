@@ -87,6 +87,15 @@ try
         try { await ImportarMuestra(columnas + ";extra\n"); throw new Exception("Se aceptaron 201 columnas"); }
         catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_LIMITE_EXCEDIDO", "CSV rechaza la columna 201"); }
     }
+    {
+        var variante = Path.Combine(temporal, "umbral.bin");
+        using (var salida = File.Create(variante)) salida.SetLength(ImportadorDatos.LimiteBytes);
+        try { await ImportadorDatos.ImportarAsync(variante, new()); throw new Exception("Formato desconocido admitido"); }
+        catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_FORMATO_NO_ADMITIDO", "El tamaño máximo inclusivo alcanza la validación de formato"); }
+        using (var salida = File.OpenWrite(variante)) salida.SetLength(ImportadorDatos.LimiteBytes + 1);
+        try { await ImportadorDatos.ImportarAsync(variante, new()); throw new Exception("Exceso de tamaño admitido"); }
+        catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_LIMITE_EXCEDIDO", "Un byte sobre el límite rechaza la carga"); }
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
