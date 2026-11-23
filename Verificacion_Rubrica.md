@@ -67,7 +67,9 @@ El controlador permanente y el controlador alojado tienen historiales independie
 | Cancelación y recuperación | Ejecutar test_interrupcion_conserva_senal_y_publica_desmontaje y revisar el parámetro cancelacion. | El fixture permite detener la ejecución durante la pausa y la prueba del lanzador comprueba señal y desmontaje. El job permanente de autoprueba #5 acredita ABORTED y limpieza aprobada en el catálogo. | [Jenkinsfile.autoprueba](https://github.com/mljuansmoreno/p005Lab/blob/d92408c867835d5c8a4e9953599b0832dd3951d7/jenkins/Jenkinsfile.autoprueba) · [test_ejecutar.py](https://github.com/mljuansmoreno/p005Lab/blob/7a819f650db202511e715f8e32deb57d1280059a/pruebas/ci/test_ejecutar.py) |
 | Validación declarativa | Comparar la respuesta de pipeline-model-converter/validate con la esperada. | El anexo conserva Jenkinsfile successfully validated. El recolector alojado exige nuevamente esa respuesta antes de recoger cada build. | [Jenkinsfile](https://github.com/mljuansmoreno/p005Lab/blob/9c80bc4980ba31737f10147d367075b88be064c2/Jenkinsfile) · [linter.txt](https://github.com/mljuansmoreno/p005Lab/blob/ff74987b9753d82b614c8128cab19477aa4ab04f/documentacion/evidencias-jenkins/validacion-local/linter.txt) |
 
-## 4. Integración con GitHub
+## Integración con GitHub
+
+**Puntaje de la rúbrica:** 15 puntos.
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
