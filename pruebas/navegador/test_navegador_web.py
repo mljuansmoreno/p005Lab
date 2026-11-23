@@ -62,3 +62,12 @@ class NavegadorWeb(unittest.TestCase):
             return sum(v * peso for v, peso in zip(lineales, (.2126, .7152, .0722)))
         oscuro, claro = sorted(luminancia(color) for color in colores)
         self.assertGreaterEqual((claro + .05) / (oscuro + .05), 4.5)
+
+    def test_movil(self):
+        self.pagina.set_viewport_size({"width": 320, "height": 640})
+        self.pagina.goto(self.origen)
+        boton = self.pagina.get_by_role("button")
+        rectangulo = boton.bounding_box()
+        self.assertGreaterEqual(rectangulo["x"], 0)
+        self.assertLessEqual(rectangulo["x"] + rectangulo["width"], 320)
+        self.assertLessEqual(self.pagina.evaluate("document.documentElement.scrollWidth"), 320)
