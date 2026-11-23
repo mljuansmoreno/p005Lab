@@ -68,6 +68,13 @@ try
         var muestra = await ImportarMuestra("Valor\n1,234.50");
         Rechazar(() => ImportadorDatos.ConfirmarRoles(muestra, new Dictionary<string, string> { ["c001"] = "numerica" }, new(Decimal: '.')), "DATOS_NUMERO_INVALIDO");
     }
+    {
+        foreach (var valor in new[] { "NaN", "Infinity", "-Infinity", "1E999" })
+        {
+            var muestra = await ImportarMuestra("Valor\n" + valor);
+            Rechazar(() => ImportadorDatos.ConfirmarRoles(muestra, new Dictionary<string, string> { ["c001"] = "numerica" }, new()), "DATOS_NUMERO_INVALIDO");
+        }
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
