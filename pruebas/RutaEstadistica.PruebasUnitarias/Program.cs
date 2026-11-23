@@ -6,6 +6,28 @@ using RutaEstadistica.Infraestructura;
 using RutaEstadistica.Aplicacion;
 
 Console.OutputEncoding = new System.Text.UTF8Encoding(false);
+if (args is ["--medir-csv"])
+{
+    var carpeta = Directory.CreateTempSubdirectory("ruta_qa_csv_");
+    try
+    {
+        var archivo = Path.Combine(carpeta.FullName, "muestra.csv");
+        await File.WriteAllLinesAsync(archivo, Enumerable.Range(0, 10001).Select(i => i == 0 ? "valor" : i.ToString()));
+        var tiempos = new List<double>();
+        for (int repeticion = 0; repeticion <= 30; repeticion++)
+        {
+            var reloj = System.Diagnostics.Stopwatch.StartNew();
+            var datos = await ImportadorDatos.ImportarAsync(archivo, new());
+            reloj.Stop();
+            if (datos.Filas.Count != 10000 || datos.Filas[^1][0] != "10000")
+                throw new InvalidDataException("La importación medida no conservó las filas.");
+            if (repeticion > 0) tiempos.Add(reloj.Elapsed.TotalMilliseconds);
+        }
+        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new { filas = 10000, unidad = "ms", muestras = tiempos }));
+    }
+    finally { carpeta.Delete(true); }
+    return;
+}
 var verificadas = 0;
 void Verificar(bool condicion, string descripcion) { if (!condicion) throw new Exception("FALLO: " + descripcion); Console.WriteLine("VERIFICADO: " + descripcion); verificadas++; }
 void Rechazar(Action accion, string codigo) { try { accion(); throw new Exception("No se rechazó " + codigo); } catch (ErrorAplicacion error) { Verificar(error.Codigo == codigo, codigo); } }
