@@ -41,6 +41,12 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_host_no_admitido(self):
+        cabeceras = {"Authorization": "Bearer " + self.credencial, "Host": "ejemplo.invalid"}
+        self.assertEqual(self.http("GET", "/salud", cabeceras=cabeceras), (403, b""))
+        cabeceras["Host"] = f"localhost:{self.puerto}"
+        self.assertEqual(self.http("GET", "/salud", cabeceras=cabeceras)[0], 200)
+
     def test_origen_de_navegador(self):
         cabeceras = {"Authorization": "Bearer " + self.credencial, "Origin": f"http://127.0.0.1:{self.puerto}"}
         estado, cuerpo = self.http("GET", "/salud", cabeceras=cabeceras)
