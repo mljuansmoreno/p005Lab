@@ -11,6 +11,7 @@ import unittest
 RAIZ = Path(__file__).resolve().parents[2]
 SUITES = {
     "ci": ("pruebas/ci", "test_*.py"),
+    "resiliencia": ("pruebas", "test_resiliencia_web.py"),
     "web": ("pruebas", "test_aplicacion_web.py"),
     "rapida": ("pruebas/ci", "test_inventario_qa.py"),
 }
@@ -42,4 +43,4 @@ if __name__ == "__main__":
         if not casos.countTestCases():
             parser.exit(2, "La suite no descubrió casos de prueba.\n")
         raise SystemExit(0 if unittest.TextTestRunner().run(casos).wasSuccessful() else 1)
-    raise SystemExit(ejecutar_suites(opciones.suite or ("ci", "web")))
+    raise SystemExit(ejecutar_suites(opciones.suite or ("ci", "web", "resiliencia")))

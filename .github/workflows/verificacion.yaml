@@ -20,10 +20,8 @@ jobs:
           fetch-depth: 0
       - name: Verificar inventario QA antes de las suites
         run: python3 guiones/ci/probar_python.py --suite rapida
-      - name: Probar validación del detector y excepciones
-        run: |
-          python3 -m unittest discover -s pruebas/ci -p "test_*secretos.py"
-          python3 -m unittest discover -s pruebas/ci -p test_runtime_web.py
+      - name: Ejecutar suites Python de coordinación, web y resiliencia
+        run: python3 guiones/ci/probar_python.py
       - name: Revisar el contenido publicable
         run: bash guiones/verificar_secretos.sh
 
@@ -87,10 +85,6 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Probar el contrato web sin Docker
-        env:
-          PYTHONPATH: aplicacion:guiones
-        run: python3 -m unittest discover -s pruebas -p test_aplicacion_web.py
       - name: Cotejar bases y fuentes fijadas
         run: python3 guiones/ci/verificar_fuentes.py
       - name: Preparar secreto temporal y carpeta de evidencias
