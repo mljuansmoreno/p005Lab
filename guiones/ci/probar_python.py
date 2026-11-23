@@ -40,6 +40,11 @@ if __name__ == "__main__":
     opciones = parser.parse_args()
     if opciones.descubrir:
         casos = unittest.TestLoader().discover(*opciones.descubrir)
+        if os.environ.get("RUTA_QA_REPORTES"):
+            from probar_junit import ejecutar
+            nombre = next((n for n, par in SUITES.items() if par == tuple(opciones.descubrir)), "seleccion")
+            ruta = Path(os.environ["RUTA_QA_REPORTES"]) / (nombre + ".xml")
+            raise SystemExit(0 if ejecutar(casos, nombre, ruta) else 1)
         if not casos.countTestCases():
             parser.exit(2, "La suite no descubrió casos de prueba.\n")
         raise SystemExit(0 if unittest.TextTestRunner().run(casos).wasSuccessful() else 1)

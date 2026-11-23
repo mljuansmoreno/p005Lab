@@ -21,6 +21,8 @@ jobs:
       - name: Verificar inventario QA antes de las suites
         run: python3 guiones/ci/probar_python.py --suite rapida
       - name: Ejecutar suites Python de coordinación, web y resiliencia
+        env:
+          RUTA_QA_REPORTES: salidas/qa/reportes
         run: python3 guiones/ci/probar_python.py
       - name: Revisar el contenido publicable
         run: bash guiones/verificar_secretos.sh
@@ -72,7 +74,7 @@ jobs:
         shell: pwsh
         run: python guiones/probar_api.py
       - name: Verificar contratos del servidor .NET por HTTP
-        run: python -m unittest discover -s pruebas/api -v
+        run: python guiones/ci/probar_junit.py pruebas/api salidas/qa/reportes/api.xml
       - name: Compilar host MCP
         shell: pwsh
         run: dotnet build codigo/RutaEstadistica.ServidorMcp -c Release --no-restore
@@ -119,7 +121,7 @@ jobs:
         run: |
           export RUTA_QA_IMAGEN_APLICACION="$(docker inspect --format '{{.Config.Image}}' "$(docker compose ps -q aplicacion)")"
           export RUTA_QA_IMAGEN_MOTOR="$(docker inspect --format '{{.Config.Image}}' "$(docker compose ps -q motor)")"
-          python3 -m unittest discover -s pruebas/contenedores -v
+          python3 guiones/ci/probar_junit.py pruebas/contenedores salidas/qa/reportes/compose.xml
       - name: Registrar el estado y la red
         run: |
           docker ps --filter "label=com.docker.compose.project=$COMPOSE_PROJECT_NAME" | tee "$RUTA_ESTADISTICA_EVIDENCIAS/03-docker-ps.txt"
