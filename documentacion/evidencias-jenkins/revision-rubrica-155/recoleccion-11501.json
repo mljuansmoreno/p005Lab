@@ -1,0 +1,17 @@
+{
+  "revision": "391aa798763e65f93f104a30c6017b9c536a6767",
+  "run": "https://github.com/mljuansmoreno/p005Lab/actions/runs/45110549637",
+  "job": "ruta-estadistica-main",
+  "numero": 11501,
+  "jenkins": "SUCCESS",
+  "causas": [
+    "hudson.triggers.SCMTrigger$SCMTriggerCause"
+  ],
+  "fecha_inicio_utc": "2026-11-23T04:16:09.795000+00:00",
+  "duracion_ms": 176806,
+  "check_actions": "failure",
+  "diagnostico_publico": "La credencial seleccionada difiere del almacén de Jenkins",
+  "campo_incorrecto": "_class del recurso REST",
+  "campo_corregido": "typeName",
+  "correccion": "6e2bece553c44ae2731a69a5ee9c5e474a9fef1a"
+}
