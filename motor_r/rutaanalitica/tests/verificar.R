@@ -128,5 +128,10 @@ local({
   stopifnot(res$cifras$grupo_primero == "Z", res$cifras$n_primero == 2L, res$cifras$n_segundo == 3L)
   verificar(res$cifras$diferencia_medias, 3.5)
 })
+# Rechaza un grupo unitario en el contraste de Welch.
+local({
+  muestra <- data.frame(c001 = c(1, 2, 3, 7), c002 = c("A", "A", "A", "B"))
+  esperar_error(function() analizar(crear_solicitud("welch"), muestra, directorio), "ANALISIS_GRUPOS_INVALIDOS")
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
