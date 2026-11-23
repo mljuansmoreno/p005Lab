@@ -187,3 +187,11 @@ class TrabajosHTTP(unittest.TestCase):
         orden = {"pendiente": 0, "ejecutando": 1, "completado": 2}
         valores = [orden[estado["estado"]] for estado in estados]
         self.assertEqual(valores, sorted(valores))
+
+
+    def test_fallo_estadistico(self):
+        trabajo = self.encolar(self.cargar("c001\nno-numérico\n"))
+        final = self.esperar(trabajo)[-1]
+        self.assertEqual(final["estado"], "fallido")
+        self.assertTrue(final["codigo_error"])
+        self.assertEqual(self.http("GET", self.ruta(trabajo, "/resultado"))[0], 409)
