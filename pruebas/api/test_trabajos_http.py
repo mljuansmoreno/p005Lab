@@ -41,6 +41,17 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_cargas_simultaneas_por_proyecto(self):
+        from concurrent.futures import ThreadPoolExecutor
+        proyectos = [self.proyecto, uuid.uuid4().hex]
+        with ThreadPoolExecutor(max_workers=2) as hilos:
+            operaciones = [hilos.submit(self.cargar, "c001\n7\n", p) for p in proyectos]
+            cargas = [o.result(timeout=10) for o in operaciones]
+        self.assertEqual(cargas[0]["hash_datos"], cargas[1]["hash_datos"])
+        self.assertNotEqual(cargas[0]["datos_id"], cargas[1]["datos_id"])
+        for proyecto, carga in zip(proyectos, cargas):
+            self.assertEqual(self.cargar("c001\n7\n", proyecto), carga)
+
     def test_resultados_del_mismo_proyecto(self):
         cargas = [self.cargar(f"c001\n{i}\n{i + 2}\n") for i in (2, 8)]
         trabajos = [self.encolar(carga) for carga in cargas]
