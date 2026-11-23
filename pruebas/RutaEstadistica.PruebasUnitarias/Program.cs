@@ -53,6 +53,12 @@ try
         var muestra = await ImportarMuestra("A;B;C\n;NA;sin dato\n", new(MarcadorFaltante: "sin dato"));
         Verificar(muestra.Filas.Single().SequenceEqual(["", "NA", ""]), "Sólo el marcador configurado se convierte en ausente");
     }
+    {
+        const string codigoLargo = "00009007199254740993";
+        var muestra = await ImportarMuestra("Código\n" + codigoLargo);
+        var confirmada = ImportadorDatos.ConfirmarRoles(muestra, new Dictionary<string, string> { ["c001"] = "identificador" }, new());
+        Verificar(confirmada.Filas.Single()[0] == codigoLargo, "Un identificador largo conserva todos sus dígitos");
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
