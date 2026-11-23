@@ -111,5 +111,15 @@ local({
   res <- analizar(crear_solicitud("cuestionario", "c001"), data.frame(c001 = etiquetas[c(3,1,2,1)]), directorio)
   stopifnot(setequal(vapply(res$tablas, function(fila) fila$categoria, character(1)), etiquetas))
 })
+# Valida estadístico y grados efectivos de Welch con varianzas desiguales.
+local({
+  a <- c(3, 4, 5, 4)
+  b <- c(-10, 2, 20, 40)
+  muestra <- data.frame(c001 = c(a,b), c002 = rep(c("A", "B"), each = 4))
+  res <- analizar(crear_solicitud("welch"), muestra, directorio)
+  ref <- stats::t.test(a, b, var.equal = FALSE)
+  verificar(res$cifras$estadistico, unname(ref$statistic))
+  verificar(res$cifras$grados_libertad, unname(ref$parameter))
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
