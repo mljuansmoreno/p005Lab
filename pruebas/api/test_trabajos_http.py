@@ -254,3 +254,26 @@ class TrabajosHTTP(unittest.TestCase):
             self.assertCountEqual(paquete.namelist(), ["resultado.json", "figura.png"])
             informe = json.loads(paquete.read("resultado.json"))
         self.assertEqual((informe["hash_datos"], informe["cifras"]["media"]), (carga["hash_datos"], 3))
+
+    def esperar_ejecucion(self, trabajo):
+        limite = time.monotonic() + 10
+        while time.monotonic() < limite:
+            codigo, cuerpo = self.http("GET", self.ruta(trabajo))
+            self.assertEqual(codigo, 200)
+            estado = json.loads(cuerpo)["estado"]
+            if estado == "ejecutando":
+                return
+            self.assertEqual(estado, "pendiente")
+            time.sleep(.05)
+        self.fail("El trabajador controlado no entró en ejecución")
+
+    @motor_controlado
+    def test_cancelar_en_cola(self):
+        carga = self.cargar("c001\n3\n")
+        activo = self.encolar(carga)
+        self.addCleanup(self.http, "DELETE", self.ruta(activo))
+        self.esperar_ejecucion(activo)
+        pendiente = self.encolar(carga)
+        estado, contenido = self.http("DELETE", self.ruta(pendiente))
+        self.assertEqual((estado, json.loads(contenido)["estado"]), (200, "cancelado"))
+        self.assertEqual(json.loads(self.http("GET", self.ruta(activo))[1])["estado"], "ejecutando")
