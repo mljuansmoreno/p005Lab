@@ -41,6 +41,13 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_resultado_proyecto_distinto(self):
+        trabajo = self.encolar(self.cargar("c001\n2\n8\n"))
+        self.assertEqual(self.esperar(trabajo)[-1]["estado"], "completado")
+        estado, cuerpo = self.http("GET", self.ruta(trabajo, "/resultado", proyecto=uuid.uuid4().hex))
+        self.assertEqual((estado, json.loads(cuerpo)), (404, {"codigo":"TRABAJO_NO_ENCONTRADO"}))
+        self.assertEqual(self.http("GET", self.ruta(trabajo, "/resultado"))[0], 200)
+
     def test_cancelacion_proyecto_distinto(self):
         trabajo = self.encolar(self.cargar("c001\n4\n8\n"))
         estado, cuerpo = self.http("DELETE", self.ruta(trabajo, proyecto=uuid.uuid4().hex))
