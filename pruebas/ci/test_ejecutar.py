@@ -19,6 +19,19 @@ from reportes import Reporte, ResultadoWeb
 
 
 class PruebasInforme(unittest.TestCase):
+    def test_truncar_evidencia_invalida_la_huella_del_manifiesto(self):
+        with TemporaryDirectory() as carpeta, patch.object(ejecutar, "SALIDA", Path(carpeta)):
+            ruta = Path(carpeta) / "02-arranque.txt"
+            manifiesto = Path(carpeta) / "manifest.json"
+            ruta.write_bytes(b"abc")
+            ejecutar.manifestar(exigir=False)
+            registro = json.loads(manifiesto.read_text("utf-8"))["archivos"][ruta.name]
+            self.assertEqual(registro, {"bytes": 3, "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"})
+            ruta.write_bytes(b"")
+            ejecutar.manifestar(exigir=False)
+            self.assertEqual(json.loads(manifiesto.read_text("utf-8"))["archivos"][ruta.name],
+                             {"estado": "no generado"})
+
     def test_junit_refleja_exito_y_fallo(self):
         reporte = Reporte("fixture")
         resultado = ResultadoWeb(reporte)
