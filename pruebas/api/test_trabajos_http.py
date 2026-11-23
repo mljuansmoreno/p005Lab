@@ -202,3 +202,10 @@ class TrabajosHTTP(unittest.TestCase):
         for estado in self.esperar(trabajo):
             self.assertEqual(estado["proyecto_id"], self.proyecto)
             self.assertEqual(estado["trabajo_id"], trabajo["trabajo_id"])
+
+
+    def test_consulta_proyecto_distinto(self):
+        trabajo = self.encolar(self.cargar("c001\n2\n4\n"))
+        codigo, cuerpo = self.http("GET", self.ruta(trabajo, proyecto=uuid.uuid4().hex))
+        self.assertEqual((codigo, json.loads(cuerpo)), (404, {"codigo": "TRABAJO_NO_ENCONTRADO"}))
+        self.assertEqual(self.esperar(trabajo)[-1]["estado"], "completado")
