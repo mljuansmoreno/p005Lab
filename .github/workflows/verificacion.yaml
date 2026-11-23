@@ -84,6 +84,8 @@ jobs:
       - name: Compilar escritorio
         shell: pwsh
         run: ./guiones/compilar.ps1
+      - name: Comprobar carga declarada de XAML y recursos compilados
+        run: python guiones/ci/verificar_recursos_winui.py --compilado
       - name: Medir cobertura del paquete R nativo
         shell: pwsh
         run: |
