@@ -48,6 +48,8 @@ class PruebasInforme(unittest.TestCase):
                 ejecutar.manifestar(exigir=True)
             datos = json.loads((Path(directorio) / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(datos["archivos"]["reportes/web.xml"]["estado"], "no generado")
+            self.assertEqual(datos["python"], sys.version.split()[0])
+            self.assertEqual(datos["sistema"], sys.platform)
 
     def test_archivo_ignora_nombres_ajenos_y_reportes_vacios(self):
         with TemporaryDirectory() as directorio:
