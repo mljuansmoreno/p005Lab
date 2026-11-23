@@ -43,3 +43,10 @@ class NavegadorWeb(unittest.TestCase):
         self.assertEqual(self.pagina.locator(":focus").inner_text(), "Calcular ejemplo")
         self.pagina.keyboard.press("Tab")
         self.assertFalse(self.pagina.get_by_role("button").evaluate("(b) => b === document.activeElement"))
+
+    def test_estructura(self):
+        self.pagina.goto(self.origen)
+        principal = self.pagina.get_by_role("main")
+        self.assertEqual(principal.count(), 1)
+        self.assertEqual(principal.get_by_role("heading", level=1).inner_text(), "Ruta Estadística")
+        self.assertEqual(self.pagina.locator("html").get_attribute("lang"), "es")
