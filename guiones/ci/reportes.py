@@ -83,7 +83,7 @@ class ResultadoWeb(unittest.TestResult):
         super().addSubTest(test, subtest, err)
         if err:
             etiqueta = "failure" if issubclass(err[0], test.failureException) else "error"
-            self.registrar(subtest, etiqueta, err[0].__name__)
+            self.registrar(test, etiqueta, err[0].__name__)
 
 
 def probar_web(ruta):
