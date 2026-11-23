@@ -354,6 +354,12 @@ try
         foreach (var confianza in new[] { Math.BitDecrement(.8), Math.BitIncrement(.99), double.NaN })
             Rechazar(() => Validacion.Validar(solicitud with { Confianza = confianza }, preparados), "ANALISIS_OPCION_INVALIDA");
     }
+    {
+        foreach (var politica in new[] { "rechazar", "excluir_confirmados" })
+            Validacion.Validar(solicitud with { PoliticaFaltantes = politica }, preparados);
+        foreach (var politica in new[] { "", "excluir", "imputar" })
+            Rechazar(() => Validacion.Validar(solicitud with { PoliticaFaltantes = politica }, preparados), "ANALISIS_OPCION_INVALIDA");
+    }
         var primero = gestor.Encolar(new(carga.DatosId, solicitud));
         var plazoInicio = DateTimeOffset.UtcNow.AddSeconds(10);
         while (gestor.Consultar(primero.TrabajoId, proyecto.Id).Estado == "pendiente" && DateTimeOffset.UtcNow < plazoInicio) await Task.Delay(10);
