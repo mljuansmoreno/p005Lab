@@ -164,3 +164,26 @@ class TrabajosHTTP(unittest.TestCase):
         estado, cuerpo = self.http("POST", "/trabajos", peticion)
         self.assertEqual((estado, json.loads(cuerpo)), (400, {"codigo": "DATOS_HASH_INVALIDO"}))
         self.assertEqual(self.encolar(carga)["estado"], "pendiente")
+
+    def ruta(self, trabajo, sufijo="", proyecto=None):
+        return f"/trabajos/{trabajo['trabajo_id']}{sufijo}?proyecto_id={proyecto or self.proyecto}"
+
+    def esperar(self, trabajo):
+        observados = [trabajo]
+        limite = time.monotonic() + 70
+        while observados[-1]["estado"] in ("pendiente", "ejecutando"):
+            if time.monotonic() >= limite:
+                self.fail(f"Trabajo sin estado terminal: {observados[-1]['estado']}")
+            codigo, cuerpo = self.http("GET", self.ruta(trabajo))
+            self.assertEqual(codigo, 200)
+            observados.append(json.loads(cuerpo))
+            if observados[-1]["estado"] in ("pendiente", "ejecutando"):
+                time.sleep(.1)
+        return observados
+    def test_convergencia_trabajo(self):
+        trabajo = self.encolar(self.cargar("c001\n2\n4\n"))
+        estados = self.esperar(trabajo)
+        self.assertEqual(estados[-1]["estado"], "completado")
+        orden = {"pendiente": 0, "ejecutando": 1, "completado": 2}
+        valores = [orden[estado["estado"]] for estado in estados]
+        self.assertEqual(valores, sorted(valores))
