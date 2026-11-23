@@ -4,7 +4,9 @@ La revisión parte de [`baed0fbf6cbe9ff72fe3ce213811770fdd4f15b6`](https://githu
 
 El controlador permanente y el controlador alojado tienen historiales independientes. Cada ficha identifica el entorno, el job, el SHA, la causa y la fecha UTC. Los resultados históricos se atribuyen a la revisión que ejecutó cada build.
 
-## 1. Infraestructura e instalación
+## Implementación de Jenkins
+
+**Puntaje de la rúbrica:** 25 puntos.
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
