@@ -36,3 +36,10 @@ class NavegadorWeb(unittest.TestCase):
         boton = self.pagina.get_by_role("button", name="Calcular ejemplo", exact=True)
         self.assertTrue(boton.is_visible())
         self.assertTrue(boton.is_enabled())
+
+    def test_teclado(self):
+        self.pagina.goto(self.origen)
+        self.pagina.keyboard.press("Tab")
+        self.assertEqual(self.pagina.locator(":focus").inner_text(), "Calcular ejemplo")
+        self.pagina.keyboard.press("Tab")
+        self.assertFalse(self.pagina.get_by_role("button").evaluate("(b) => b === document.activeElement"))
