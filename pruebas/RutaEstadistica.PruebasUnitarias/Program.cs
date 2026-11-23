@@ -145,6 +145,12 @@ try
         var informe = File.ReadAllText(Path.Combine(destino, "informe.html"));
         Verificar(informe.Contains("A &lt; B &amp; C") && !informe.Contains("A < B & C"), "La interpretación se presenta como texto en el informe HTML");
     }
+    {
+        using var cancelacionCsv = new CancellationTokenSource();
+        cancelacionCsv.Cancel();
+        try { ImportadorDatos.LeerDelimitado("a,b\n1,2\n", ',', cancelacionCsv.Token); throw new Exception("Cancelación ignorada"); }
+        catch (OperationCanceledException error) { Verificar(error.CancellationToken == cancelacionCsv.Token, "El parser propaga el token que solicitó la cancelación"); }
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
