@@ -21,3 +21,4 @@ El [run 45109084160](https://github.com/mljuansmoreno/p005Lab/actions/runs/45109
 | [07-aislamiento.json](artifact-salidas-jenkins-ci-07-aislamiento.json) | El informe reúne los resultados de inspección de seguridad de los servicios del build. |
 | [08-pruebas-r.txt](artifact-salidas-jenkins-ci-08-pruebas-r.txt) | El resultado permite distinguir las pruebas internas del motor de la solicitud web de integración. |
 | [09-limpieza.txt](artifact-salidas-jenkins-ci-09-limpieza.txt) | La marca de limpieza identifica el mismo proyecto registrado en el entorno del job. |
+| [10-autenticacion.txt](artifact-salidas-jenkins-ci-10-autenticacion.txt) | La salida registra el resultado de la comprobación entre servicios y omite los valores de la credencial. |

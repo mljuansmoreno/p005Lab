@@ -1,0 +1,2 @@
+true
+Motor: HTTP 403 sin credencial; sonda autenticada correcta.
