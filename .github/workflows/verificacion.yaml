@@ -21,9 +21,10 @@ jobs:
       - name: Verificar inventario QA antes de las suites
         run: python3 guiones/ci/probar_python.py --suite rapida
       - name: Ejecutar suites Python de coordinación, web y resiliencia
-        env:
-          RUTA_QA_REPORTES: salidas/qa/reportes
-        run: python3 guiones/ci/probar_python.py
+        run: |
+          python3 -m venv "$RUNNER_TEMP/qa-python"
+          "$RUNNER_TEMP/qa-python/bin/python" -m pip install coverage==7.17.5
+          "$RUNNER_TEMP/qa-python/bin/python" guiones/ci/medir_cobertura_python.py
       - name: Revisar el contenido publicable
         run: bash guiones/verificar_secretos.sh
 
