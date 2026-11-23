@@ -1,0 +1,149 @@
+Started by an SCM change
+Checking out git https://github.com/mljuansmoreno/p005Lab.git into /var/jenkins_home/workspace/ruta-estadistica-main@script/60a3b2df75361eadda6299cdaa88b918262414085a6eb2a1ff6d61dd7b5b9ea5 to read Jenkinsfile
+The recommended git tool is: NONE
+using credential github-p005lab-lectura
+Cloning the remote Git repository
+Cloning repository https://github.com/mljuansmoreno/p005Lab.git
+ > git init /var/jenkins_home/workspace/ruta-estadistica-main@script/60a3b2df75361eadda6299cdaa88b918262414085a6eb2a1ff6d61dd7b5b9ea5 # timeout=10
+Fetching upstream changes from https://github.com/mljuansmoreno/p005Lab.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+using GIT_ASKPASS to set credentials GitHub Actions · Contents read
+ > git fetch --tags --force --progress -- https://github.com/mljuansmoreno/p005Lab.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url https://github.com/mljuansmoreno/p005Lab.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+ > git rev-parse 2dea63d73b8c2bcf6f4171814283382aebadca37^{commit} # timeout=10
+Checking out Revision 2dea63d73b8c2bcf6f4171814283382aebadca37 (detached)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 2dea63d73b8c2bcf6f4171814283382aebadca37 # timeout=10
+Commit message: "C7 · Resuelve los destinos del documento en una sola consulta Git"
+First time build. Skipping changelog.
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on linux-docker in /var/tmp/ruta-estadistica-agente/workspace/ruta-estadistica-main
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] timeout
+[2026-11-23T04:21:12.609Z] Timeout set to expire in 1 hr 5 min
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] deleteDir
+[Pipeline] script
+[Pipeline] {
+[Pipeline] checkout
+[2026-11-23T04:21:13.001Z] The recommended git tool is: NONE
+[2026-11-23T04:21:15.442Z] using credential github-p005lab-lectura
+[2026-11-23T04:21:15.454Z] Cloning the remote Git repository
+[2026-11-23T04:21:15.499Z] Cloning repository https://github.com/mljuansmoreno/p005Lab.git
+[2026-11-23T04:21:16.070Z]  > git init /var/tmp/ruta-estadistica-agente/workspace/ruta-estadistica-main # timeout=10
+[2026-11-23T04:21:16.101Z] Fetching upstream changes from https://github.com/mljuansmoreno/p005Lab.git
+[2026-11-23T04:21:16.101Z]  > git --version # timeout=10
+[2026-11-23T04:21:16.105Z]  > git --version # 'git version 2.56.1'
+[2026-11-23T04:21:16.105Z] using GIT_ASKPASS to set credentials GitHub Actions · Contents read
+[2026-11-23T04:21:16.120Z]  > git fetch --tags --force --progress -- https://github.com/mljuansmoreno/p005Lab.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-11-23T04:21:16.575Z]  > git config remote.origin.url https://github.com/mljuansmoreno/p005Lab.git # timeout=10
+[2026-11-23T04:21:16.579Z]  > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-11-23T04:21:16.976Z] Avoid second fetch
+[2026-11-23T04:21:16.987Z] Checking out Revision 2dea63d73b8c2bcf6f4171814283382aebadca37 (detached)
+[2026-11-23T04:21:17.447Z] Commit message: "C7 · Resuelve los destinos del documento en una sola consulta Git"
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] sh
+[2026-11-23T04:21:16.977Z]  > git rev-parse 2dea63d73b8c2bcf6f4171814283382aebadca37^{commit} # timeout=10
+[2026-11-23T04:21:16.993Z]  > git config core.sparsecheckout # timeout=10
+[2026-11-23T04:21:17.000Z]  > git checkout -f 2dea63d73b8c2bcf6f4171814283382aebadca37 # timeout=10
+[2026-11-23T04:21:17.957Z] + git rev-parse HEAD
+[2026-11-23T04:21:17.958Z] 2dea63d73b8c2bcf6f4171814283382aebadca37
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build)
+[Pipeline] sh
+[2026-11-23T04:21:18.533Z] + python3 guiones/ci/ejecutar.py preparar
+[2026-11-23T04:21:19.457Z] Fuentes fijadas y 4 contratos JSON comprobados.
+[Pipeline] sh
+[2026-11-23T04:21:19.734Z] + python3 guiones/ci/ejecutar.py secretos
+[2026-11-23T04:21:20.671Z] Secretos (git): 0 coincidencias pendientes
+[2026-11-23T04:21:21.595Z] Secretos (dir): 0 coincidencias pendientes
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-11-23T04:21:21.893Z] + python3 guiones/ci/ejecutar.py construir
+[2026-11-23T04:21:21.893Z] Proyecto aislado ruta-ci-e6162e117e25c6e1, web 127.0.0.1:39983
+[2026-11-23T04:21:21.893Z] Compose: configuracion
+[2026-11-23T04:21:22.149Z] Compose: compilacion
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Test)
+[Pipeline] sh
+[2026-11-23T04:22:30.109Z] + python3 -m unittest discover -s pruebas/ci
+[2026-11-23T04:22:30.876Z] ............................................................................
+[2026-11-23T04:22:30.876Z] ----------------------------------------------------------------------
+[2026-11-23T04:22:30.876Z] Ran 76 tests in 0.594s
+[2026-11-23T04:22:30.876Z] 
+[2026-11-23T04:22:30.876Z] OK
+[Pipeline] sh
+[2026-11-23T04:22:31.152Z] + python3 guiones/ci/ejecutar.py web
+[2026-11-23T04:22:31.153Z] {"evento": "analisis_web", "estado_http": 503, "duracion_ms": 0}
+[2026-11-23T04:22:31.153Z] {"evento": "analisis_web", "estado_http": 502, "duracion_ms": 0}
+[2026-11-23T04:22:31.153Z] Web: 12 ejecutadas, 12 correctas
+[Pipeline] sh
+[2026-11-23T04:22:31.498Z] + python3 guiones/ci/ejecutar.py probar-imagenes
+[2026-11-23T04:22:31.498Z] Compose: arranque
+[2026-11-23T04:22:43.646Z] Compose: estado
+[2026-11-23T04:22:43.646Z] Compose: red
+[2026-11-23T04:22:43.646Z] Compose: aislamiento
+[2026-11-23T04:22:43.646Z] Compose: runtime_web
+[2026-11-23T04:22:44.209Z] Compose: acceso
+[2026-11-23T04:22:44.209Z] Compose: autenticacion
+[2026-11-23T04:22:44.463Z] Compose: calculo
+[2026-11-23T04:22:45.387Z] Compose: recuperacion
+[2026-11-23T04:22:55.316Z] Compose: pruebas_r
+[2026-11-23T04:22:55.573Z] Compose: detener_servicios
+[2026-11-23T04:22:56.132Z] Compose: escaneo
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] fileExists
+[Pipeline] sh
+[2026-11-23T04:24:32.840Z] + python3 guiones/ci/ejecutar.py limpiar-build
+[Pipeline] sh
+[2026-11-23T04:24:33.113Z] + python3 guiones/ci/ejecutar.py finalizar
+[Pipeline] sh
+[2026-11-23T04:24:33.387Z] + python3 guiones/ci/ejecutar.py archivos
+[Pipeline] archiveArtifacts
+[2026-11-23T04:24:33.414Z] Archiving artifacts
+[2026-11-23T04:24:33.573Z] Recording fingerprints
+[Pipeline] fileExists
+[Pipeline] junit
+[2026-11-23T04:24:33.686Z] Recording test results
+[2026-11-23T04:24:35.029Z] [Checks API] No suitable checks publisher found.
+[Pipeline] fileExists
+[Pipeline] junit
+[2026-11-23T04:24:35.063Z] Recording test results
+[2026-11-23T04:24:35.091Z] [Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[Pipeline] // timestamps
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS
