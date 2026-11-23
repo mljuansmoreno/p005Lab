@@ -94,3 +94,9 @@ class DespliegueCompose(unittest.TestCase):
         self.assertEqual(resultado["destino"], "motor:8787")
         self.assertEqual(resultado["estado"], "completado")
         self.assertRegex(resultado["trabajo_id"], r"^[a-f0-9]{32}$")
+
+    def test_solicitudes_distintas(self):
+        primero, segundo = self.calcular(), self.calcular()
+        self.assertEqual(primero["sha256"], segundo["sha256"])
+        self.assertNotEqual(primero["solicitud_id"], segundo["solicitud_id"])
+        self.assertNotEqual(primero["trabajo_id"], segundo["trabajo_id"])
