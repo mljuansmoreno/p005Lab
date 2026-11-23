@@ -290,6 +290,7 @@ El perfil `p005Lab-2026-11` define **75 comprobaciones del proyecto** vinculadas
 | Control de SP 800-53 | Comprobaciones de este repositorio |
 | --- | --- |
 | **AC-3** · Aplicación del control de acceso | [`http-motor-autenticacion`](documentacion/informes/revisiones-seguridad/2026-11-23/http-motor-autenticacion.json) |
+| **AC-6** · Privilegio mínimo | [`aplicacion-no-privilegiado`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-no-privilegiado.json), [`aplicacion-sin-capacidades`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-sin-capacidades.json), [`aplicacion-sin-privilegios-nuevos`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-sin-privilegios-nuevos.json), [`aplicacion-sin-socket-docker`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-sin-socket-docker.json), [`aplicacion-usuario`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-usuario.json), [`motor-no-privilegiado`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-no-privilegiado.json), [`motor-sin-capacidades`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-sin-capacidades.json), [`motor-sin-privilegios-nuevos`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-sin-privilegios-nuevos.json), [`motor-sin-socket-docker`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-sin-socket-docker.json), [`motor-usuario`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-usuario.json) |
 
 ### Resultados por fecha
 
