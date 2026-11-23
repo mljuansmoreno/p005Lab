@@ -88,3 +88,9 @@ class DespliegueCompose(unittest.TestCase):
         finally:
             self.ejecutar("up", "-d", "--no-build", "--wait", "--wait-timeout", "90", "motor")
         self.assertEqual(self.calcular()["estado"], "completado")
+
+    def test_calculo_real(self):
+        resultado = self.calcular()
+        self.assertEqual(resultado["destino"], "motor:8787")
+        self.assertEqual(resultado["estado"], "completado")
+        self.assertRegex(resultado["trabajo_id"], r"^[a-f0-9]{32}$")
