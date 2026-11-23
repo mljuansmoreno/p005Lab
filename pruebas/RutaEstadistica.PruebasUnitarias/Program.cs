@@ -75,6 +75,11 @@ try
             Rechazar(() => ImportadorDatos.ConfirmarRoles(muestra, new Dictionary<string, string> { ["c001"] = "numerica" }, new()), "DATOS_NUMERO_INVALIDO");
         }
     }
+    {
+        var muestra = await ImportarMuestra("Monto;Monto\n10;20");
+        Verificar(muestra.Columnas.Select(c => c.Id).SequenceEqual(["c001", "c002"])
+            && muestra.Columnas.All(c => c.Etiqueta == "Monto") && muestra.Filas.Single().SequenceEqual(["10", "20"]), "Encabezados homónimos conservan identidad y orden");
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
