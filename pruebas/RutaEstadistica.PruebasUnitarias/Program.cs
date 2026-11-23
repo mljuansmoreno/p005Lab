@@ -333,6 +333,10 @@ try
         try { await intermediario.AtenderAsync(new("no_catalogada", proyecto.Id)); throw new Exception("Herramienta desconocida admitida"); }
         catch (ErrorAplicacion error) { Verificar(error.Codigo == "MCP_HERRAMIENTA_NO_ADMITIDA", "Una herramienta inexistente produce error estable"); }
     }
+    {
+        try { await intermediario.AtenderAsync(new("consultar_trabajo", proyecto.Id)); throw new Exception("Consulta sin trabajo admitida"); }
+        catch (ErrorAplicacion error) { Verificar(error.Codigo == "MCP_PERMISO_DENEGADO", "MCP exige un trabajo autorizado para consultar su estado"); }
+    }
         var autorizado = await intermediario.AtenderAsync(new("obtener_resumen_datos", proyecto.Id));
         Verificar(System.Text.Json.JsonSerializer.Serialize(autorizado).Contains("filas"), "MCP permite resumen autorizado");
         try { await intermediario.AtenderAsync(new("obtener_resumen_datos", Guid.NewGuid().ToString("N"))); throw new Exception("Se filtró proyecto ajeno"); }
