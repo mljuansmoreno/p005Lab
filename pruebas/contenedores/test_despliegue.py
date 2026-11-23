@@ -122,3 +122,8 @@ class DespliegueCompose(unittest.TestCase):
         self.assertEqual(resultado["hash_preparacion"], peticion["hash_preparacion"])
         self.assertEqual(resultado["hash_datos"], peticion["hash_datos"])
         self.assertEqual(resultado["solicitud_id"], peticion["solicitud_id"])
+
+    def test_oraculo_seis_filas(self):
+        resultado = self.calcular()
+        self.assertEqual(resultado["filas_analizadas"], 6)
+        self.assertAlmostEqual(resultado["media"], (1+2+3+5+6+8)/6, places=11)
