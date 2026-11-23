@@ -11,6 +11,17 @@ from reportes import Reporte, ResultadoWeb
 
 
 class InformesQA(unittest.TestCase):
+    def test_xml_preserva_nombres_y_mensajes_con_metacaracteres(self):
+        informe = Reporte("validación")
+        nombre, mensaje = 'media < "límite"', "R & Python > 0"
+        informe.caso(nombre, "oráculo", 0, "failure", mensaje)
+        with tempfile.TemporaryDirectory() as carpeta:
+            ruta = Path(carpeta) / "resultado.xml"
+            informe.guardar(ruta)
+            caso = ET.parse(ruta).find("testcase")
+        self.assertEqual(caso.get("name"), nombre)
+        self.assertEqual(caso.find("failure").get("message"), mensaje)
+
     def test_fallo_de_subcaso_conserva_la_clase_sin_copiar_el_valor(self):
         class Caso(unittest.TestCase):
             def runTest(self):
