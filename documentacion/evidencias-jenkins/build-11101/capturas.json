@@ -1,0 +1,23 @@
+{
+  "build": 11101,
+  "revision": "62a80479ee21b1f9c018ae1f83e42ff65df6ad5c",
+  "fecha_utc": "2026-11-23T04:03:26.064Z",
+  "acciones": "https://github.com/mljuansmoreno/p005Lab/actions/runs/45109084160",
+  "capturas": [
+    {
+      "archivo": "estado-build.png",
+      "url": "http://127.0.0.1:9090/job/ruta-estadistica-main/11101/",
+      "sha256": "9769867f8057f3478e206a0b7ea870b856cd230fd40f7710ef34dd27c56d7f43"
+    },
+    {
+      "archivo": "resultado-junit.png",
+      "url": "http://127.0.0.1:9090/job/ruta-estadistica-main/11101/testReport/",
+      "sha256": "64e7c61eba633724359c79c4bd47598ee7aa4697b07581afd3fb4b9096930e32"
+    },
+    {
+      "archivo": "etapas-pipeline.png",
+      "url": "http://127.0.0.1:9090/job/ruta-estadistica-main/",
+      "sha256": "51c29e4dd0776bf8a53abe28581d853d19d7e64e851d31718e37233cc4fa2474"
+    }
+  ]
+}
