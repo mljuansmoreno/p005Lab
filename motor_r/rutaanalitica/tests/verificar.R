@@ -147,5 +147,14 @@ local({
   verificar(c(ida$diferencia_media, vuelta$diferencia_media), c(-3,3))
   verificar(ida$valor_p, vuelta$valor_p)
 })
+# Verifica Pearson con un producto centrado independiente.
+local({
+  x <- c(-3, 0, 2, 9, 4)
+  y <- c(8, 4, 6, 1, -2)
+  res <- analizar(crear_solicitud("pearson"), data.frame(c001=x,c002=y), directorio)
+  centrar <- function(v) v - sum(v)/length(v)
+  referencia <- sum(centrar(x)*centrar(y)) / sqrt(sum(centrar(x)^2)*sum(centrar(y)^2))
+  verificar(res$cifras$coeficiente, referencia)
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
