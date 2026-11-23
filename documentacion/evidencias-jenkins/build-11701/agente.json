@@ -1,0 +1,6 @@
+{
+  "_class": "hudson.slaves.SlaveComputer",
+  "displayName": "linux-docker",
+  "numExecutors": 1,
+  "offline": false
+}

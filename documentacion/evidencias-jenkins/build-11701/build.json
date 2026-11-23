@@ -1,0 +1,106 @@
+{
+  "_class": "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+  "actions": [
+    {
+      "_class": "hudson.model.CauseAction",
+      "causes": [
+        {
+          "_class": "hudson.triggers.SCMTrigger$SCMTriggerCause",
+          "shortDescription": "Started by an SCM change"
+        }
+      ]
+    },
+    {},
+    {
+      "_class": "hudson.model.ParametersAction"
+    },
+    {},
+    {
+      "_class": "hudson.plugins.git.util.BuildData"
+    },
+    {},
+    {
+      "_class": "org.jenkinsci.plugins.workflow.libs.LibrariesAction"
+    },
+    {},
+    {
+      "_class": "org.jenkinsci.plugins.workflow.cps.EnvActionImpl"
+    },
+    {},
+    {
+      "_class": "hudson.tasks.junit.TestResultAction"
+    },
+    {},
+    {},
+    {},
+    {},
+    {
+      "_class": "org.jenkinsci.plugins.displayurlapi.actions.RunDisplayAction"
+    },
+    {
+      "_class": "org.jenkinsci.plugins.pipeline.modeldefinition.actions.RestartDeclarativePipelineAction"
+    },
+    {},
+    {
+      "_class": "org.jenkinsci.plugins.workflow.job.views.FlowGraphAction"
+    },
+    {},
+    {}
+  ],
+  "artifacts": [
+    {
+      "relativePath": "salidas/jenkins-ci/00-entorno.json"
+    },
+    {
+      "relativePath": "salidas/jenkins-ci/01-compilacion.txt"
+    },
+    {
+      "relativePath": "salidas/jenkins-ci/02-arranque.txt"
+    },
+    {
+      "relativePath": "salidas/jenkins-ci/03-docker-ps.txt"
+    },
+    {
+      "relativePath": "salidas/jenkins-ci/04-red.txt"
+    },
+    {
+      "relativePath": "salidas/jenkins-ci/05-calculo.txt"
+    },
+    {
+      "relativePath": "salidas/jenkins-ci/06-recuperacion.txt"
+    },
+    {
+      "relativePath": "salidas/jenkins-ci/07-aislamiento.json"
+    },
+    {
+      "relativePath": "salidas/jenkins-ci/08-pruebas-r.txt"
+    },
+    {
+      "relativePath": "salidas/jenkins-ci/09-limpieza.txt"
+    },
+    {
+      "relativePath": "salidas/jenkins-ci/10-autenticacion.txt"
+    },
+    {
+      "relativePath": "salidas/jenkins-ci/manifest.json"
+    },
+    {
+      "relativePath": "salidas/jenkins-ci/reportes/integracion.xml"
+    },
+    {
+      "relativePath": "salidas/jenkins-ci/reportes/web.xml"
+    },
+    {
+      "relativePath": "salidas/jenkins-ci/seguridad-aplicacion.json"
+    },
+    {
+      "relativePath": "salidas/jenkins-ci/seguridad-motor.json"
+    }
+  ],
+  "building": false,
+  "duration": 206193,
+  "number": 11701,
+  "result": "SUCCESS",
+  "timestamp": 1795407669060,
+  "url": "http://127.0.0.1:9090/job/ruta-estadistica-main/11701/"
+}
