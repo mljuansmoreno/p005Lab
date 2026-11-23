@@ -1,6 +1,6 @@
 # Plan de verificación de Ruta Estadística
 
-Base Git: `65ab2782a8809a0bc2d5c45472baf864b73c9066`. Cada fila identifica un resultado pendiente de demostrar. La orden inicial por ámbito sirve para establecer la línea base. Las pruebas de navegador, contenedor y escritorio requieren además sus entornos respectivos. La evidencia de ejecución se registra por separado.
+Base Git: `65ab2782a8809a0bc2d5c45472baf864b73c9066`. Cada fila conserva el criterio inicial. La [trazabilidad por caso](trazabilidad_casos.md) identifica el cambio efectivamente realizado y el archivo que lo acredita. El [informe de auditoría](informe_final.md) registra los resultados observados y las limitaciones.
 
 | ID | Criterio de aceptación | Riesgo | Archivo o ámbito | Tipo | Orden inicial |
 |---|---|---|---|---|---|

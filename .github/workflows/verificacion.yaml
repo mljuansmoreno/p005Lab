@@ -27,6 +27,21 @@ jobs:
           "$RUNNER_TEMP/qa-python/bin/python" guiones/ci/medir_cobertura_python.py
       - name: Revisar el contenido publicable
         run: bash guiones/verificar_secretos.sh
+      - name: Verificar las revisiones QA publicadas en main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          corte="$(git log -1 --format=%H --grep=': QA-250 ' "$GITHUB_SHA")"
+          test -n "$corte"
+          python3 guiones/ci/auditar_serie_qa.py --hasta "$corte" --completo
+      - name: Archivar la auditoría del historial QA
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: historial-qa
+          if-no-files-found: error
+          path: |
+            salidas/qa/auditoria/historial.md
+            salidas/qa/auditoria/historial.json
       - name: Preparar cobertura publicable
         run: python guiones/ci/publicar_cobertura.py python
       - name: Archivar informes QA de python
