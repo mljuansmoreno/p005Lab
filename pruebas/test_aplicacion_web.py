@@ -166,3 +166,10 @@ class InterfazWeb(unittest.TestCase):
         self.assertEqual(cabeceras["Content-Type"], "application/json; charset=utf-8")
         self.assertEqual(json.loads(cuerpo), resultado)
         calcular.assert_called_once_with(self.servidor.destino, self.servidor.secreto)
+
+
+    def test_intento_tras_fallo(self):
+        with patch("web.analizar", side_effect=[OSError("interrumpido"), {"media": 1}]):
+            primera = self.solicitar("POST", "/analizar", {"Accept": "application/json"})
+            segunda = self.solicitar("POST", "/analizar", {"Accept": "application/json"})
+        self.assertEqual((primera[0], segunda[0], json.loads(segunda[2])), (502, 200, {"media": 1}))
