@@ -81,6 +81,10 @@ def ejecutar(jenkins, numero, revision, *, sin_cache=False):
     consola = jenkins.pedir(ruta + "consoleText").decode("utf-8", errors="replace")
     hitos = [linea for linea in consola.splitlines() if LINEA_SEGURA.fullmatch(linea)]
     (carpeta / "consoleText").write_text("\n".join(hitos) + "\n", encoding="utf-8")
+    if build["result"] == "SUCCESS":
+        estados = {e["name"]: e["status"] for e in json.loads(etapas)["stages"]}
+        if any(estados.get(etapa) != "SUCCESS" for etapa in ("Checkout", "Build", "Test")):
+            raise ValueError("Stage View no acredita las tres etapas en SUCCESS")
     origen = os.environ
     url_actions = f"{origen['GITHUB_SERVER_URL']}/{origen['GITHUB_REPOSITORY']}/actions/runs/{origen['GITHUB_RUN_ID']}"
     procedencia = {"url": url_actions, "revision_esperada": revision,
