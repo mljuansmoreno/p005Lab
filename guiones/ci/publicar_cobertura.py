@@ -6,6 +6,13 @@ import subprocess
 from xml.etree import ElementTree as ET
 
 RAIZ = Path(__file__).resolve().parents[2]
+MINIMOS = {"python": .35, "dotnet": .70, "r": .85}
+
+
+def cumple_minimo(componente, tasa):
+    if not 0 <= tasa <= 1:
+        raise ValueError("Tasa de cobertura inválida")
+    return tasa >= MINIMOS[componente]
 
 
 def preparar(componentes):
@@ -15,6 +22,7 @@ def preparar(componentes):
     archivos = subprocess.check_output(["git", "ls-files", "-z"], cwd=RAIZ).decode().split("\0")
     rutas = {(RAIZ / p).resolve(): p for p in archivos if p}
     filas = []
+    inferiores = []
     for componente in componentes:
         raiz = ET.parse(salida / "cobertura" / f"{componente}.xml").getroot()
         fuentes = [Path(f.text) for f in raiz.findall("sources/source") if f.text]
@@ -34,11 +42,15 @@ def preparar(componentes):
             if separador.encode() in contenido:
                 raise ValueError("El informe todavía contiene una ruta del entorno")
         (destino / f"{componente}.xml").write_bytes(contenido)
+        if not cumple_minimo(componente, float(raiz.attrib["line-rate"])):
+            inferiores.append(componente)
         filas.append(f"<tr><th>{escape(componente)}</th><td>{100 * float(raiz.attrib['line-rate']):.2f} %</td></tr>")
     (destino / "resumen.html").write_text(
         '<!doctype html><html lang="es"><meta charset="utf-8"><title>Cobertura de líneas</title>'
         '<h1>Cobertura de líneas</h1><table><tr><th>Componente</th><th>Líneas cubiertas</th></tr>'
         + "".join(filas) + "</table></html>", encoding="utf-8")
+    if inferiores:
+        raise ValueError("Cobertura inferior al mínimo en " + ", ".join(inferiores))
 
 
 if __name__ == "__main__":
