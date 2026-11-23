@@ -11,6 +11,17 @@ RAIZ = Path(__file__).resolve().parents[2]
 
 
 class SalidaPipeline(unittest.TestCase):
+    def test_omisiones_se_distinguen_de_las_aprobaciones(self):
+        omitida = "    @unittest.skip('fixture')\n    def test_omitida(self):\n        pass\n"
+        proceso, todo_omitido = self.fixture(omitida)
+        self.assertEqual(proceso.returncode, 1)
+        self.assertEqual(todo_omitido.get("skipped"), "1")
+        self.assertIn("0 aprobadas", proceso.stdout)
+        proceso, mixta = self.fixture(omitida + "    def test_correcta(self):\n        self.assertTrue(True)\n")
+        self.assertEqual(proceso.returncode, 0)
+        self.assertEqual((mixta.get("tests"), mixta.get("skipped")), ("2", "1"))
+        self.assertIn("1 aprobadas, 1 omitidas", proceso.stdout)
+
     def test_jenkins_conservo_junit_despues_del_fallo_de_calculo(self):
         carpeta = RAIZ / "documentacion/evidencias-jenkins/autoprueba-3"
         ficha = json.loads((carpeta / "ejecucion.json").read_text("utf-8"))
