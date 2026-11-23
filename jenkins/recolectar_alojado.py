@@ -95,7 +95,12 @@ def ejecutar(jenkins, numero, revision, *, sin_cache=False):
         identificador = "github-p005lab-lectura"
         if f"using credential {identificador}" not in consola:
             raise ValueError("Git no registró el uso de la credencial de lectura")
-        ficha = {"id": identificador, "tipo": "Username with password", "dominio": "github.com",
+        ruta_credencial = f"credentials/store/system/domain/github.com/credential/{identificador}/api/json?tree=id"
+        metadata = json.loads(jenkins.pedir(ruta_credencial))
+        clase = "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
+        if metadata.get("id") != identificador or metadata.get("_class") != clase:
+            raise ValueError("La credencial seleccionada difiere del almacén de Jenkins")
+        ficha = {"id": identificador, "clase_jenkins": clase, "tipo": "Username with password", "dominio": "github.com",
                  "alcance_jenkins": "GLOBAL", "repositorio": "mljuansmoreno/p005Lab",
                  "permiso_workflow": "contents: read", "uso": "checkout scm", "build": numero}
         (carpeta / "credencial.json").write_text(json.dumps(ficha, indent=2) + "\n", encoding="utf-8")
