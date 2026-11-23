@@ -62,8 +62,14 @@ def verificar_enlaces(documento, revision):
             objetos.add((revision if ref == ETIQUETA else ref, "commit"))
         elif "://" not in url and not url.startswith("#"):
             objetos.add((f"{revision}:{url.split('#')[0]}", "blob"))
-    for objeto, tipo in objetos:
-        if git("cat-file", "-t", objeto) != tipo:
+    ordenados = sorted(objetos)
+    consulta = "".join(objeto + "\n" for objeto, _ in ordenados)
+    tipos = subprocess.check_output(["git", "cat-file", "--batch-check=%(objecttype)"],
+                                    input=consulta, text=True, encoding="utf-8").splitlines()
+    if len(tipos) != len(ordenados):
+        raise ValueError("Respuesta incompleta al verificar los enlaces Git")
+    for (objeto, esperado), tipo in zip(ordenados, tipos):
+        if tipo != esperado:
             raise ValueError(f"Destino incorrecto: {objeto}")
     return len(objetos)
 
