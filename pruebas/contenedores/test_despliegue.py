@@ -1,4 +1,6 @@
 """Integración en dos contenedores Linux de un proyecto efímero y propio."""
+import hashlib
+import sys
 import json
 import os
 from pathlib import Path
@@ -11,6 +13,10 @@ from urllib.request import ProxyHandler, build_opener, Request
 
 
 RAIZ = Path(__file__).resolve().parents[2]
+
+
+sys.path.insert(0, str(RAIZ / "guiones"))
+from datos_sinteticos import CSV_SINTETICO
 
 
 class DespliegueCompose(unittest.TestCase):
@@ -100,3 +106,7 @@ class DespliegueCompose(unittest.TestCase):
         self.assertEqual(primero["sha256"], segundo["sha256"])
         self.assertNotEqual(primero["solicitud_id"], segundo["solicitud_id"])
         self.assertNotEqual(primero["trabajo_id"], segundo["trabajo_id"])
+
+    def test_huella_original(self):
+        resultado = self.calcular()
+        self.assertEqual(resultado["sha256"], hashlib.sha256(CSV_SINTETICO.encode("utf-8")).hexdigest())
