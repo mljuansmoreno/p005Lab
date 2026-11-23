@@ -89,3 +89,11 @@ class NavegadorWeb(unittest.TestCase):
         self.assertEqual(resultado["filas_analizadas"], 6)
         self.assertAlmostEqual(resultado["media"], 25 / 6)
         self.assertRegex(resultado["solicitud_id"], r"^[0-9a-f]{32}$")
+
+    def test_origen_unico(self):
+        solicitudes = []
+        self.pagina.on("request", lambda peticion: solicitudes.append(peticion.url))
+        self.pagina.goto(self.origen, wait_until="networkidle")
+        self.assertTrue(self.pagina.get_by_role("button").is_visible())
+        self.assertTrue(solicitudes)
+        self.assertEqual({urlsplit(s).netloc for s in solicitudes}, {urlsplit(self.origen).netloc})
