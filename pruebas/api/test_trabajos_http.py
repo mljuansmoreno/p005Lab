@@ -41,6 +41,13 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_carga_de_otro_proyecto(self):
+        carga = self.cargar("c001\n7\n")
+        peticion = self.peticion(carga)
+        peticion["solicitud"]["proyecto_id"] = uuid.uuid4().hex
+        estado, cuerpo = self.http("POST", "/trabajos", peticion)
+        self.assertEqual((estado, json.loads(cuerpo)), (404, {"codigo": "TRABAJO_NO_ENCONTRADO"}))
+
     def test_error_de_credencial_uniforme(self):
         respuestas = [self.http("GET", "/salud", cabeceras={"Authorization": "Bearer " + valor})
                       for valor in (self.credencial[:-1], self.credencial + "x", "distinto")]
