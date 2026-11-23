@@ -277,6 +277,16 @@ try
         var recuperado = repositorio.LeerDatos(proyecto.Id)!;
         Verificar(recuperado.HashOriginal == preparados.HashOriginal && recuperado.Filas.Count == preparados.Filas.Count, "Una carga rechazada conserva los datos previos");
     }
+    {
+        var auxiliar = Path.Combine(proyecto.Directorio, "pendiente.tmp");
+        File.WriteAllText(auxiliar, "borrador");
+        var paquete = Path.Combine(temporal, "sin_temporales.rutaestadistica");
+        repositorio.ExportarProyecto(proyecto.Id, paquete);
+        using var archivo = ZipFile.OpenRead(paquete);
+        var nombres = archivo.Entries.Select(entrada => entrada.FullName).ToHashSet();
+        Verificar(nombres.SetEquals(["proyecto.json", "datos.json", "datos.csv", "original_" + preparados.HashOriginal + ".csv", "manifiesto.json"]), "El paquete mínimo contiene sólo las cinco entradas previstas");
+        File.Delete(auxiliar);
+    }
     var portatil = Path.Combine(temporal, "exportado.rutaestadistica"); repositorio.ExportarProyecto(proyecto.Id, portatil); var copia = repositorio.ImportarProyecto(portatil);
     Verificar(copia.Id != proyecto.Id && repositorio.LeerDatos(copia.Id)!.HashOriginal == datos.HashOriginal, "Archivo portátil valida hashes y crea identidad nueva");
     var malicioso = Path.Combine(temporal, "malicioso.zip"); using (var archivo = ZipFile.Open(malicioso, ZipArchiveMode.Create)) { using var escritor = new StreamWriter(archivo.CreateEntry("../escape.json").Open()); escritor.Write("{}"); }
