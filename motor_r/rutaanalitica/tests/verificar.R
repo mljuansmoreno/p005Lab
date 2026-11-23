@@ -77,5 +77,11 @@ local({
   res <- analizar(crear_solicitud("descriptivo", "c001"), data.frame(c001 = c(-12, -3, -7)), directorio)
   verificar(c(res$cifras$minimo, res$cifras$maximo), c(-12, -3))
 })
+# Distingue dispersión no estimable con una sola observación.
+local({
+  res <- analizar(crear_solicitud("descriptivo", "c001"), data.frame(c001 = -3), directorio)
+  stopifnot(is.null(res$cifras$desviacion_muestral), res$cifras$cantidad == 1L)
+  verificar(c(res$cifras$media, res$cifras$mediana), c(-3, -3))
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
