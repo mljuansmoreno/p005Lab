@@ -185,6 +185,21 @@ class PruebasEjecucion(unittest.TestCase):
             self.assertIsNotNone(reporte.find("testcase[@name='limpieza']"))
             self.assertTrue((ruta / "09-limpieza.txt").exists())
 
+    def test_reintento_limpia_solo_los_informes_del_coordinador(self):
+        with TemporaryDirectory() as carpeta:
+            salida = Path(carpeta) / "salidas"
+            reportes = salida / "reportes"
+            reportes.mkdir(parents=True)
+            anterior = reportes / "web.xml"
+            propio_usuario = reportes / "observaciones.txt"
+            anterior.write_text("obsoleto", encoding="utf-8")
+            propio_usuario.write_text("conservar", encoding="utf-8")
+            with (patch.object(ejecutar, "SALIDA", salida),
+                  patch.object(ejecutar, "preflight", return_value={})):
+                ejecutar.preparar()
+            self.assertFalse(anterior.exists())
+            self.assertEqual(propio_usuario.read_text("utf-8"), "conservar")
+
     def test_dependencia_ausente_deja_revision_y_estado(self):
         with TemporaryDirectory() as directorio, patch.object(ejecutar, "SALIDA", Path(directorio)):
             with patch.object(ejecutar, "preflight", side_effect=ValueError("Falta el programa jq")):
