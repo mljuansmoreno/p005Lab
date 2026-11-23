@@ -17,7 +17,7 @@ URL = "http://127.0.0.1:9090/"
 TRABAJO = "job/ruta-estadistica-main/"
 CAMPOS = "number,url,result,building,duration,actions[causes[shortDescription]],artifacts[relativePath]"
 RUTA_ARCHIVO = "salidas/jenkins-ci/"
-PLUGINS_REQUERIDOS = {"git", "workflow-job", "pipeline-model-definition", "docker-workflow", "credentials"}
+PLUGINS_REQUERIDOS = {"git", "github", "pipeline-stage-view", "workflow-job", "pipeline-model-definition", "docker-workflow", "credentials"}
 LINEA_SEGURA = re.compile(
     r"(?:\[[0-9T:Z.\-]+\] )?(?:Checking out Revision [0-9a-f]{40} \(refs/remotes/origin/main\)"
     r"|\[Pipeline\] \{ \((?:Checkout|Build|Test)\)"
