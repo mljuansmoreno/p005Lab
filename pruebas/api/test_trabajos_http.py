@@ -41,6 +41,19 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_nombres_exportados_independientes(self):
+        for valores in ('3\n7', '9\n1'):
+            carga = self.cargar('c001\n' + valores + '\n')
+            trabajo = self.encolar(carga)
+            self.assertEqual(self.esperar(trabajo)[-1]['estado'], 'completado')
+            estado, contenido = self.http('GET', self.ruta(trabajo, '/resultado'))
+            self.assertEqual(estado, 200)
+            with zipfile.ZipFile(io.BytesIO(contenido)) as archivo:
+                for entrada in archivo.infolist():
+                    self.assertEqual(Path(entrada.filename).name, entrada.filename)
+                    self.assertNotIn(entrada.filename, ('.', '..'))
+                self.assertEqual(set(archivo.namelist()), {'resultado.json', 'figura.png'})
+
     def test_resultado_proyecto_distinto(self):
         trabajo = self.encolar(self.cargar("c001\n2\n8\n"))
         self.assertEqual(self.esperar(trabajo)[-1]["estado"], "completado")
