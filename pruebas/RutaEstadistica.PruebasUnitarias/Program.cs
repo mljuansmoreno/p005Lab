@@ -360,6 +360,13 @@ try
         foreach (var politica in new[] { "", "excluir", "imputar" })
             Rechazar(() => Validacion.Validar(solicitud with { PoliticaFaltantes = politica }, preparados), "ANALISIS_OPCION_INVALIDA");
     }
+    {
+        var opciones = Serializacion.Opciones;
+        var objeto = System.Text.Json.JsonSerializer.SerializeToNode(solicitud with { InferenciaConfirmada = true }, opciones)!.AsObject();
+        objeto.Remove("inferencia_confirmada");
+        var leida = System.Text.Json.JsonSerializer.Deserialize<SolicitudAnalisis>(objeto.ToJsonString(), opciones)!;
+        Verificar(!leida.InferenciaConfirmada, "Una solicitud sin consentimiento explícito mantiene la inferencia desactivada");
+    }
         var primero = gestor.Encolar(new(carga.DatosId, solicitud));
         var plazoInicio = DateTimeOffset.UtcNow.AddSeconds(10);
         while (gestor.Consultar(primero.TrabajoId, proyecto.Id).Estado == "pendiente" && DateTimeOffset.UtcNow < plazoInicio) await Task.Delay(10);
