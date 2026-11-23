@@ -8,6 +8,8 @@ El controlador permanente y el controlador alojado tienen historiales independie
 
 **Puntaje de la rúbrica:** 25 puntos.
 
+- Los mínimos del proyecto, las recomendaciones de CPU, RAM y disco y los valores observados están en [prerrequisitos](documentacion/jenkins.md#prerrequisitos). El [entorno de #29](documentacion/evidencias-jenkins/build-29/ejecucion.json) registra la plataforma y las versiones del agente.
+
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
 | CPU del controlador | Consultar HostConfig.NanoCpus y NCPU del daemon. | Cuota explícita 0 (sin límite dedicado), cuatro CPU compartidas. La guía recomienda reservar una vCPU. El proyecto no mide un mínimo de CPU. | [compose.yaml](https://github.com/mljuansmoreno/p005Lab/blob/921af48994ab8a5236424783d8742df4c9c669f3/jenkins/compose.yaml) · [recursos-controlador-2026-11-22.json](https://github.com/mljuansmoreno/p005Lab/blob/892ac4fed7b57cbb122d4a34fc7c120b8f12f00f/documentacion/evidencias-jenkins/recursos-controlador-2026-11-22.json) |
