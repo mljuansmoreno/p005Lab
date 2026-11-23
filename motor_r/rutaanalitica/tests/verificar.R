@@ -62,5 +62,10 @@ local({
     verificar(res$cifras$mediana, if (length(valores) == 4L) 5 else 7)
   }
 })
+# Comprueba la desviación con un cero repetido y un extremo.
+local({
+  res <- analizar(crear_solicitud("descriptivo", "c001"), data.frame(c001 = c(0, 0, 6)), directorio)
+  verificar(res$cifras$desviacion_muestral, sqrt(12))
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
