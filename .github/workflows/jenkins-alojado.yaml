@@ -40,6 +40,7 @@ jobs:
       - name: Ejecutar el Jenkinsfile del proyecto
         id: ejecutar
         env:
+          RUTA_CI_GITHUB_LECTURA: ${{ github.token }}
           PYTHONPATH: guiones/ci
           RUTA_CI_CAPTURAS: ${{ inputs.capturas }}
           RUTA_CI_ALOJADO_SIN_CACHE: ${{ inputs.sin_cache }}

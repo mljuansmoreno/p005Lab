@@ -1,3 +1,8 @@
+import com.cloudbees.plugins.credentials.CredentialsScope
+import com.cloudbees.plugins.credentials.SystemCredentialsProvider
+import com.cloudbees.plugins.credentials.domains.Domain
+import com.cloudbees.plugins.credentials.domains.HostnameSpecification
+import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl
 import hudson.model.Node
 import hudson.security.FullControlOnceLoggedInAuthorizationStrategy
 import hudson.security.HudsonPrivateSecurityRealm
@@ -31,7 +36,15 @@ def agente = new DumbSlave('linux-docker', '/var/tmp/ruta-estadistica-agente', n
 agente.setMode(Node.Mode.EXCLUSIVE)
 agente.setNumExecutors(1)
 controlador.addNode(agente)
-new File('/opt/ruta-ci/trabajo-main.xml').withInputStream { xml ->
+def idLectura = 'github-p005lab-lectura'
+def dominio = new Domain('github.com', 'Checkout del repositorio del runner',
+    [new HostnameSpecification('github.com', null)])
+def lectura = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, idLectura,
+    'GitHub Actions · Contents read', 'x-access-token', new File('/run/secrets/github-lectura').text.trim())
+assert SystemCredentialsProvider.getInstance().getStore().addDomain(dominio, [lectura])
+def plantilla = new File('/opt/ruta-ci/trabajo-main.xml').getText('UTF-8')
+def configuracion = plantilla.replace('</url>', "</url><credentialsId>${idLectura}</credentialsId>")
+new ByteArrayInputStream(configuracion.getBytes('UTF-8')).withCloseable { xml ->
     def trabajo = controlador.createProjectFromXML('ruta-estadistica-main', xml)
     trabajo.updateNextBuildNumber(numero)
 }

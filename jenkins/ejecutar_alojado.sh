@@ -24,14 +24,17 @@ limpiar() {
   if "$agente_creado"; then
     rm -f -- "$agente/conexion.secreto"
   fi
-  rm -f -- "$privado/api" "$privado/netrc"
+  rm -f -- "$privado/api" "$privado/netrc" "$privado/github"
 }
 trap limpiar EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
+(umask 027; printf %s "${RUTA_CI_GITHUB_LECTURA:?Falta la credencial del checkout}" > "$privado/github")
+unset RUTA_CI_GITHUB_LECTURA
 docker build --tag ruta-estadistica-jenkins-alojado jenkins
 docker run -d --name "$controlador" --publish 127.0.0.1:9090:8080 \
+  --group-add "$(id -g)" --mount "type=bind,source=$privado/github,target=/run/secrets/github-lectura,readonly" \
   --cap-drop ALL --security-opt no-new-privileges --memory 1g --pids-limit 256 \
   --env 'JAVA_OPTS=-Djenkins.install.runSetupWizard=false -Xms128m -Xmx512m' \
   --env "RUTA_CI_NUMERO_ALOJADO=$numero" \
