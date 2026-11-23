@@ -1,0 +1,57 @@
+"""Regresiones del cliente ante una secuencia controlada de respuestas del motor."""
+import hashlib
+import io
+import json
+import unittest
+from unittest.mock import patch
+from urllib.error import URLError
+from urllib.parse import urlsplit
+import zipfile
+
+from datos_sinteticos import CSV_SINTETICO
+from web import analizar, ErrorMotor
+
+
+class ResilienciaWeb(unittest.TestCase):
+    def test_desconexion_antes_de_cargar(self):
+        with self.assertRaisesRegex(ErrorMotor, "/datos"):
+            self.ejecutar([URLError("conexión rechazada")])
+        self.assertEqual(self.llamadas, [("POST", "/datos")])
+
+    def setUp(self):
+        self.huella = hashlib.sha256(CSV_SINTETICO.encode()).hexdigest()
+        self.proyecto = self.huella[:32]
+        self.carga = {"datos_id": "d" * 32, "hash_datos": self.huella, "filas": 6}
+        self.trabajo = {"trabajo_id": "a" * 32, "proyecto_id": self.proyecto, "estado": "pendiente"}
+        self.consulta = "/trabajos/" + self.trabajo["trabajo_id"]
+        self.llamadas = []
+
+    def ejecutar(self, respuestas):
+        pasos = iter(respuestas)
+
+        def abrir(peticion, timeout):
+            ruta = urlsplit(peticion.full_url).path
+            self.llamadas.append((peticion.get_method(), ruta))
+            if ruta == "/trabajos" and peticion.data:
+                self.solicitud = json.loads(peticion.data)["solicitud"]
+            dato = next(pasos)
+            if isinstance(dato, Exception):
+                raise dato
+            if callable(dato):
+                dato = dato()
+            cuerpo = dato if isinstance(dato, bytes) else json.dumps(dato).encode()
+            respuesta = io.BytesIO(cuerpo)
+            respuesta.status = {"/datos": 201, "/trabajos": 202}.get(ruta, 200)
+            return respuesta
+
+        with patch("web.cliente_http") as cliente, patch("web.time.sleep"):
+            cliente.return_value.open.side_effect = abrir
+            return analizar("http://motor:8787", "valor-ficticio")
+
+    def paquete_valido(self):
+        informe = {**self.solicitud, "filas_analizadas": 6, "cifras": {"media": 25 / 6}}
+        contenido = io.BytesIO()
+        with zipfile.ZipFile(contenido, "w") as archivo:
+            archivo.writestr("resultado.json", json.dumps(informe))
+            archivo.writestr("figura.png", b"figura sintetica")
+        return contenido.getvalue()
