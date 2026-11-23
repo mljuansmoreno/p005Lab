@@ -18,6 +18,26 @@ import uuid
 RAIZ = Path(__file__).resolve().parents[2]
 
 
+def motor_controlado(caso):
+    """Usa un trabajador R sintético que espera la cancelación o el plazo del servidor."""
+    caso.motor_controlado = True
+    return caso
+
+
+def preparar_espera(origen, destino):
+    # Rscript en Windows resuelve su biblioteca base desde su instalación.
+    runtime = Path(origen) / "runtime/R"
+    def copiar(archivo, copia):
+        try:
+            os.link(archivo, copia)
+        except OSError:
+            shutil.copy2(archivo, copia)
+    shutil.copytree(runtime, destino / "runtime/R", copy_function=copiar, symlinks=False)
+    (destino / "motor_r").mkdir()
+    (destino / "motor_r/trabajador.R").write_text("Sys.sleep(90)\n", encoding="utf-8")
+
+
+
 class TrabajosHTTP(unittest.TestCase):
     def setUp(self):
         temporal = tempfile.TemporaryDirectory()
@@ -40,6 +60,10 @@ class TrabajosHTTP(unittest.TestCase):
                        RUTA_ESTADISTICA_DIRECTORIO_TRABAJOS=str(carpeta),
                        RUTA_ESTADISTICA_RECURSOS_MOTOR=os.environ.get(
                            "RUTA_ESTADISTICA_RECURSOS_MOTOR", str(RAIZ / "salidas/recursos")))
+        if getattr(getattr(self, self._testMethodName), "motor_controlado", False):
+            simulacion = carpeta / "recursos"
+            preparar_espera(entorno["RUTA_ESTADISTICA_RECURSOS_MOTOR"], simulacion)
+            entorno["RUTA_ESTADISTICA_RECURSOS_MOTOR"] = str(simulacion)
         proceso = subprocess.Popen([dotnet, str(servidor)], env=entorno, stdout=subprocess.DEVNULL,
                                    stderr=subprocess.DEVNULL)
         def cerrar():
@@ -209,3 +233,10 @@ class TrabajosHTTP(unittest.TestCase):
         codigo, cuerpo = self.http("GET", self.ruta(trabajo, proyecto=uuid.uuid4().hex))
         self.assertEqual((codigo, json.loads(cuerpo)), (404, {"codigo": "TRABAJO_NO_ENCONTRADO"}))
         self.assertEqual(self.esperar(trabajo)[-1]["estado"], "completado")
+
+    @motor_controlado
+    def test_resultado_aun_no_disponible(self):
+        trabajo = self.encolar(self.cargar("c001\n4\n"))
+        self.addCleanup(self.http, "DELETE", self.ruta(trabajo))
+        codigo, contenido = self.http("GET", self.ruta(trabajo, "/resultado"))
+        self.assertEqual((codigo, json.loads(contenido)), (409, {"codigo": "RESULTADO_NO_DISPONIBLE"}))
