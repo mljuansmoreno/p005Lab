@@ -89,5 +89,13 @@ local({
   verificar(unlist(res$filas_excluidas), c(1, 3))
   verificar(c(res$filas_brutas, res$filas_analizadas, res$cifras$media), c(4, 2, 4))
 })
+# Comprueba frecuencias sin depender del orden de categorías.
+local({
+  muestra <- data.frame(c001 = c("B", "A", "C", "A", "B", "A"))
+  res <- analizar(crear_solicitud("cuestionario", "c001"), muestra, directorio)
+  categorias <- vapply(res$tablas, function(fila) fila$categoria, character(1))
+  conteos <- vapply(res$tablas, function(fila) as.integer(fila$frecuencia), integer(1))
+  verificar(conteos[match(c("A", "B", "C"), categorias)], c(3, 2, 1))
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
