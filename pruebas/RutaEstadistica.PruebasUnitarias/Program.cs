@@ -319,6 +319,11 @@ try
         foreach (var id in new[] { "", " ", new string('p', 65) })
             Rechazar(() => Validacion.Validar(solicitud with { ProyectoId = id }, preparados), "CONTRATO_SOLICITUD_INVALIDA");
     }
+    {
+        Validacion.Validar(solicitud with { SolicitudId = new string('s', 64) }, preparados);
+        foreach (var id in new[] { "", "\t", new string('s', 65) })
+            Rechazar(() => Validacion.Validar(solicitud with { SolicitudId = id }, preparados), "CONTRATO_SOLICITUD_INVALIDA");
+    }
         var primero = gestor.Encolar(new(carga.DatosId, solicitud));
         var plazoInicio = DateTimeOffset.UtcNow.AddSeconds(10);
         while (gestor.Consultar(primero.TrabajoId, proyecto.Id).Estado == "pendiente" && DateTimeOffset.UtcNow < plazoInicio) await Task.Delay(10);
