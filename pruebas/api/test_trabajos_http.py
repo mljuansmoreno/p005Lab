@@ -155,3 +155,12 @@ class TrabajosHTTP(unittest.TestCase):
         peticion["datos_id"] = uuid.uuid4().hex
         estado, cuerpo = self.http("POST", "/trabajos", peticion)
         self.assertEqual((estado, json.loads(cuerpo)), (404, {"codigo": "TRABAJO_NO_ENCONTRADO"}))
+
+
+    def test_huella_discordante(self):
+        carga = self.cargar("c001\n2\n4\n")
+        peticion = self.peticion(carga)
+        peticion["solicitud"]["hash_datos"] = "0" * 64
+        estado, cuerpo = self.http("POST", "/trabajos", peticion)
+        self.assertEqual((estado, json.loads(cuerpo)), (400, {"codigo": "DATOS_HASH_INVALIDO"}))
+        self.assertEqual(self.encolar(carga)["estado"], "pendiente")
