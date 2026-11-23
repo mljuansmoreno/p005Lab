@@ -15,7 +15,7 @@ Entrega de `p005Lab` sobre `main`. Las copias del [anexo versionado](documentaci
 - El [inventario fijado](jenkins/plugins.txt) incorpora Docker Pipeline `653.v2f2c08eff0ec` y las dependencias obligatorias. La [instalación y compatibilidad](documentacion/jenkins.md#prerrequisitos) documenta el mínimo de Jenkins que requiere el plugin.
 - La [consulta de plugins activos](documentacion/evidencias-jenkins/validacion-local/plugins-activos.json) verificó Git, Pipeline, Docker Pipeline y Credentials en Jenkins 2.580.2 desechable. Queda pendiente aplicar la imagen nueva y comprobar los plugins en el controlador permanente.
 - La [configuración permanente exportada](documentacion/evidencias-jenkins/configuracion-permanente.json) confirma Git, repositorio, rama, script, expresión de sondeo y checkout anónimo. El [registro de sondeo](documentacion/evidencias-jenkins/poll-scm.txt) muestra la consulta por Git a GitHub.
-- La [comprobación de plugins y Credentials](documentacion/jenkins.md#verificar-plugins-credenciales-y-poll-scm) especifica ID, tipo, alcance y permisos para una credencial real. La instalación y el uso de esa credencial siguen pendientes del token de lectura de alcance fino del propietario. El [recolector alojado](jenkins/recolectar_alojado.py) comprueba versiones activas y registra el resultado.
+- La [comprobación de plugins y Credentials](documentacion/jenkins.md#verificar-plugins-credenciales-y-poll-scm) especifica ID, tipo, alcance y permisos para una credencial real. El [build automático #11101](documentacion/evidencias-jenkins/build-11101/credencial.json) acredita su uso en el controlador alojado con el token efímero de lectura del runner. El controlador permanente usa checkout público. El [recolector alojado](jenkins/recolectar_alojado.py) comprueba versiones activas y registra el resultado.
 
 ## 3. Pipeline como código — 25 puntos
 
@@ -30,7 +30,7 @@ Entrega de `p005Lab` sobre `main`. Las copias del [anexo versionado](documentaci
 - El [disparador declarativo](Jenkinsfile) usa `H/2 * * * *` y la [definición SCM](jenkins/trabajo-main.xml) usa `*/main`. El [registro del sondeo permanente](documentacion/evidencias-jenkins/poll-scm.txt) identifica `refs/heads/main`, el SHA remoto y #29.
 - `ruta-estadistica-main` [#9](documentacion/evidencias-jenkins/build-9/ejecucion.json) en `911f2cb` y [#29](documentacion/evidencias-jenkins/build-29/ejecucion.json) en `1da7197` terminaron en `SUCCESS` por Poll SCM. Consulte el [Console Output de #29](documentacion/evidencias-jenkins/build-29/consola.txt) con la causa y el SHA y el [historial permanente #20–#29](documentacion/evidencias-jenkins/historial-permanente.json).
 - `ruta-estadistica-main` alojado [#11001](documentacion/evidencias-jenkins/build-11001/ejecucion.json) ejecutó manualmente `295325f` y terminó en `SUCCESS`. Consulte la [procedencia de Actions](documentacion/evidencias-jenkins/build-11001/origen-actions.json) y el [workflow manual](.github/workflows/jenkins-alojado.yaml).
-- Pendiente cotejar un push de esta actualización con el build automático del controlador permanente.
+- El [piloto automático #11101](documentacion/evidencias-jenkins/build-11101/README.md) coteja el SHA del push con su checkout. La [verificación detallada](Verificacion_Rubrica.md) registra por separado los sondeos permanentes.
 
 ## 5. Construcción de los contenedores — 20 puntos
 
