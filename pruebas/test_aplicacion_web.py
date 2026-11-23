@@ -183,3 +183,11 @@ class InterfazWeb(unittest.TestCase):
         calcular.assert_not_called()
         self.assertEqual((estado, cabeceras["Retry-After"], json.loads(cuerpo)),
                          (503, "2", {"error": "capacidad_ocupada"}))
+
+
+    def test_clave_faltante_se_sanea(self):
+        with patch("web.analizar", side_effect=KeyError("referencia-sintetica")):
+            estado, _, cuerpo = self.solicitar("POST", "/analizar", {"Accept": "application/json"})
+        self.assertEqual(estado, 502)
+        self.assertEqual(json.loads(cuerpo), {"error": "motor_no_disponible"})
+        self.assertNotIn(b"referencia-sintetica", cuerpo)
