@@ -1,6 +1,7 @@
 """Contratos HTTP del servidor .NET con un proceso aislado por escenario."""
 import contextlib
 from http.client import HTTPConnection
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -89,3 +90,12 @@ class TrabajosHTTP(unittest.TestCase):
         estado, cuerpo = self.http("GET", "/salud", cabeceras={"Authorization": "Bearer " + "x" * 64})
         self.assertEqual((estado, cuerpo), (403, b""))
         self.assertEqual(self.http("GET", "/salud")[0], 200)
+
+
+    def test_creacion_de_carga(self):
+        csv = "c001,c002\n4,Bogotá\n6,Leticia\n"
+        estado, cuerpo = self.http("POST", "/datos", {"proyecto_id": self.proyecto, "csv": csv})
+        self.assertEqual(estado, 201)
+        carga = json.loads(cuerpo)
+        self.assertRegex(carga.pop("datos_id"), r"^[a-f0-9]{32}$")
+        self.assertEqual(carga, {"filas": 2, "columnas": 2, "hash_datos": hashlib.sha256(csv.encode()).hexdigest()})
