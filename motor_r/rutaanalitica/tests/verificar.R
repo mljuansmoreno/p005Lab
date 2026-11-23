@@ -181,5 +181,10 @@ local({
   verificar(c(res$cifras$intercepto,res$cifras$pendiente), unname(coef(ajuste)))
   verificar(res$cifras$residuos, unname(residuals(ajuste)))
 })
+# Rechaza el predictor constante antes de ajustar una regresión.
+local({
+  muestra <- data.frame(c001=c(1,2,3), c002=c(9,9,9))
+  esperar_error(function() analizar(crear_solicitud("lineal"), muestra, directorio), "DATOS_CONSTANTES")
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
