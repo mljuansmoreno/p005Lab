@@ -13,6 +13,13 @@ from web import analizar, ErrorMotor
 
 
 class ResilienciaWeb(unittest.TestCase):
+    def test_disponibilidad_recuperada(self):
+        with self.assertRaises(ErrorMotor):
+            self.ejecutar([URLError("motor detenido")])
+        resultado = self.ejecutar([self.carga, dict(self.trabajo, estado="completado"), self.paquete_valido])
+        self.assertEqual((resultado["estado"], resultado["sha256"]), ("completado", self.huella))
+        self.assertEqual(self.llamadas.count(("POST", "/datos")), 2)
+
     def test_caida_en_ejecucion(self):
         activo = dict(self.trabajo, estado="ejecutando")
         final = dict(self.trabajo, estado="completado")
