@@ -76,6 +76,10 @@ def ejecutar(jenkins, numero, revision, *, sin_cache=False):
     ruta = f"{TRABAJO}{numero}/"
     build = jenkins.esperar_json(ruta + f"api/json?tree={quote(CAMPOS)}",
                                  lambda datos: not datos["building"] and bool(datos["result"]), 70 * 60)
+    if os.environ.get("GITHUB_EVENT_NAME") == "push":
+        causas = [c.get("_class", "") for a in build["actions"] for c in a.get("causes", [])]
+        if "hudson.triggers.SCMTrigger$SCMTriggerCause" not in causas:
+            raise ValueError("El push no produjo una ejecución por Poll SCM")
     (carpeta / "build.json").write_text(json.dumps(build, indent=2) + "\n", encoding="utf-8")
     etapas = jenkins.pedir(ruta + "wfapi/describe")
     (carpeta / "etapas.json").write_bytes(etapas)

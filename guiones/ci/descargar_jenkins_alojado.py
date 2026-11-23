@@ -59,7 +59,7 @@ def importar(run_id, bitacora):
     run = json.loads(github(f"runs/{run_id}"))
     revision = sha(run["head_sha"])
     if (run["id"] != run_id or run["path"] != ".github/workflows/jenkins-alojado.yaml" or
-            run["head_branch"] != "main" or run["event"] != "workflow_dispatch" or run["status"] != "completed"):
+            run["head_branch"] != "main" or run["event"] not in {"workflow_dispatch", "push"} or run["status"] != "completed"):
         raise ValueError("Se requiere una ejecución alojada y terminada en main")
     nombre = f"jenkins-{revision}-{int(run['run_attempt'])}"
     archivos = json.loads(github(f"runs/{run_id}/artifacts?name={nombre}"))["artifacts"]
