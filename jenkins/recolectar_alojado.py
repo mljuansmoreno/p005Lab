@@ -125,6 +125,8 @@ def ejecutar(jenkins, numero, revision, *, sin_cache=False):
             raise ValueError("El rango publicado no termina en la revisión de Jenkins")
         lote = {"antes": anterior, "checkout": revision, "commits": commits}
         (carpeta / "push.json").write_text(json.dumps(lote, indent=2) + "\n", encoding="utf-8")
+    historial = jenkins.pedir(TRABAJO + "api/json?tree=" + quote("builds[number,result,timestamp,duration]"))
+    (carpeta / "historial.json").write_bytes(historial)
     archivados = {artefacto["relativePath"] for artefacto in build["artifacts"]}
     for nombre in sorted(EVIDENCIAS_OBLIGATORIAS | {"manifest.json"}):
         relativa = RUTA_ARCHIVO + nombre
