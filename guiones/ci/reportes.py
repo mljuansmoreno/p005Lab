@@ -90,7 +90,12 @@ def probar_web(ruta):
     suite = unittest.defaultTestLoader.discover("pruebas", pattern="test_aplicacion_web.py")
     reporte = Reporte("web")
     resultado = ResultadoWeb(reporte)
-    suite.run(resultado)
+    try:
+        suite.run(resultado)
+    except (Exception, KeyboardInterrupt) as error:
+        reporte.caso("interrupcion_suite", "unittest", 0, "error", type(error).__name__)
+        reporte.guardar(ruta)
+        raise
     reporte.guardar(ruta)
     print(f"Web: {resultado.testsRun} ejecutadas, {resultado.exitos} correctas")
     return resultado.wasSuccessful() and resultado.exitos > 0

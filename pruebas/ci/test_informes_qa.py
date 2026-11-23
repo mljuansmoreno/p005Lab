@@ -4,13 +4,29 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 import xml.etree.ElementTree as ET
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "guiones/ci"))
-from reportes import Reporte, ResultadoWeb
+from reportes import Reporte, ResultadoWeb, probar_web
 
 
 class InformesQA(unittest.TestCase):
+    def test_interrupcion_guarda_casos_anteriores_y_propaga_el_fallo(self):
+        class Interrumpida:
+            def run(self, resultado):
+                resultado.reporte.caso("salud", "web", 0)
+                raise KeyboardInterrupt()
+
+        with tempfile.TemporaryDirectory() as carpeta:
+            ruta = Path(carpeta) / "parcial.xml"
+            with patch.object(unittest.defaultTestLoader, "discover", return_value=Interrumpida()):
+                with self.assertRaises(KeyboardInterrupt):
+                    probar_web(ruta)
+            raiz = ET.parse(ruta).getroot()
+        self.assertEqual((raiz.get("tests"), raiz.get("errors")), ("2", "1"))
+        self.assertEqual(raiz.find("testcase").get("name"), "salud")
+
     def test_xml_preserva_nombres_y_mensajes_con_metacaracteres(self):
         informe = Reporte("validación")
         nombre, mensaje = 'media < "límite"', "R & Python > 0"
