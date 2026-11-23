@@ -200,3 +200,10 @@ class InterfazWeb(unittest.TestCase):
         self.assertIn(b'role="alert"', cuerpo)
         self.assertIn(b'<form action="/analizar" method="post">', cuerpo)
         self.assertNotIn(b"detalle de lectura", cuerpo)
+
+
+    def test_metodo_no_implementado(self):
+        with patch("web.analizar") as calcular:
+            estado, _, _ = self.solicitar("PUT", "/analizar")
+        self.assertEqual(estado, 501)
+        calcular.assert_not_called()
