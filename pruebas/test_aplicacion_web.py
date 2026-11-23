@@ -231,3 +231,11 @@ class InterfazWeb(unittest.TestCase):
         with patch.object(os, "environ", dict(os.environ, ALL_PROXY="http://proxy.invalid:8080")):
             cliente = cliente_http()
         self.assertFalse(any(hasattr(manejador, "proxy_open") for manejador in cliente.handlers))
+
+
+    def test_destino_parecido(self):
+        with patch("web.cliente_http") as cliente:
+            for destino in ("http://motor.example.invalid:8787", "http://localhost.example.invalid:8787"):
+                with self.subTest(destino=destino), self.assertRaises(ValueError):
+                    analizar(destino, "sintetico")
+            cliente.assert_not_called()
