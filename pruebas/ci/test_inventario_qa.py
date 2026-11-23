@@ -10,6 +10,12 @@ RAIZ = Path(__file__).resolve().parents[2]
 
 
 class InventarioQA(unittest.TestCase):
+    def test_el_ejemplo_contiene_todos_los_campos_obligatorios(self):
+        esquema = json.loads((RAIZ / "contratos/solicitud_analisis.schema.json").read_text("utf-8"))
+        ejemplo = json.loads((RAIZ / "contratos/ejemplos/solicitud.json").read_text("utf-8"))
+        self.assertTrue(set(ejemplo) <= esquema["properties"].keys())
+        self.assertSetEqual(set(esquema["required"]), set(esquema["required"]).intersection(ejemplo))
+
     def test_cada_familia_tiene_un_oraculo_r_identificable(self):
         contrato = json.loads((RAIZ / "contratos/solicitud_analisis.schema.json").read_text("utf-8"))
         matriz = (RAIZ / "documentacion/qa/matriz_trazabilidad.md").read_text("utf-8")
