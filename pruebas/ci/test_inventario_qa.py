@@ -10,6 +10,11 @@ RAIZ = Path(__file__).resolve().parents[2]
 
 
 class InventarioQA(unittest.TestCase):
+    def test_plan_cubre_los_250_identificadores_en_orden_sin_repetir(self):
+        plan = (RAIZ / "documentacion/qa/plan_250_commits.md").read_text("utf-8")
+        identificadores = re.findall(r"^\| (QA-\d+) \|", plan, re.M)
+        self.assertEqual(identificadores, [f"QA-{numero:03d}" for numero in range(1, 251)])
+
     def test_el_ejemplo_contiene_todos_los_campos_obligatorios(self):
         esquema = json.loads((RAIZ / "contratos/solicitud_analisis.schema.json").read_text("utf-8"))
         ejemplo = json.loads((RAIZ / "contratos/ejemplos/solicitud.json").read_text("utf-8"))
