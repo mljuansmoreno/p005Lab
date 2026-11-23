@@ -31,7 +31,13 @@ obtener_herramienta_ci() (
     if ! copia="$(mktemp "$cache/.$herramienta.XXXXXXXX")" ||
        ! cp -- "$paquete" "$copia" ||
        ! mv -fT -- "$copia" "$cache/$herramienta.tar.gz"; then
-      printf 'No se pudo actualizar la caché de %s. Se usará la descarga verificada.\n' "$herramienta" >&2
+      printf 'No se pudo actualizar la cachÃ© de %s. Se usarÃ¡ la descarga verificada.\n' "$herramienta" >&2
     fi
   fi
 )
+
+obtener_gitleaks_ci() {
+  obtener_herramienta_ci gitleaks \
+    https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
+    551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb "$1"
+}
