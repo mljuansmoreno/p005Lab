@@ -11,6 +11,18 @@ RAIZ = Path(__file__).resolve().parents[2]
 
 
 class SalidaPipeline(unittest.TestCase):
+    def test_jenkins_conservo_junit_despues_del_fallo_de_calculo(self):
+        carpeta = RAIZ / "documentacion/evidencias-jenkins/autoprueba-3"
+        ficha = json.loads((carpeta / "ejecucion.json").read_text("utf-8"))
+        consola = (carpeta / "consola.txt").read_text("utf-8")
+        reporte = ET.parse(carpeta / "integracion.xml").getroot()
+        self.assertEqual((ficha["job"], ficha["build"], ficha["resultado"]),
+                         ("ruta-estadistica-autoprueba", 3, "FAILURE"))
+        self.assertLess(consola.index("Recording test results"), consola.index("Finished: FAILURE"))
+        self.assertEqual(reporte.get("failures"), "1")
+        self.assertIsNotNone(reporte.find("testcase[@name='calculo']/failure"))
+        self.assertGreater((carpeta / "09-limpieza.txt").stat().st_size, 0)
+
     def fixture(self, metodos):
         with tempfile.TemporaryDirectory() as directorio:
             carpeta = Path(directorio)
