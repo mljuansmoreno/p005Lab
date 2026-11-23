@@ -1,6 +1,7 @@
 """Reportes JUnit de las pruebas sintéticas, sin copiar salida ni trazas crudas."""
 
 from pathlib import Path
+from math import isfinite
 from time import monotonic
 import unittest
 import xml.etree.ElementTree as ET
@@ -16,6 +17,8 @@ class Reporte:
         self.inicio -= float(self.raiz.get("time", "0"))
 
     def caso(self, nombre, clase, segundos, etiqueta=None, mensaje=None):
+        if not isfinite(segundos) or segundos < 0:
+            raise ValueError("Duración de caso inválida")
         caso = ET.SubElement(self.raiz, "testcase", {
             "name": nombre, "classname": clase, "time": f"{segundos:.6f}",
         })
