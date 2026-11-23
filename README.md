@@ -272,6 +272,8 @@ gh workflow run jenkins-alojado.yaml --ref main -f sin_cache=true -f capturas=tr
 
 Descargue `jenkins-<SHA>-<intento>` y, si se solicitaron capturas, `jenkins-capturas-<SHA>-<intento>`. Compare el SHA del build con el de Actions y la huella del anexo publicada en el resumen. El flujo alojado demuestra un disparo manual; el sondeo SCM se observa en el controlador permanente. [Operación, recuperación y retención](documentacion/operacion_jenkins.md) · [Guía de capturas](documentacion/capturas_semana5.md).
 
+El piloto automático alojado [#11101](documentacion/evidencias-jenkins/build-11101/README.md) comprueba que el SHA del push coincida con el checkout. El controlador permanente mantiene su propio historial de Poll SCM. El pipeline vigente registra **Checkout**, **Build** y **Test** por separado, coteja las imágenes OCI antes de usar las construidas y conserva la limpieza de los proyectos por ejecución. La [rúbrica consolidada](Verificacion_Rubrica.md) reúne el catálogo de builds, el piloto, la cancelación controlada, la corrección en Jenkins y el cierre de los 155 commits.
+
 ### Pruebas de Jenkins realizadas
 
 | Build | Resultado registrado |
