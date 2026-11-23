@@ -133,3 +133,15 @@ class DespliegueCompose(unittest.TestCase):
         self.ejecutar("exec", "-T", "aplicacion", "python", "-c", sonda)
         with self.cliente.open(self.url_web() + "/listo", timeout=5) as respuesta:
             self.assertEqual(json.load(respuesta), {"listo": True})
+
+    def test_salud_incompatible(self):
+        from textwrap import dedent
+        prueba = dedent("""
+            from io import BytesIO
+            from unittest.mock import patch
+            from web import motor_disponible
+            with patch('web.cliente_http') as cliente:
+                cliente.return_value.open.return_value = BytesIO(b'{"version_contrato":1,"version_api":1}')
+                assert not motor_disponible('http://motor:8787', 'sintetico')
+        """)
+        self.ejecutar("exec", "-T", "aplicacion", "python", "-", entrada=prueba.encode())
