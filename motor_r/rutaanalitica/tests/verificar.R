@@ -133,5 +133,11 @@ local({
   muestra <- data.frame(c001 = c(1, 2, 3, 7), c002 = c("A", "A", "A", "B"))
   esperar_error(function() analizar(crear_solicitud("welch"), muestra, directorio), "ANALISIS_GRUPOS_INVALIDOS")
 })
+# Contrasta el intervalo pareado con el error estándar de las diferencias.
+local({
+  muestra <- data.frame(c001 = c(10,20,30,40), c002 = c(12,19,35,46))
+  res <- analizar(crear_solicitud("pareado"), muestra, directorio)
+  verificar(res$cifras$intervalo, -3 + c(-1,1) * stats::qt(.975, 3) * sqrt(10/4))
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
