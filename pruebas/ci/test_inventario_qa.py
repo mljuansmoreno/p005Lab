@@ -1,6 +1,7 @@
 """Comprueba que el inventario de QA sigue representando la API pública."""
 
 from pathlib import Path
+import json
 import re
 import unittest
 
@@ -9,6 +10,16 @@ RAIZ = Path(__file__).resolve().parents[2]
 
 
 class InventarioQA(unittest.TestCase):
+    def test_cada_familia_tiene_un_oraculo_r_identificable(self):
+        contrato = json.loads((RAIZ / "contratos/solicitud_analisis.schema.json").read_text("utf-8"))
+        matriz = (RAIZ / "documentacion/qa/matriz_trazabilidad.md").read_text("utf-8")
+        pruebas = (RAIZ / "motor_r/rutaanalitica/tests/verificar.R").read_text("utf-8")
+        filas = re.findall(r"^\| (\w+) \| [^|]+ \| [^|]+ \| `([^`]+)` \|$", matriz, re.M)
+        self.assertCountEqual([nombre for nombre, _ in filas], contrato["properties"]["tipo"]["enum"])
+        for nombre, referencia in filas:
+            with self.subTest(familia=nombre):
+                self.assertIn(referencia, pruebas)
+
     def test_rutas_http_coinciden_con_el_contrato_documentado(self):
         servidor = (RAIZ / "codigo/RutaEstadistica.ServidorLocal/Program.cs").read_text("utf-8")
         manual = (RAIZ / "documentacion/contratos_y_api.md").read_text("utf-8")
