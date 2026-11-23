@@ -41,6 +41,17 @@ def preparar_espera(origen, destino):
 
 
 class TrabajosHTTP(unittest.TestCase):
+    def test_huella_reproducible_entre_servidores(self):
+        datos = "c001\n-2\n8\n"
+        primera = self.cargar(datos)
+        otro = TrabajosHTTP("test_salud_anuncia_el_contrato")
+        self.addCleanup(otro.doCleanups)
+        otro.setUp()
+        segunda = otro.cargar(datos)
+        esperada = hashlib.sha256(datos.encode("utf-8")).hexdigest()
+        self.assertEqual((primera["hash_datos"], segunda["hash_datos"]), (esperada, esperada))
+        self.assertNotEqual(primera["datos_id"], segunda["datos_id"])
+
     def test_cargas_simultaneas_por_proyecto(self):
         from concurrent.futures import ThreadPoolExecutor
         proyectos = [self.proyecto, uuid.uuid4().hex]
