@@ -49,6 +49,10 @@ try
             catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_DIMENSIONES_INVALIDAS", "Las dimensiones inválidas tienen un código estable"); }
         }
     }
+    {
+        var muestra = await ImportarMuestra("A;B;C\n;NA;sin dato\n", new(MarcadorFaltante: "sin dato"));
+        Verificar(muestra.Filas.Single().SequenceEqual(["", "NA", ""]), "Sólo el marcador configurado se convierte en ausente");
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
