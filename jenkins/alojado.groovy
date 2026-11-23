@@ -47,6 +47,9 @@ def configuracion = plantilla.replace('</url>', "</url><credentialsId>${idLectur
 new ByteArrayInputStream(configuracion.getBytes('UTF-8')).withCloseable { xml ->
     def trabajo = controlador.createProjectFromXML('ruta-estadistica-main', xml)
     trabajo.updateNextBuildNumber(numero)
+    if (System.getenv('RUTA_CI_EVENTO') == 'push') {
+        trabajo.addTrigger(new hudson.triggers.SCMTrigger('* * * * *'))
+    }
 }
 
 def token = usuario.getProperty(ApiTokenProperty).generateNewToken('ejecucion-alojada')

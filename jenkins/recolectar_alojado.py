@@ -71,7 +71,8 @@ def ejecutar(jenkins, numero, revision, *, sin_cache=False):
         raise ValueError(sintaxis)
     (carpeta / "linter.txt").write_text(sintaxis, encoding="utf-8")
     parametros = urlencode({"RUTA_CI_SIN_CACHE": str(sin_cache).lower()}).encode("ascii")
-    jenkins.pedir(TRABAJO + "buildWithParameters?delay=0sec", cuerpo=parametros)
+    if os.environ.get("GITHUB_EVENT_NAME") != "push":
+        jenkins.pedir(TRABAJO + "buildWithParameters?delay=0sec", cuerpo=parametros)
     ruta = f"{TRABAJO}{numero}/"
     build = jenkins.esperar_json(ruta + f"api/json?tree={quote(CAMPOS)}",
                                  lambda datos: not datos["building"] and bool(datos["result"]), 70 * 60)

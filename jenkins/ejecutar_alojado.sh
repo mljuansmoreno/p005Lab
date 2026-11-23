@@ -37,7 +37,7 @@ docker run -d --name "$controlador" --publish 127.0.0.1:9090:8080 \
   --group-add "$(id -g)" --mount "type=bind,source=$privado/github,target=/run/secrets/github-lectura,readonly" \
   --cap-drop ALL --security-opt no-new-privileges --memory 1g --pids-limit 256 \
   --env 'JAVA_OPTS=-Djenkins.install.runSetupWizard=false -Xms128m -Xmx512m' \
-  --env "RUTA_CI_NUMERO_ALOJADO=$numero" \
+  --env "RUTA_CI_EVENTO=$GITHUB_EVENT_NAME" --env "RUTA_CI_NUMERO_ALOJADO=$numero" \
   --mount "type=bind,source=$PWD/jenkins/alojado.groovy,target=/usr/share/jenkins/ref/init.groovy.d/alojado.groovy,readonly" \
   --mount "type=bind,source=$PWD/jenkins/trabajo-main.xml,target=/opt/ruta-ci/trabajo-main.xml,readonly" \
   ruta-estadistica-jenkins-alojado >/dev/null
