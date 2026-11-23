@@ -110,3 +110,15 @@ class DespliegueCompose(unittest.TestCase):
     def test_huella_original(self):
         resultado = self.calcular()
         self.assertEqual(resultado["sha256"], hashlib.sha256(CSV_SINTETICO.encode("utf-8")).hexdigest())
+
+    def resultado_directo(self):
+        consulta = Path(__file__).with_name("consultar_resultado_motor.py").read_bytes()
+        return json.loads(self.ejecutar("exec", "-T", "aplicacion", "python", "-", entrada=consulta))
+
+    def test_huella_preparacion(self):
+        # El cliente web emplea la misma huella para su ejemplo. Esta petición usa dos valores distintos.
+        peticion, resultado = self.resultado_directo()
+        self.assertNotEqual(peticion["hash_preparacion"], peticion["hash_datos"])
+        self.assertEqual(resultado["hash_preparacion"], peticion["hash_preparacion"])
+        self.assertEqual(resultado["hash_datos"], peticion["hash_datos"])
+        self.assertEqual(resultado["solicitud_id"], peticion["solicitud_id"])
