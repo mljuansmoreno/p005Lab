@@ -18,3 +18,4 @@ El [run 45109084160](https://github.com/mljuansmoreno/p005Lab/actions/runs/45109
 | [04-red.txt](artifact-salidas-jenkins-ci-04-red.txt) | La prueba identifica las redes que comparten los servicios y su aislamiento. |
 | [05-calculo.txt](artifact-salidas-jenkins-ci-05-calculo.txt) | La respuesta contiene el destino, la huella del conjunto de datos, los identificadores y el resultado numérico. |
 | [06-recuperacion.txt](artifact-salidas-jenkins-ci-06-recuperacion.txt) | La traza recoge la respuesta durante la caída, el reemplazo del motor y una nueva operación concluida. |
+| [07-aislamiento.json](artifact-salidas-jenkins-ci-07-aislamiento.json) | El informe reúne los resultados de inspección de seguridad de los servicios del build. |

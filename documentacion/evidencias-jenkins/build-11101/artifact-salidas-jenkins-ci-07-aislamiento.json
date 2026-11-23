@@ -1,0 +1,24 @@
+{
+  "servicios": [
+    {
+      "servicio": "aplicacion",
+      "usuario": "1654:1654",
+      "salud": "healthy",
+      "raiz_solo_lectura": true,
+      "memoria_limite": 134217728,
+      "procesos_limite": 64,
+      "registro": "local",
+      "secreto_solo_lectura": true
+    },
+    {
+      "servicio": "motor",
+      "usuario": "1654:1654",
+      "salud": "healthy",
+      "raiz_solo_lectura": true,
+      "memoria_limite": 1073741824,
+      "procesos_limite": 64,
+      "registro": "local",
+      "secreto_solo_lectura": true
+    }
+  ]
+}
