@@ -72,5 +72,10 @@ local({
   res <- analizar(crear_solicitud("descriptivo", "c001"), data.frame(c001 = c(-4, 0, 20)), directorio)
   verificar(c(res$cifras$cuartil_inferior, res$cifras$cuartil_superior), c(-2, 10))
 })
+# Verifica extremos cuando todas las observaciones son negativas.
+local({
+  res <- analizar(crear_solicitud("descriptivo", "c001"), data.frame(c001 = c(-12, -3, -7)), directorio)
+  verificar(c(res$cifras$minimo, res$cifras$maximo), c(-12, -3))
+})
 unlink(directorio, recursive = TRUE)
 cat("VERIFICADO: descriptivos, frecuencias, Welch, pares, Pearson, Spearman, modelo, exclusiones y errores.\n")
