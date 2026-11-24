@@ -10,4 +10,4 @@ El hash de la solicitud corresponde al CSV normalizado; `ConjuntoDatos.HashOrigi
 
 Eliminar requiere confirmación en UI y crea primero archivo en `respaldos`. Importar ese archivo recupera una copia. Los respaldos no caducan automáticamente; su eliminación manual y protección corresponde al usuario. No hay cifrado propio ni garantía frente a un proceso malicioso del mismo usuario.
 
-Configuración y reproducción: [manual](manual_usuario.md). Pruebas de reapertura, portabilidad, traversal, sustitución atómica y respaldo: [Program.cs](../pruebas/RutaEstadistica.PruebasUnitarias/Program.cs). Ensayos de fallos de disco, cierres abruptos y migración real figuran [pendientes](limitaciones_y_pendientes.md).
+Configuración y reproducción: [manual](manual_usuario.md). Pruebas de reapertura, portabilidad, traversal, sustitución atómica y respaldo: [Program.cs](../pruebas/RutaEstadistica.PruebasUnitarias/Program.cs). Ensayos de fallos de disco, cierres abruptos y migración real siguen pendientes.
