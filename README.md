@@ -192,6 +192,11 @@ python guiones/ci/auditar_serie_qa.py --hasta 3f44fb2ce694839927a200283d983469ee
 
 Las cifras siguientes proceden de la revisión `1e7d92f`. Los resultados remotos se extrajeron de JUnit y el ensayo de navegador se ejecutó en Windows local. [Ejecución remota](https://github.com/mljuansmoreno/p005Lab/actions/runs/45231440353) · [Evidencia y condiciones de medición](documentacion/qa/cobertura_y_limites.md).
 
+| Plataforma y suite | Resultado en `1e7d92f` |
+| --- | --- |
+| Linux · coordinación Python | 103 descubiertas, 102 aprobadas y una omitida. |
+| Linux · web y resiliencia | 33 pruebas web y 9 de resiliencia aprobadas. |
+
 ## Aplicación de escritorio
 
 ### Inicio de desarrollo
