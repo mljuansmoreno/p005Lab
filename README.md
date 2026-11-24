@@ -200,6 +200,8 @@ Las cifras siguientes proceden de la revisión `1e7d92f`. Los resultados remotos
 | Docker Linux · configuración y despliegue | 24 pruebas aprobadas sobre la topología y las imágenes del build. |
 | Windows local · navegador | 7 pruebas aprobadas. Compile el servidor en Release, prepare R e instale Playwright con Chromium o Edge. Ejecute `python guiones/ci/probar_navegador.py`. |
 
+El arnés .NET registró 148 comprobaciones con el trabajador R. Para Pearson se contrastaron diez permutaciones con semilla `20261123`. La suite nativa de `rutaanalitica` registró éxito sin emitir un conteo por caso. [Estrategia y oráculos](documentacion/qa/estrategia_y_oraculos.md).
+
 ## Aplicación de escritorio
 
 ### Inicio de desarrollo
