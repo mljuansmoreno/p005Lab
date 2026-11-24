@@ -207,6 +207,7 @@ El arnés .NET registró 148 comprobaciones con el trabajador R. Para Pearson se
 | Componente | Medición en `1e7d92f` | Umbral del proyecto | Código medido |
 | --- | ---: | ---: | --- |
 | Python | 42,20 % | 35 % | `aplicacion` y `guiones/ci`, con coverage.py 7.17.5. |
+| .NET | 501/645 líneas (77,67 %) | 70 % | Contratos, dominio, aplicación e infraestructura, con dotnet-coverage 18.12.0. |
 
 ## Aplicación de escritorio
 
