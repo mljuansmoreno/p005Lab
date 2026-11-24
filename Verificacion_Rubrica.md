@@ -128,6 +128,8 @@ Los siete criterios suman 135 puntos posibles. El cierre de Jenkins corresponde 
 
 **Puntaje de la rúbrica:** 15 puntos.
 
+- El [anexo versionado](documentacion/evidencias-jenkins/README.md) identifica el job, el número de build, el SHA, la causa, el resultado, los informes y el alcance de las redacciones. Consulte el [historial permanente](documentacion/evidencias-jenkins/historial-permanente.json) y el [sondeo exportado](documentacion/evidencias-jenkins/poll-scm.txt).
+
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
 | Historial exportado | Revisar los números, causas y estados del controlador permanente. | El historial versionado cubre #20 a #29 y permite consultar los resultados fuera del equipo. | [README.md](https://github.com/mljuansmoreno/p005Lab/blob/7eff1f8bc68c17709e161918eae99788e0961e06/documentacion/evidencias-jenkins/README.md) · [historial-permanente.json](https://github.com/mljuansmoreno/p005Lab/blob/7a25a1d16b98dc31e67f491fe9e3a20d755376ca/documentacion/evidencias-jenkins/historial-permanente.json) |
