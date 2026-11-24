@@ -153,6 +153,8 @@ Se espera HTTP 200 en `/salud` y HTTP 503 en `/listo` durante la caída; luego H
 
 [Operación y diagnóstico de Compose](documentacion/operacion_compose.md).
 
+Para repetir la suite de despliegue con imágenes existentes, configure `RUTA_QA_IMAGEN_APLICACION` y `RUTA_QA_IMAGEN_MOTOR` con las etiquetas del mismo build. Ejecute `python guiones/ci/probar_junit.py pruebas/contenedores salidas/qa/reportes/compose.xml`. [Reproducción de las suites](documentacion/qa/ejecucion_y_mantenimiento.md).
+
 ### Compartir resultados de una prueba local
 
 Para una demostración pública use el CSV sintético del repositorio. Si usa el escritorio con datos propios, revise la exportación y el proyecto antes de compartirlos: pueden incluir datos originales, identificadores y resultados. Use una copia sintética para capturas, incidencias y pruebas de CI. Mantenga credenciales, `.env`, volcados y registros sin redactar fuera de Git y de los artefactos públicos. [Seguridad y privacidad](documentacion/seguridad_y_privacidad.md).
