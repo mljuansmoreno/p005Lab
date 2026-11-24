@@ -108,6 +108,8 @@ Los siete criterios suman 135 puntos posibles. El cierre de Jenkins corresponde 
 
 **Puntaje de la rúbrica:** 15 puntos.
 
+- La [comprobación Compose](guiones/ci/comprobar_compose.sh) valida salud, aislamiento y comunicación. La [aserción de cálculo](aplicacion/probar_compose.py) comprueba la operación real. En `ruta-estadistica-main` [#29](documentacion/evidencias-jenkins/build-29/ejecucion.json), `1da7197`, Poll SCM, `SUCCESS`, consulte [los servicios saludables](documentacion/evidencias-jenkins/build-29/03-docker-ps.txt), [el cálculo por motor:8787](documentacion/evidencias-jenkins/build-29/05-calculo.txt) y el [reporte JUnit](documentacion/evidencias-jenkins/build-29/integracion.xml).
+
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
 | Salud de ambos servicios | Inspeccionar los dos servicios en docker compose ps después de up --wait. | La evidencia #29 muestra ambos servicios saludables antes del cálculo. | [comprobar_compose.sh](https://github.com/mljuansmoreno/p005Lab/blob/71c67c4e38b1141853b2ae31c5ec36b35c1a233c/guiones/ci/comprobar_compose.sh) · [03-docker-ps.txt](https://github.com/mljuansmoreno/p005Lab/blob/15e30e954d7ec8ba6708204dd0403b5eb0651d92/documentacion/evidencias-jenkins/build-29/03-docker-ps.txt) |
