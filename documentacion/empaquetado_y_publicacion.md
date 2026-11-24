@@ -16,4 +16,4 @@ Para preparar un candidato de Tienda indique `-Tienda -Nombre <identidad_real> -
 
 Ensaye instalar, abrir offline, calcular con R incluido, exportar, reiniciar, actualizar con proyecto existente y desinstalar. Documente qué hace reset/uninstall al almacenamiento antes de prometer conservación. No hay actualizador ejecutable alternativo al Store. La compatibilidad de imágenes Docker se prueba separadamente.
 
-El programa de empaquetado conserva un manifiesto de integridad de los recursos nativos; falta validación de integridad en el arranque. Los resultados actuales y bloqueos figuran en [estado](estado_entrega.md) y [lista de publicación](lista_publicacion_tienda.md). WACK, firma y cuenta limpia no se dan por aprobados.
+El programa de empaquetado conserva un manifiesto de integridad de los recursos nativos; falta validación de integridad en el arranque. Los resultados actuales y bloqueos figuran en [estado](estado_entrega.md) y [protocolo de instalación y primera ejecución](qa/verificacion_manual_escritorio.md#instalación-y-primera-ejecución-de-msix). WACK, firma y cuenta limpia no se dan por aprobados.

@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $raiz = Split-Path $PSScriptRoot
-$requeridos = @('manual_usuario','arquitectura','mapa_codigo','recorrido_completo','instalacion_desarrollo','motor_r_y_metodos','datos_y_persistencia','contratos_y_api','docker','mcp','depuracion','errores_y_soluciones','observabilidad','pruebas_y_calidad','seguridad_y_privacidad','empaquetado_y_publicacion','lista_publicacion_tienda','versiones_y_compatibilidad','convenciones_y_excepciones','guia_mantenimiento','limitaciones_y_pendientes','licencias_y_dependencias','estado_entrega','continuidad')
+$requeridos = @('manual_usuario','arquitectura','mapa_codigo','recorrido_completo','instalacion_desarrollo','motor_r_y_metodos','datos_y_persistencia','contratos_y_api','docker','mcp','depuracion','errores_y_soluciones','observabilidad','pruebas_y_calidad','seguridad_y_privacidad','empaquetado_y_publicacion','qa/verificacion_manual_escritorio','versiones_y_compatibilidad','convenciones_y_excepciones','guia_mantenimiento','qa/riesgos_abiertos','licencias_y_dependencias','estado_entrega','continuidad')
 $errores = [Collections.Generic.List[string]]::new()
 foreach ($nombre in $requeridos) { if (-not (Test-Path "$raiz/documentacion/$nombre.md")) { $errores.Add("Falta documentacion/$nombre.md") } }
 foreach ($archivo in Get-ChildItem "$raiz/documentacion" -Filter '*.md' -Recurse) {
