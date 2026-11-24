@@ -129,6 +129,7 @@ Los siete criterios suman 135 puntos posibles. El cierre de Jenkins corresponde 
 **Puntaje de la rúbrica:** 15 puntos.
 
 - El [anexo versionado](documentacion/evidencias-jenkins/README.md) identifica el job, el número de build, el SHA, la causa, el resultado, los informes y el alcance de las redacciones. Consulte el [historial permanente](documentacion/evidencias-jenkins/historial-permanente.json) y el [sondeo exportado](documentacion/evidencias-jenkins/poll-scm.txt).
+- `ruta-estadistica-main` [#8, d51e911, manual, FAILURE](documentacion/evidencias-jenkins/build-8/ejecucion.json) → [#9, 911f2cb, Poll SCM, SUCCESS](documentacion/evidencias-jenkins/build-9/ejecucion.json). Compare el [Console Output de #8](documentacion/evidencias-jenkins/build-8/consola.txt), el [cambio a identificadores canónicos](https://github.com/mljuansmoreno/p005Lab/commit/911f2cb), el [Console Output de #9](documentacion/evidencias-jenkins/build-9/consola.txt) y el [informe del motor de #9](documentacion/evidencias-jenkins/build-9/seguridad-motor.json).
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
