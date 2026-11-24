@@ -34,6 +34,7 @@ Los siete criterios suman 135 puntos posibles. El cierre de Jenkins corresponde 
 **Puntaje de la rúbrica:** 20 puntos.
 
 - El [inventario fijado](jenkins/plugins.txt) incorpora Docker Pipeline `653.v2f2c08eff0ec` y las dependencias obligatorias. La [instalación y compatibilidad](documentacion/jenkins.md#prerrequisitos) documenta el mínimo de Jenkins que requiere el plugin.
+- El [inventario activo del piloto autenticado](documentacion/evidencias-jenkins/build-11101/plugins-activos.json) acredita Git, GitHub, Pipeline, Stage View, Docker Pipeline y Credentials en el controlador alojado. La [medición del permanente](documentacion/evidencias-jenkins/recursos-controlador-2026-11-22.json) acredita Jenkins 2.580.2. Los dos inventarios se atribuyen al controlador donde se consultaron.
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
