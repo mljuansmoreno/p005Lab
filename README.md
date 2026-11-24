@@ -273,7 +273,7 @@ gh workflow run jenkins-alojado.yaml --ref main -f sin_cache=true -f capturas=tr
 
 Descargue `jenkins-<SHA>-<intento>` y, si se solicitaron capturas, `jenkins-capturas-<SHA>-<intento>`. Compare el SHA del build con el de Actions y la huella del anexo publicada en el resumen. El flujo alojado demuestra un disparo manual; el sondeo SCM se observa en el controlador permanente. [Operación, recuperación y retención](documentacion/operacion_jenkins.md) · [Guía de capturas](documentacion/capturas_semana5.md).
 
-El piloto automático alojado [#11101](documentacion/evidencias-jenkins/build-11101/README.md) comprueba que el SHA del push coincida con el checkout. El controlador permanente mantiene su propio historial de Poll SCM. El pipeline vigente registra **Checkout**, **Build** y **Test** por separado, coteja las imágenes OCI antes de usar las construidas y conserva la limpieza de los proyectos por ejecución. La [rúbrica consolidada](Verificacion_Rubrica.md) reúne el catálogo de builds, el piloto, la cancelación controlada, la corrección en Jenkins y el cierre de los 155 commits.
+El piloto automático alojado [#11101](documentacion/evidencias-jenkins/build-11101/README.md) comprueba que el SHA del push coincida con el checkout. El controlador permanente mantiene su propio historial de Poll SCM. El pipeline vigente registra **Checkout**, **Build** y **Test** por separado, coteja las imágenes OCI antes de usar las construidas y conserva la limpieza de los proyectos por ejecución.
 
 ### Pruebas de Jenkins realizadas
 
@@ -373,7 +373,7 @@ En Windows también quedaron registrados [los controles HTTP del servicio](docum
 | Demo Docker y GitHub Actions | Dos servicios, puertos y redes separados, sondas de vida y disponibilidad, cálculo cruzado y recuperación. Se añadieron metadatos OCI, verificación de fuentes, huella de revisión, informes por intento y limpieza de recursos. En paralelo se conservó el trabajo nativo de Windows. |
 | Interfaz y seguridad | Tema claro predeterminado, selector de apariencia persistente y ajustes de contraste; formularios, tablas y avisos revisados. Se incorporaron controles de aislamiento, autenticación, publicación de secretos, SBOM y bloqueo por coincidencias altas o críticas. |
 | Jenkins y trazabilidad | Controlador y agente WebSocket, sondeo SCM, runner alojado y autoprueba aislada. Se ampliaron los plazos de arranque y escaneo a partir de fallos observados, se verificó la caché de herramientas y se agregó recuperación de limpieza por proyecto. JUnit, huellas, capturas autenticadas, evidencia de coexistencia y exportación a Word/PDF quedaron vinculados al build y a la revisión. |
-| Cierre de Jenkins | El lote histórico de 84 commits llega a `295325f`. La entrega posterior de 155 commits parte de `baed0fb` y cierra en `2e49ce8`. La [trazabilidad y el cierre reproducible](Verificacion_Rubrica.md#trazabilidad-de-los-155-commits) identifican la entrega de 155 commits y sus evidencias. |
+| Cierre de Jenkins | El lote histórico de 84 commits llega a `295325f`. La entrega posterior de 155 commits parte de `baed0fb` y cierra en `2e49ce8`. |
 | Auditorías y remediación | Los controles por fecha conservan el SHA evaluado y los estados publicados. La remediación separa los hallazgos históricos, los cambios del runtime y las comprobaciones posteriores. |
 
 Para ver los cambios de Jenkins en orden y abrir cualquier revisión desde el checkout:
