@@ -4,7 +4,7 @@ La revisión parte de [`baed0fbf6cbe9ff72fe3ce213811770fdd4f15b6`](https://githu
 
 El controlador permanente y el controlador alojado tienen historiales independientes. Cada ficha identifica el entorno, el job, el SHA, la causa y la fecha UTC. Los resultados históricos se atribuyen a la revisión que ejecutó cada build.
 
-## 1. Infraestructura e instalación
+## Infraestructura e instalación
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
@@ -19,7 +19,7 @@ El controlador permanente y el controlador alojado tienen historiales independie
 | Disco del agente | Examinar preflight y espacio_checkout_bytes del #29. | La comprobación exige 3 GiB libres en el checkout y la guía recomienda 30 GiB en el almacenamiento de Docker. El #29 observó 1 012 241 244 160 bytes libres en su checkout. | [ejecutar.py](https://github.com/mljuansmoreno/p005Lab/blob/257e7916369cb43b4d145903a5486f5f02e53c2d/guiones/ci/ejecutar.py) · [ejecucion.json](https://github.com/mljuansmoreno/p005Lab/blob/d3d2fa3d8bca4fb6aa4498149fdacc52c3b9afa7/documentacion/evidencias-jenkins/build-29/ejecucion.json) |
 | Software del agente | Revisar las comprobaciones de herramientas y la plataforma exportada. | El #29 registró Python 3.14.4, Docker 29.9.3, Compose 5.7.0 y x86_64. El agente necesita Java para Remoting y Compose con up --wait-timeout. | [ejecutar.py](https://github.com/mljuansmoreno/p005Lab/blob/257e7916369cb43b4d145903a5486f5f02e53c2d/guiones/ci/ejecutar.py) · [ejecucion.json](https://github.com/mljuansmoreno/p005Lab/blob/d3d2fa3d8bca4fb6aa4498149fdacc52c3b9afa7/documentacion/evidencias-jenkins/build-29/ejecucion.json) |
 
-## 2. Configuración operativa y credenciales
+## Configuración operativa y credenciales
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
@@ -32,7 +32,7 @@ El controlador permanente y el controlador alojado tienen historiales independie
 | Protección del valor | Revisar montaje, permisos, retiro de la variable y campos exportados. | El runner usa un archivo privado montado de solo lectura. La ficha pública conserva ID, tipo, dominio y permiso. La limpieza elimina el archivo temporal. | [ejecutar_alojado.sh](https://github.com/mljuansmoreno/p005Lab/blob/d78d9aa9a003326846b0a6bb4cbdbd81ecffdfd1/jenkins/ejecutar_alojado.sh) · [recolectar_alojado.py](https://github.com/mljuansmoreno/p005Lab/blob/6e2bece553c44ae2731a69a5ee9c5e474a9fef1a/jenkins/recolectar_alojado.py) |
 | Hallazgo histórico | Comparar las 23 huellas con las versiones públicas y el control del 22 de noviembre. | El hallazgo se clasificó como versiones públicas de plugins. El control posterior sobre 154c56ea registró estado correcto. | [secretos-historial-jenkins.md](https://github.com/mljuansmoreno/p005Lab/blob/7f2f7e295feced854051636fe57df786a82d976c/documentacion/secretos-historial-jenkins.md) · [git-historial-secretos.json](https://github.com/mljuansmoreno/p005Lab/blob/43a48b49d22edcbc2b314d8549efe38187dc9361/documentacion/informes/revisiones-seguridad/2026-11-22/git-historial-secretos.json) |
 
-## 3. Pipeline como código
+## Pipeline como código
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
@@ -46,7 +46,7 @@ El controlador permanente y el controlador alojado tienen historiales independie
 | Cancelación y recuperación | Ejecutar test_interrupcion_conserva_senal_y_publica_desmontaje y revisar el parámetro cancelacion. | El fixture permite detener la ejecución durante la pausa y la prueba del lanzador comprueba señal y desmontaje. El job permanente de autoprueba #5 acredita ABORTED y limpieza aprobada en el catálogo. | [Jenkinsfile.autoprueba](https://github.com/mljuansmoreno/p005Lab/blob/d92408c867835d5c8a4e9953599b0832dd3951d7/jenkins/Jenkinsfile.autoprueba) · [test_ejecutar.py](https://github.com/mljuansmoreno/p005Lab/blob/7a819f650db202511e715f8e32deb57d1280059a/pruebas/ci/test_ejecutar.py) |
 | Validación declarativa | Comparar la respuesta de pipeline-model-converter/validate con la esperada. | El anexo conserva Jenkinsfile successfully validated. El recolector alojado exige nuevamente esa respuesta antes de recoger cada build. | [Jenkinsfile](https://github.com/mljuansmoreno/p005Lab/blob/9c80bc4980ba31737f10147d367075b88be064c2/Jenkinsfile) · [linter.txt](https://github.com/mljuansmoreno/p005Lab/blob/ff74987b9753d82b614c8128cab19477aa4ab04f/documentacion/evidencias-jenkins/validacion-local/linter.txt) |
 
-## 4. Integración con GitHub
+## Integración con GitHub
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
@@ -54,7 +54,7 @@ El controlador permanente y el controlador alojado tienen historiales independie
 | Disparador declarativo | Contrastar pollSCM con la causa de la ficha permanente. | La expresión H/2 * * * * establece el intervalo. El #29 registró SCMTrigger$SCMTriggerCause y SUCCESS en 1da71972. | [Jenkinsfile](https://github.com/mljuansmoreno/p005Lab/blob/9c80bc4980ba31737f10147d367075b88be064c2/Jenkinsfile) · [ejecucion.json](https://github.com/mljuansmoreno/p005Lab/blob/d3d2fa3d8bca4fb6aa4498149fdacc52c3b9afa7/documentacion/evidencias-jenkins/build-29/ejecucion.json) |
 | Push y ejecución alojada | Comparar head_sha del evento push, causa Jenkins y revisión de la evidencia. | El push activa el runner y el primer sondeo de su controlador nuevo programa el job. El recolector verifica causa SCM y coincidencia del checkout. El permanente conserva su propia línea base entre sondeos. | [jenkins-alojado.yaml](https://github.com/mljuansmoreno/p005Lab/blob/da8f6bd7cc611039dbc11fd96a421f9559aac79d/.github/workflows/jenkins-alojado.yaml) · [recolectar_alojado.py](https://github.com/mljuansmoreno/p005Lab/blob/6e2bece553c44ae2731a69a5ee9c5e474a9fef1a/jenkins/recolectar_alojado.py) |
 
-## 5. Construcción de los dos servicios
+## Construcción de los dos servicios
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
@@ -65,7 +65,7 @@ El controlador permanente y el controlador alojado tienen historiales independie
 | Identidad OCI de motor | Comparar imagen con imagenes_oci.motor de la ficha #11001. | El anexo identifica un motor distinto de la aplicación y conserva su inventario. Los dos identificadores pertenecen al mismo SHA de checkout. | [ejecutar.py](https://github.com/mljuansmoreno/p005Lab/blob/257e7916369cb43b4d145903a5486f5f02e53c2d/guiones/ci/ejecutar.py) · [seguridad-motor.json](https://github.com/mljuansmoreno/p005Lab/blob/98056a10963ed8821f2cf1929a8f5f3817d07ca8/documentacion/evidencias-jenkins/build-11001/seguridad-motor.json) |
 | Uso de imágenes construidas | Ejecutar test_test_rechaza_etiquetas_reemplazadas_y_desmonta_el_proyecto. | La fase probar-imagenes coteja la identidad previa y el contenedor arrancado. La regresión simula un cambio de etiqueta y exige el desmontaje. | [ejecutar.py](https://github.com/mljuansmoreno/p005Lab/blob/257e7916369cb43b4d145903a5486f5f02e53c2d/guiones/ci/ejecutar.py) · [test_ejecutar.py](https://github.com/mljuansmoreno/p005Lab/blob/7a819f650db202511e715f8e32deb57d1280059a/pruebas/ci/test_ejecutar.py) |
 
-## 6. Pruebas y verificación automática
+## Pruebas y verificación automática
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
@@ -78,7 +78,7 @@ El controlador permanente y el controlador alojado tienen historiales independie
 | Salida no cero y JUnit | Localizar el failure del caso calculo y su mensaje. | El JUnit del #4 registra un fallo en diez casos y el mensaje calculo: código de salida 1. | [Jenkinsfile.autoprueba](https://github.com/mljuansmoreno/p005Lab/blob/d92408c867835d5c8a4e9953599b0832dd3951d7/jenkins/Jenkinsfile.autoprueba) · [integracion.xml](https://github.com/mljuansmoreno/p005Lab/blob/0c9bc27f94b7afa11d636f55d381c79f2c508151/documentacion/evidencias-jenkins/autoprueba-4/integracion.xml) |
 | Limpieza tras fallo | Identificar el proyecto desmontado y cotejar su build con el JUnit. | La autoprueba #3 conservó la retirada de recursos a pesar de la aserción fallida. En #4 limpieza también figura como caso aprobado. | [ejecutar.py](https://github.com/mljuansmoreno/p005Lab/blob/257e7916369cb43b4d145903a5486f5f02e53c2d/guiones/ci/ejecutar.py) · [09-limpieza.txt](https://github.com/mljuansmoreno/p005Lab/blob/0e501d3de3fbda78561c0ae449c12d7fe27602e1/documentacion/evidencias-jenkins/autoprueba-3/09-limpieza.txt) |
 
-## 7. Evidencias de ejecución
+## Evidencias de ejecución
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |

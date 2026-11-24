@@ -33,3 +33,12 @@ dotnet-install.ps1
 versiones-winui.json
 **/.Rhistory
 **/.RData
+# Automatización local de ciberseguridad
+/guiones/auditar_ciberseguridad.py
+/pruebas/seguridad/
+/documentacion/automatizacion_ciberseguridad.md
+/VALIDACION.md
+/resultados-pruebas.txt
+
+# Entorno virtual de Python
+.venv/
