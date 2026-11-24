@@ -8,7 +8,9 @@ El controlador permanente y el controlador alojado tienen historiales independie
 
 Los siete criterios suman 135 puntos posibles. El cierre de Jenkins corresponde a la revisión `2e49ce8`. La serie posterior QA-001 a QA-250 amplió las pruebas. Su auditoría registra cuatro procedimientos manuales de escritorio pendientes y condiciona el veredicto al resultado de CI del SHA evaluado. [Informe de QA-250](https://github.com/mljuansmoreno/p005Lab/blob/3f44fb2ce694839927a200283d983469eed8651d/documentacion/qa/informe_final.md).
 
-## Infraestructura e instalación
+## Implementación de Jenkins
+
+**Puntaje de la rúbrica:** 25 puntos.
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
