@@ -290,7 +290,7 @@ El piloto automático alojado [#11101](documentacion/evidencias-jenkins/build-11
 
 El build local #17 agotó el plazo de escaneo anterior después de archivar el informe de la web; el #19 fue abortado y carece de artefactos. Esos resultados no cuentan como aceptaciones. El ensayo local de coexistencia fue independiente del job: usó un par de imágenes para una demo descartable y dos proyectos CI en puertos distintos. Hubo cinco cálculos correctos: tres iniciales y otros dos después de retirar el primer proyecto CI. El ensayo retiró sus propios recursos al terminar.
 
-[Informe de semana 5](documentacion/entrega_semana5.md) · [Matriz de aceptación](documentacion/matriz_semana5.md) · [Informe en PDF](documentacion/ruta-estadistica-jenkins-semana5.pdf) · [Informe en DOCX](documentacion/ruta-estadistica-jenkins-semana5.docx).
+[Informe de semana 5](documentacion/entrega_semana5.md) · [Matriz de aceptación](documentacion/matriz_semana5.md).
 
 ## Ciberseguridad: verificaciones realizadas
 
