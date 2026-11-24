@@ -9,6 +9,7 @@ Proyecto de Integración Continua del Politécnico Grancolombiano, por Juan Seba
 | Ver un cálculo real en el navegador, sin instalar R ni .NET en el host | [Demostración web con Docker](#demostración-de-dos-servicios-con-docker) |
 | Abrir proyectos, analizar sus archivos y exportar evidencia | [Aplicación de escritorio en Windows](#aplicación-de-escritorio) |
 | Construir y comprobar la entrega con CI | [Jenkins](#integración-continua-con-jenkins) y [Docker en GitHub Actions](#pruebas-de-docker-realizadas) |
+| Reproducir las suites, contrastar la cobertura y revisar los límites medidos | [Reproducir y evaluar QA-250](#reproducir-y-evaluar-qa-250) |
 | Revisar qué controles de seguridad se ejecutaron | [Ciberseguridad: verificaciones realizadas](#ciberseguridad-verificaciones-realizadas) |
 
 Los resultados de esta guía corresponden a las revisiones, fechas y ejecuciones indicadas. Los pasos de reproducción explican qué esperar al ejecutarlos en otro equipo. Para ver los cambios consolidados, consulte la [evolución de la entrega](#evolución-de-la-entrega).
