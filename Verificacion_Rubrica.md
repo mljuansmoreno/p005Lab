@@ -33,6 +33,8 @@ Los siete criterios suman 135 puntos posibles. El cierre de Jenkins corresponde 
 
 **Puntaje de la rúbrica:** 20 puntos.
 
+- El [inventario fijado](jenkins/plugins.txt) incorpora Docker Pipeline `653.v2f2c08eff0ec` y las dependencias obligatorias. La [instalación y compatibilidad](documentacion/jenkins.md#prerrequisitos) documenta el mínimo de Jenkins que requiere el plugin.
+
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
 | Selección del agente | Contrastar nombre, modo y ejecutores del XML con la consola del #90001. | La plantilla asigna un ejecutor exclusivo a linux-docker. La consola identifica el nodo que recibió el workspace del build. | [agente-linux.xml](https://github.com/mljuansmoreno/p005Lab/blob/921af48994ab8a5236424783d8742df4c9c669f3/jenkins/agente-linux.xml) · [consola.txt](https://github.com/mljuansmoreno/p005Lab/blob/7eff1f8bc68c17709e161918eae99788e0961e06/documentacion/evidencias-jenkins/validacion-local/build-90001/consola.txt) |
