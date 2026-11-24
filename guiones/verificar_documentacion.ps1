@@ -5,7 +5,7 @@ $errores = [Collections.Generic.List[string]]::new()
 foreach ($nombre in $requeridos) { if (-not (Test-Path "$raiz/documentacion/$nombre.md")) { $errores.Add("Falta documentacion/$nombre.md") } }
 foreach ($archivo in Get-ChildItem "$raiz/documentacion" -Filter '*.md' -Recurse) {
     $texto = Get-Content $archivo.FullName -Raw
-    if ($texto -match '(?im)^#+\s*(TODO|TBD|Lorem ipsum)') { $errores.Add("Encabezado vacío en $($archivo.Name)") }
+    if ($texto -match '(?im)^#+\s*(TODO|TBD|Lorem ipsum)\b') { $errores.Add("Encabezado vacío en $($archivo.Name)") }
     foreach ($enlace in [regex]::Matches($texto, '\[[^\]]*\]\(([^)]+)\)')) {
         $destino = $enlace.Groups[1].Value.Split('#')[0]
         if ($destino -and $destino -notmatch '^[a-z]+:' -and -not (Test-Path (Join-Path $archivo.DirectoryName ([Uri]::UnescapeDataString($destino))))) { $errores.Add("Enlace roto en $($archivo.Name): $destino") }
