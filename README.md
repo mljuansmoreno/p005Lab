@@ -451,6 +451,8 @@ Para ver los cambios de Jenkins en orden y abrir cualquier revisión desde el ch
 
 ```console
 git log --reverse --oneline 0b0a87d..295325f
+git log --reverse --oneline baed0fb..2e49ce8
+git log --reverse --oneline 65ab278..3f44fb2
 git log --oneline -- documentacion/informes/revisiones-seguridad
 ```
 
