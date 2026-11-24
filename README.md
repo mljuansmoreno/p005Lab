@@ -177,6 +177,10 @@ Para consultar JUnit y cobertura, descargue `qa-python`, `qa-windows` o `qa-dock
 
 [Evidencias paso a paso](documentacion/evidencias_compose.md).
 
+## Reproducir y evaluar QA-250
+
+Desde la raíz del clon, ejecute `python guiones/ci/probar_python.py --suite rapida` para revisar el contrato documental sin levantar servicios. Para coordinación y web, ejecute `python guiones/ci/probar_python.py`. El motivo de cada omisión figura en la salida de la suite. [Ejecución y dependencias](documentacion/qa/ejecucion_y_mantenimiento.md).
+
 ## Aplicación de escritorio
 
 ### Inicio de desarrollo
