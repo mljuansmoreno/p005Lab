@@ -198,6 +198,7 @@ Las cifras siguientes proceden de la revisión `1e7d92f`. Los resultados remotos
 | Linux · web y resiliencia | 33 pruebas web y 9 de resiliencia aprobadas. |
 | Windows · API HTTP con R | 44 pruebas aprobadas. Para repetirlas con el servidor y R preparados, ejecute `python guiones/ci/probar_junit.py pruebas/api salidas/qa/reportes/api.xml`. |
 | Docker Linux · configuración y despliegue | 24 pruebas aprobadas sobre la topología y las imágenes del build. |
+| Windows local · navegador | 7 pruebas aprobadas. Compile el servidor en Release, prepare R e instale Playwright con Chromium o Edge. Ejecute `python guiones/ci/probar_navegador.py`. |
 
 ## Aplicación de escritorio
 
