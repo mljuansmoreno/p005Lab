@@ -202,6 +202,12 @@ Las cifras siguientes proceden de la revisión `1e7d92f`. Los resultados remotos
 
 El arnés .NET registró 148 comprobaciones con el trabajador R. Para Pearson se contrastaron diez permutaciones con semilla `20261123`. La suite nativa de `rutaanalitica` registró éxito sin emitir un conteo por caso. [Estrategia y oráculos](documentacion/qa/estrategia_y_oraculos.md).
 
+### Cobertura por componente
+
+| Componente | Medición en `1e7d92f` | Umbral del proyecto | Código medido |
+| --- | ---: | ---: | --- |
+| Python | 42,20 % | 35 % | `aplicacion` y `guiones/ci`, con coverage.py 7.17.5. |
+
 ## Aplicación de escritorio
 
 ### Inicio de desarrollo
