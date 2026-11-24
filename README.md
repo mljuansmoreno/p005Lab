@@ -17,6 +17,8 @@ Los resultados de esta guía corresponden a las revisiones, fechas y ejecuciones
 
 El 23 de noviembre de 2026 (Bogotá), Docker Linux y credenciales aprobaron en `main`. El trabajo Windows llegó a 148 comprobaciones correctas del arnés .NET y falló después, en la validación documental. Jenkins alojado terminó con éxito sobre el mismo SHA. [Verificación Windows y Docker](https://github.com/mljuansmoreno/p005Lab/actions/runs/45318939053) · [Jenkins](https://github.com/mljuansmoreno/p005Lab/actions/runs/45318939185).
 
+El verificador encontró dos enlaces a `ruta-estadistica-articulo.pdf` en `documentacion/estado_entrega.md` y `documentacion/evidencias_compose.md`. El PDF se había retirado del repositorio. Para reproducir la comprobación desde la raíz, ejecute `./guiones/verificar_documentacion.ps1` con PowerShell. [Registro de Windows](https://github.com/mljuansmoreno/p005Lab/actions/runs/45318939053).
+
 ### Qué se puede hacer desde el repositorio
 
 - **Probar el cálculo de extremo a extremo** con los datos sintéticos de la demo y un navegador. La demo web tiene un formulario de ejemplo fijo. El escritorio es la interfaz para importar y analizar datos propios.
