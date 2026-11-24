@@ -13,6 +13,7 @@ Los siete criterios suman 135 puntos posibles. El cierre de Jenkins corresponde 
 **Puntaje de la rúbrica:** 25 puntos.
 
 - Los mínimos del proyecto, las recomendaciones de CPU, RAM y disco y los valores observados están en [prerrequisitos](documentacion/jenkins.md#prerrequisitos). El [entorno de #29](documentacion/evidencias-jenkins/build-29/ejecucion.json) registra la plataforma y las versiones del agente.
+- La [instalación del controlador](documentacion/jenkins.md#instalar-el-controlador-y-configurar-el-job) incluye los comandos, el diseño y los puertos. Consulte la [imagen base con digest](jenkins/Dockerfile), el [volumen y la publicación de HTTP](jenkins/compose.yaml), el [inicializador](jenkins/controlador.groovy) y la [plantilla del agente](jenkins/agente-linux.xml).
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
