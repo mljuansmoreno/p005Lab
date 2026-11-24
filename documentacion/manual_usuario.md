@@ -36,6 +36,6 @@ Exportar proyecto genera `.rutaestadistica`, con manifiesto y hashes. Importar s
 
 Configuración permite Local/Docker y permisos MCP. Cerrar o revocar elimina concesiones MCP de la sesión. No hay exposición de filas originales por MCP en esta entrega.
 
-Consulte [errores](errores_y_soluciones.md), [datos](datos_y_persistencia.md) y [pruebas pendientes de interfaz](pruebas_y_calidad.md).
+Consulte [errores](errores_y_soluciones.md), [datos](datos_y_persistencia.md) y [pruebas manuales de teclado, contraste y lector de pantalla](qa/verificacion_manual_escritorio.md).
 
 En XLSX también se limita a 50 MiB el texto UTF-8 expandido de las celdas de la hoja, incluidos encabezados. Se conservan filas vacías explícitas y se rechazan celdas con referencias duplicadas; estos límites son del producto.
