@@ -208,6 +208,7 @@ El arnés .NET registró 148 comprobaciones con el trabajador R. Para Pearson se
 | --- | ---: | ---: | --- |
 | Python | 42,20 % | 35 % | `aplicacion` y `guiones/ci`, con coverage.py 7.17.5. |
 | .NET | 501/645 líneas (77,67 %) | 70 % | Contratos, dominio, aplicación e infraestructura, con dotnet-coverage 18.12.0. |
+| R | 93/102 líneas (91,18 %) | 85 % | Código instrumentable de `rutaanalitica`, con covr 4.0.0. |
 
 ## Aplicación de escritorio
 
