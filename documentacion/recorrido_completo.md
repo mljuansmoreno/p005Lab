@@ -7,7 +7,7 @@
 5. `MotorRLocal.CalcularAsync` escribe `entrada.csv` y `solicitud.json` en `trabajo_<id>`, inicia R con `--vanilla` y espera como máximo 60 s.
 6. `trabajador.R` llama a `rutaanalitica::analizar`; los valores no se generan en la interfaz. El JSON relaciona `solicitud_id` con hashes, recuentos y versión 4.5.2. Abra los archivos para obtener los identificadores reales de esa ejecución; no se inventa un identificador de una ejecución no realizada.
 7. Exporte desde Evidencia. Abra `informe.html` sin conexión. Desde esa carpeta ejecute `Rscript --vanilla reproducir.R` con el paquete instalado y compare `cifras`, excluyendo fecha y duración.
-8. Cierre y abra el proyecto. Los datos permanecen; el historial enumera trabajos guardados. La selección interactiva de un resultado histórico aún no está implementada.
+8. Cierre y abra el proyecto. Los datos permanecen; el historial enumera trabajos guardados. En Evidencia, seleccione el trabajo y pulse **Ver cálculo guardado**. Compruebe los parámetros del resultado recuperado. Volver a Ruta descarta esa vista y conserva la preparación actual.
 
 ```mermaid
 sequenceDiagram
