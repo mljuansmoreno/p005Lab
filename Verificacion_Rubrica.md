@@ -78,6 +78,7 @@ Los siete criterios suman 135 puntos posibles. El cierre de Jenkins corresponde 
 - El [disparador declarativo](Jenkinsfile) usa `H/2 * * * *` y la [definición SCM](jenkins/trabajo-main.xml) usa `*/main`. El [registro del sondeo permanente](documentacion/evidencias-jenkins/poll-scm.txt) identifica `refs/heads/main`, el SHA remoto y #29.
 - `ruta-estadistica-main` [#9](documentacion/evidencias-jenkins/build-9/ejecucion.json) en `911f2cb` y [#29](documentacion/evidencias-jenkins/build-29/ejecucion.json) en `1da7197` terminaron en `SUCCESS` por Poll SCM. Consulte el [Console Output de #29](documentacion/evidencias-jenkins/build-29/consola.txt) con la causa y el SHA y el [historial permanente #20–#29](documentacion/evidencias-jenkins/historial-permanente.json).
 - `ruta-estadistica-main` alojado [#11001](documentacion/evidencias-jenkins/build-11001/ejecucion.json) ejecutó manualmente `295325f` y terminó en `SUCCESS`. Consulte la [procedencia de Actions](documentacion/evidencias-jenkins/build-11001/origen-actions.json) y el [workflow manual](.github/workflows/jenkins-alojado.yaml).
+- El [piloto automático #11101](documentacion/evidencias-jenkins/build-11101/README.md) coteja el SHA del push con su checkout. La tabla de este criterio registra por separado los sondeos permanentes.
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
