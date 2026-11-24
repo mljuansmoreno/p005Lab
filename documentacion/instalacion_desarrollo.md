@@ -16,4 +16,4 @@ El SDK local se adquirió con el guion oficial de Microsoft en `.herramientas/do
 
 Si `dotnet --info` indica solo runtimes, instale el SDK exacto o utilice el local. Si NuGet no es accesible, prepare caché en una máquina conectada; no desactive validación TLS. Si R no encuentra jsonlite, compruebe `.dependencias/R/biblioteca` y ejecute preparación con adquisición explícita.
 
-La preparación de renv, imágenes por digest y restauración totalmente verificable en un equipo limpio sigue pendiente: consulte [versiones](versiones_y_compatibilidad.md). Los comandos y resultados realmente ejecutados se mantienen en [estado](estado_entrega.md).
+Las bases Docker se fijan por digest en el [inventario de imágenes](../contenedores/bases.lock.json). La preparación de R usa la biblioteca aislada del proyecto. La restauración mediante renv y la primera ejecución del paquete en una cuenta estándar limpia siguen pendientes. [Entorno R](../motor_r/renv/LEEME.md) · [Protocolo de instalación](qa/verificacion_manual_escritorio.md).
