@@ -335,7 +335,7 @@ En **Actions → Jenkins en runner Linux → Run workflow**, elija `main`. El wo
 gh workflow run jenkins-alojado.yaml --ref main -f sin_cache=true -f capturas=true
 ```
 
-Descargue `jenkins-<SHA>-<intento>` y, si se solicitaron capturas, `jenkins-capturas-<SHA>-<intento>`. Compare el SHA del build con el de Actions y la huella del anexo publicada en el resumen. El flujo alojado demuestra un disparo manual; el sondeo SCM se observa en el controlador permanente. [Operación, recuperación y retención](documentacion/operacion_jenkins.md) · [Guía de capturas](documentacion/capturas_semana5.md).
+Descargue `jenkins-<SHA>-<intento>` y, si se solicitaron capturas, `jenkins-capturas-<SHA>-<intento>`. Compare el SHA del build con el de Actions y la huella del anexo publicada en el resumen. Cada push a `main` activa el workflow alojado. Este crea el controlador temporal y usa Poll SCM para construir la revisión del evento. La ejecución manual se inicia desde Actions. [Disparadores y condiciones](.github/workflows/jenkins-alojado.yaml). [Operación, recuperación y retención](documentacion/operacion_jenkins.md) · [Guía de capturas](documentacion/capturas_semana5.md).
 
 El piloto automático alojado [#11101](documentacion/evidencias-jenkins/build-11101/README.md) comprueba que el SHA del push coincida con el checkout. El controlador permanente mantiene su propio historial de Poll SCM. El pipeline vigente registra **Checkout**, **Build** y **Test** por separado, coteja las imágenes OCI antes de usar las construidas y conserva la limpieza de los proyectos por ejecución.
 
