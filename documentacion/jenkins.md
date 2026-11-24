@@ -92,7 +92,7 @@ El controlador permanente exportado usaba checkout público anónimo. En el cont
 
 - **Checkout** limpia el workspace, ejecuta `checkout scm` y deja el SHA en consola.
 - **Build** verifica el agente y los secretos, construye `aplicacion` y `motor` con Compose y registra la salida y los IDs OCI asociados al SHA. Compose proporciona los contextos, Dockerfiles, etiquetas y nombres de imagen.
-- **Test** usa el mismo proyecto, arranca con `--no-build --pull never`, verifica los IDs usados y comprueba salud, red, cálculo, recuperación y escaneo. La web se publica solo en loopback en un puerto libre. `motor:8787` se usa solo en la red interna.
+- **Test** ejecuta las suites de coordinación, resiliencia y web. Después usa el mismo proyecto, arranca con `--no-build --pull never`, verifica los IDs usados y comprueba salud, red, cálculo, recuperación y escaneo. La web se publica solo en loopback en un puerto libre. `motor:8787` se usa solo en la red interna.
 
 El bloque `post` comprueba el desmontaje, genera el manifiesto y archiva JUnit. El reinicio desde una etapa está deshabilitado porque Test requiere las imágenes y los metadatos locales del mismo build.
 
