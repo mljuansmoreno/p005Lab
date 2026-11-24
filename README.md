@@ -51,6 +51,8 @@ El repositorio separa las herramientas de ejecución, los contratos y sus compro
 
 El trabajador nativo lee `solicitud.json` y `entrada.csv` mediante el contrato 1. Escribe `resultado.json` y `figura.png` en el directorio del trabajo. El adaptador admite hasta 8 MiB para el JSON del resultado. [Contrato del trabajador](documentacion/contratos_y_api.md).
 
+En la API HTTP versión 2, `POST /datos` devuelve el `datos_id` y la huella del CSV. `POST /trabajos` responde 202 con el identificador. Consulte `GET /trabajos/{id}` con el proyecto y descargue `GET /trabajos/{id}/resultado` cuando el estado sea `completado`. El ZIP contiene las cifras y la figura. [Rutas y respuestas](documentacion/contratos_y_api.md).
+
 ## Demostración de dos servicios con Docker
 
 ### 1. Preparar el entorno y clonar
