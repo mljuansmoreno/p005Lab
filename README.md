@@ -210,6 +210,8 @@ El arnés .NET registró 148 comprobaciones con el trabajador R. Para Pearson se
 | .NET | 501/645 líneas (77,67 %) | 70 % | Contratos, dominio, aplicación e infraestructura, con dotnet-coverage 18.12.0. |
 | R | 93/102 líneas (91,18 %) | 85 % | Código instrumentable de `rutaanalitica`, con covr 4.0.0. |
 
+Cada umbral se evalúa por separado. WinUI, MCP y el proceso HTTP quedan fuera de esas cifras de cobertura de líneas. Para evaluar un cambio de umbral, la guía pide comparar dos ejecuciones en la misma plataforma y conservar los XML. [Cobertura y límites](documentacion/qa/cobertura_y_limites.md).
+
 ## Aplicación de escritorio
 
 ### Inicio de desarrollo
