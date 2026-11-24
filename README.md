@@ -444,6 +444,7 @@ Las pruebas HTTP cubren el aislamiento por proyecto con una credencial de servic
 | Interfaz y seguridad | Tema claro predeterminado, selector de apariencia persistente y ajustes de contraste; formularios, tablas y avisos revisados. Se incorporaron controles de aislamiento, autenticación, publicación de secretos, SBOM y bloqueo por coincidencias altas o críticas. |
 | Jenkins y trazabilidad | Controlador y agente WebSocket, sondeo SCM, runner alojado y autoprueba aislada. Se ampliaron los plazos de arranque y escaneo a partir de fallos observados, se verificó la caché de herramientas y se agregó recuperación de limpieza por proyecto. JUnit, huellas, capturas autenticadas, evidencia de coexistencia y exportación a Word/PDF quedaron vinculados al build y a la revisión. |
 | Cierre de Jenkins | El lote histórico de 84 commits llega a `295325f`. La entrega posterior de 155 commits parte de `baed0fb` y cierra en `2e49ce8`. |
+| QA-001 a QA-250 | La serie parte de `65ab278` y cierra en `3f44fb2`. Incluye trazabilidad, regresiones de escritorio y API, oráculos numéricos, navegador, contenedores, seguridad y mediciones por plataforma. [Matriz de trazabilidad](documentacion/qa/matriz_trazabilidad.md). |
 | Auditorías y remediación | Los controles por fecha conservan el SHA evaluado y los estados publicados. La remediación separa los hallazgos históricos, los cambios del runtime y las comprobaciones posteriores. |
 
 Para ver los cambios de Jenkins en orden y abrir cualquier revisión desde el checkout:
