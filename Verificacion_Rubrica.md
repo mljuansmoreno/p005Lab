@@ -109,6 +109,7 @@ Los siete criterios suman 135 puntos posibles. El cierre de Jenkins corresponde 
 **Puntaje de la rúbrica:** 15 puntos.
 
 - La [comprobación Compose](guiones/ci/comprobar_compose.sh) valida salud, aislamiento y comunicación. La [aserción de cálculo](aplicacion/probar_compose.py) comprueba la operación real. En `ruta-estadistica-main` [#29](documentacion/evidencias-jenkins/build-29/ejecucion.json), `1da7197`, Poll SCM, `SUCCESS`, consulte [los servicios saludables](documentacion/evidencias-jenkins/build-29/03-docker-ps.txt), [el cálculo por motor:8787](documentacion/evidencias-jenkins/build-29/05-calculo.txt) y el [reporte JUnit](documentacion/evidencias-jenkins/build-29/integracion.xml).
+- El [Jenkinsfile de autoprueba](jenkins/Jenkinsfile.autoprueba) conserva la aserción intencional. `ruta-estadistica-autoprueba` [#3](documentacion/evidencias-jenkins/autoprueba-3/ejecucion.json) falló manualmente con [código 1 en consola](documentacion/evidencias-jenkins/autoprueba-3/consola.txt), [fallo JUnit en cálculo](documentacion/evidencias-jenkins/autoprueba-3/integracion.xml) y [limpieza](documentacion/evidencias-jenkins/autoprueba-3/09-limpieza.txt). La reiteración manual [#4](documentacion/evidencias-jenkins/autoprueba-4/ejecucion.json), `9b336d6`, acredita [fallo y limpieza en el mismo JUnit](documentacion/evidencias-jenkins/autoprueba-4/integracion.xml).
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
