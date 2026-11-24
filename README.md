@@ -432,6 +432,8 @@ En Windows también quedaron registrados [los controles HTTP del servicio](docum
 
 El informe QA registra 1.387 componentes inventariados en la aplicación y 8.828 en el motor. Grype informó cero coincidencias altas y críticas con la base del 23 de noviembre de 2026 a las 06:28:32 UTC. El inventario y el resultado se deben cotejar con las imágenes del build que se evalúa. [Alcance del escaneo](documentacion/qa/riesgos_abiertos.md).
 
+Las pruebas HTTP cubren el aislamiento por proyecto con una credencial de servicio compartida por instalación. Un despliegue con usuarios de distintos niveles de acceso requiere revisar el modelo de identidad. [Revisión de seguridad de la API](documentacion/qa/seguridad_api.md).
+
 ## Evolución de la entrega
 
 | Etapa | Cambios incorporados |
