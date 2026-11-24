@@ -13,6 +13,10 @@ Proyecto de Integración Continua del Politécnico Grancolombiano, por Juan Seba
 
 Los resultados de esta guía corresponden a las revisiones, fechas y ejecuciones indicadas. Los pasos de reproducción explican qué esperar al ejecutarlos en otro equipo. Para ver los cambios consolidados, consulte la [evolución de la entrega](#evolución-de-la-entrega).
 
+## Estado de la revisión `03edc5a`
+
+El 23 de noviembre de 2026 (Bogotá), Docker Linux y credenciales aprobaron en `main`. El trabajo Windows llegó a 148 comprobaciones correctas del arnés .NET y falló después, en la validación documental. Jenkins alojado terminó con éxito sobre el mismo SHA. [Verificación Windows y Docker](https://github.com/mljuansmoreno/p005Lab/actions/runs/45318939053) · [Jenkins](https://github.com/mljuansmoreno/p005Lab/actions/runs/45318939185).
+
 ### Qué se puede hacer desde el repositorio
 
 - **Probar el cálculo de extremo a extremo** con los datos sintéticos de la demo y un navegador. La demo web tiene un formulario de ejemplo fijo. El escritorio es la interfaz para importar y analizar datos propios.
