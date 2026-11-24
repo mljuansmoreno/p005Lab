@@ -1,8 +1,12 @@
-# Verificación de la rúbrica de Jenkins
+# Rúbrica de Jenkins y verificación de evidencias
+
+Cada criterio reúne su alcance, puntaje, implementación y comprobaciones. Las copias del [anexo versionado](documentacion/evidencias-jenkins/README.md) se pueden consultar desde un clon.
 
 La revisión parte de [`baed0fbf6cbe9ff72fe3ce213811770fdd4f15b6`](https://github.com/mljuansmoreno/p005Lab/commit/baed0fbf6cbe9ff72fe3ce213811770fdd4f15b6), confirmado con `git ls-remote origin refs/heads/main`. La entrega comprende 155 commits propios sobre esa base. La calificación corresponde al profesor.
 
 El controlador permanente y el controlador alojado tienen historiales independientes. Cada ficha identifica el entorno, el job, el SHA, la causa y la fecha UTC. Los resultados históricos se atribuyen a la revisión que ejecutó cada build.
+
+Los siete criterios suman 135 puntos posibles. El cierre de Jenkins corresponde a la revisión `2e49ce8`. La serie posterior QA-001 a QA-250 amplió las pruebas. Su auditoría registra cuatro procedimientos manuales de escritorio pendientes y condiciona el veredicto al resultado de CI del SHA evaluado. [Informe de QA-250](https://github.com/mljuansmoreno/p005Lab/blob/3f44fb2ce694839927a200283d983469eed8651d/documentacion/qa/informe_final.md).
 
 ## Infraestructura e instalación
 
