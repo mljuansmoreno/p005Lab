@@ -55,6 +55,8 @@ En la API HTTP versión 2, `POST /datos` devuelve el `datos_id` y la huella del 
 
 El motor calcula un trabajo y admite otro en espera. Una cola llena devuelve 429. El plazo de ejecución de R es de 60 s y el del cliente es de 90 s. Tras recibir el identificador, el cliente puede solicitar la cancelación con `DELETE /trabajos/{id}`. [Ciclo del trabajo](documentacion/contratos_y_api.md).
 
+La API conserva hasta cuatro revisiones de datos y 100 MiB de CSV en total. Cada CSV normalizado admite hasta 50 MiB, 100.000 registros y 200 columnas. La carga HTTP completa admite 60 MiB, incluidos los escapes JSON. Una recarga idéntica en el mismo proyecto reutiliza el identificador. [Límites de carga](documentacion/contratos_y_api.md).
+
 ## Demostración de dos servicios con Docker
 
 ### 1. Preparar el entorno y clonar
