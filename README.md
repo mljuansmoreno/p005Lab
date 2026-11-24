@@ -173,6 +173,8 @@ Para una demostración pública use el CSV sintético del repositorio. Si usa el
 
 En el [workflow de verificación](.github/workflows/verificacion.yaml), busque `docker-linux-<SHA>` bajo **Artifacts**. `00-entorno.json` distingue la revisión ejecutada de la rama o fusión de prueba, y registra versiones e imágenes; `01-compilacion.txt` a `05-calculo.txt` muestran construcción, arranque, procesos, red y cálculo. Las ejecuciones que incluyen recuperación publican `06-recuperacion.txt`. GitHub Actions y Jenkins comparten comprobaciones de Compose, pero cada artefacto acredita su propia ejecución.
 
+Para consultar JUnit y cobertura, descargue `qa-python`, `qa-windows` o `qa-docker` desde la ejecución de la plataforma. Un trabajo interrumpido puede dejar informes parciales. El artefacto `historial-qa` identifica los commits de la serie auditada. [Definición de los artefactos](.github/workflows/verificacion.yaml).
+
 [Evidencias paso a paso](documentacion/evidencias_compose.md).
 
 ## Aplicación de escritorio
