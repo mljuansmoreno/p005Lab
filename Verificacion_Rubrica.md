@@ -126,6 +126,8 @@ Los siete criterios suman 135 puntos posibles. El cierre de Jenkins corresponde 
 
 ## Evidencias de ejecución
 
+**Puntaje de la rúbrica:** 15 puntos.
+
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
 | Historial exportado | Revisar los números, causas y estados del controlador permanente. | El historial versionado cubre #20 a #29 y permite consultar los resultados fuera del equipo. | [README.md](https://github.com/mljuansmoreno/p005Lab/blob/7eff1f8bc68c17709e161918eae99788e0961e06/documentacion/evidencias-jenkins/README.md) · [historial-permanente.json](https://github.com/mljuansmoreno/p005Lab/blob/7a25a1d16b98dc31e67f491fe9e3a20d755376ca/documentacion/evidencias-jenkins/historial-permanente.json) |
