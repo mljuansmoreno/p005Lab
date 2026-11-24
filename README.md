@@ -126,7 +126,7 @@ curl --fail --show-error http://127.0.0.1:8080/listo
 docker compose exec -T aplicacion python probar_compose.py
 ```
 
-`/salud` comprueba que la web vive; `/listo` comprueba la disponibilidad del motor. El cliente de prueba usa la misma ruta de cálculo que el formulario y comprueba el estado `completado`, el destino `motor:8787`, los identificadores del trabajo y la solicitud, la huella SHA-256 del CSV, las seis filas y la media. Los identificadores son propios de cada ejecución.
+En el puerto web, `/salud` comprueba que el proceso responde y `/listo` comprueba la disponibilidad del motor. El endpoint `/salud` del propio motor requiere autenticación y devuelve las versiones de API y contrato. El cliente de prueba usa la misma ruta de cálculo que el formulario y comprueba el estado `completado`, el destino `motor:8787`, los identificadores del trabajo y la solicitud, la huella SHA-256 del CSV, las seis filas y la media. Los identificadores son propios de cada ejecución.
 
 ### 6. Diagnosticar, recuperar y detener
 
