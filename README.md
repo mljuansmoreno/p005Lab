@@ -212,6 +212,10 @@ El arnés .NET registró 148 comprobaciones con el trabajador R. Para Pearson se
 
 Cada umbral se evalúa por separado. WinUI, MCP y el proceso HTTP quedan fuera de esas cifras de cobertura de líneas. Para evaluar un cambio de umbral, la guía pide comparar dos ejecuciones en la misma plataforma y conservar los XML. [Cobertura y límites](documentacion/qa/cobertura_y_limites.md).
 
+### Rendimiento observado en Windows
+
+Tras el calentamiento, con 10.000 filas y 30 muestras, la importación .NET registró una mediana de 3,81 ms y un p95 de 22,36 ms. El descriptivo de R, incluida la figura, registró 350 y 400 ms respectivamente. En 60 consultas autenticadas de salud en loopback, la mediana fue 3,68 ms y el p95 fue 5,53 ms. [Mediciones locales](documentacion/qa/cobertura_y_limites.md).
+
 ## Aplicación de escritorio
 
 ### Inicio de desarrollo
