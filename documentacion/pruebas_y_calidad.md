@@ -19,8 +19,8 @@ Los conjuntos son sintéticos. [Pruebas R](../motor_r/rutaanalitica/tests/verifi
 
 La auditoría documental comprueba existencia, enlaces, encabezados y cobertura de códigos; la auditoría de nombres usa glosario y heurística. Ninguna certifica la exactitud estadística, lingüística o documental por sí misma.
 
-Tolerancia R de desarrollo: `all.equal(..., tolerance=1e-8)`. Falta medir y fijar tolerancias absolutas/relativas por familia en paridad nativa/Docker. Reproducción exportada debe ejecutar el guion sobre su CSV y comparar cifras, no fecha/duración.
+La suite nativa usa `all.equal` con tolerancia de desarrollo de 1e-8. El [ensayo de paridad descriptiva](../guiones/ci/paridad_numerica.py) exige tolerancias absoluta y relativa de 1e-12 para nueve indicadores. La comparación entre motores de las demás familias requiere evidencia propia.
 
-Consulte [estado de ejecución](estado_entrega.md) para resultados reales. Pendientes: carrera de resultados obsoletos bajo interacción, fallo de proceso/disco, bombardeo de archivos, pruebas exhaustivas XLSX, malware del mismo usuario fuera del modelo, tráfico externo medido, rendimiento/memoria, lector de pantalla, teclado completo, alto contraste/escalado y cuenta estándar limpia.
+QA-250 registró cobertura por componente, latencia y memoria para cargas concretas. Siguen pendientes la carga sostenida, el recorrido gráfico con teclado, contraste y lector de pantalla, y la instalación en cuenta limpia. [Mediciones](qa/cobertura_y_limites.md) · [Riesgos abiertos](qa/riesgos_abiertos.md).
 
 Empaquetado: validar con MakeAppx no equivale a instalar ni a WACK. Ensaye instalación/actualización/offline/exportación/alias con cuenta estándar y sin R global. Guarde informes WACK en `salidas/informes`. No hay certificación o paridad solo por compilar servicios en Windows.
