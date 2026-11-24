@@ -104,7 +104,9 @@ Los siete criterios suman 135 puntos posibles. El cierre de Jenkins corresponde 
 | Identidad OCI de motor | Comparar imagen con imagenes_oci.motor de la ficha #11001. | El anexo identifica un motor distinto de la aplicación y conserva su inventario. Los dos identificadores pertenecen al mismo SHA de checkout. | [ejecutar.py](https://github.com/mljuansmoreno/p005Lab/blob/257e7916369cb43b4d145903a5486f5f02e53c2d/guiones/ci/ejecutar.py) · [seguridad-motor.json](https://github.com/mljuansmoreno/p005Lab/blob/98056a10963ed8821f2cf1929a8f5f3817d07ca8/documentacion/evidencias-jenkins/build-11001/seguridad-motor.json) |
 | Uso de imágenes construidas | Ejecutar test_test_rechaza_etiquetas_reemplazadas_y_desmonta_el_proyecto. | La fase probar-imagenes coteja la identidad previa y el contenedor arrancado. La regresión simula un cambio de etiqueta y exige el desmontaje. | [ejecutar.py](https://github.com/mljuansmoreno/p005Lab/blob/257e7916369cb43b4d145903a5486f5f02e53c2d/guiones/ci/ejecutar.py) · [test_ejecutar.py](https://github.com/mljuansmoreno/p005Lab/blob/7a819f650db202511e715f8e32deb57d1280059a/pruebas/ci/test_ejecutar.py) |
 
-## Pruebas y verificación automática
+## Pruebas y fallo automático
+
+**Puntaje de la rúbrica:** 15 puntos.
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
