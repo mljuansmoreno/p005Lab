@@ -16,6 +16,6 @@ Inferencia se calcula únicamente con confirmación explícita del diseño/supue
 
 La interpretación usa exclusivamente cifras calculadas y plantillas españolas. No convierte p>α en igualdad. Los gráficos son histogramas/cajas, barras, dispersión, diferencias pareadas o residuos/cuantiles según ruta. Se cierran dispositivos al salir incluso con error.
 
-Verificación: [pruebas R](../motor_r/rutaanalitica/tests/verificar.R) contienen medias/cuartiles calculables a mano y llamadas directas independientes. Tolerancia actual `all.equal(..., tolerance=1e-8)`; todavía no es una garantía medida de paridad Windows/Linux. Se requiere separar tolerancias absolutas/relativas por familia antes de distribuir.
+Las [pruebas R](../motor_r/rutaanalitica/tests/verificar.R) contrastan cifras conocidas y referencias de R base. El [ensayo de paridad](../guiones/ci/paridad_numerica.py) contrasta nueve indicadores descriptivos en R nativo y Docker con tolerancias absoluta y relativa de 1e-12. La evidencia se limita al método y al conjunto sintético ensayados.
 
-Para inspeccionar documentación exacta de R instalado: `help('t.test', package='stats')`, `help('cor.test', package='stats')`, `help('lm', package='stats')`. Las páginas web de desarrollo no sustituyen esos manuales. Más detalles en [calidad](pruebas_y_calidad.md) y [límites](limitaciones_y_pendientes.md).
+Para inspeccionar documentación exacta de R instalado: `help('t.test', package='stats')`, `help('cor.test', package='stats')`, `help('lm', package='stats')`. Las páginas web de desarrollo no sustituyen esos manuales. Más detalles en [calidad](pruebas_y_calidad.md) y [límites](qa/riesgos_abiertos.md).
