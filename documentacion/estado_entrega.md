@@ -1,6 +1,8 @@
 # Estado de entrega
 
-GitHub Actions construyó la aplicación web y el motor R, arrancó ambos contenedores en Linux y verificó el cálculo descriptivo. [Evidencias de Compose](evidencias_compose.md) · [Artículo de entrega](ruta-estadistica-articulo.pdf) · [Operación y actualización de imágenes](operacion_compose.md).
+GitHub Actions construyó la aplicación web y el motor R, arrancó ambos contenedores en Linux y verificó el cálculo descriptivo. [Evidencias de Compose](evidencias_compose.md) · [Operación y actualización de imágenes](operacion_compose.md).
+
+En la revisión de referencia `9517492`, Docker Linux y el control de credenciales aprobaron. La verificación de Windows falló y el pipeline alojado de Jenkins aprobó. [Resultados de Actions](https://github.com/mljuansmoreno/p005Lab/actions/runs/45327752796) · [Ejecución de Jenkins](https://github.com/mljuansmoreno/p005Lab/actions/runs/45327752851).
 
 ## Verificación de Windows y Docker en GitHub Actions
 
@@ -19,7 +21,7 @@ Ejecute `salidas/aplicacion/RutaEstadistica.Escritorio.exe`. Inicio → Probar e
 
 La ventana principal fue identificada por el sistema tras corregir los recursos de publicación. No se automatizó el recorrido gráfico: la autorización de acceso de Computer Use expiró. No se inventan capturas ni aceptación visual.
 
-## Matriz de evidencia
+## Matriz de evidencia del 27 de octubre de 2026
 
 | Función | Implementación | Verificación | Código, prueba y guía |
 |---|---|---|---|
@@ -36,7 +38,7 @@ La ventana principal fue identificada por el sistema tras corregir los recursos 
 | MSIX con varios ejecutables | IMPLEMENTADO | MakeAppx VERIFICADO; instalación limpia, actualización, WACK y firma PENDIENTES | Manifiesto y guion |
 | Documentación y nombres | IMPLEMENTADO con límites declarados | Archivos, enlaces, códigos y glosario VERIFICADOS; revisión semántica integral PENDIENTE | Auditorías y guías |
 
-## Comandos y resultados reales
+## Comandos y resultados del 27 de octubre de 2026
 
 - El sistema tenía runtime .NET 8.0.13 sin SDK. Se adquirió SDK 10.0.403 dentro del repositorio.
 - R CMD INSTALL de rutaanalitica: correcto con jsonlite 2.0.0 en biblioteca aislada.
@@ -62,8 +64,8 @@ Identidad de prueba RutaEstadistica.Pruebas, editor CN=DesarrolloLocal. **Sin fi
 
 ## Antes de liberar
 
-Faltan imagen Docker por digest/paridad, flujo API por trabajos, tablas/historial completos, recuperación ante interrupción, concesiones MCP persistidas/recursos, accesibilidad y recorrido gráfico, pruebas de red/rendimiento, instalación/actualización/WACK, inventario íntegro de licencias/fuentes y datos reales de editor/soporte. Véanse [limitaciones](limitaciones_y_pendientes.md) y [continuidad](continuidad.md).
+La API por trabajos, la reapertura del historial y la construcción de imágenes con bases fijadas ya disponen de implementación y pruebas. QA-250 documentó mediciones de memoria y latencia en Windows. Quedan por verificar el recorrido gráfico accesible, el MSIX firmado en una cuenta limpia y la carga sostenida. La distribución también requiere validar las licencias y la identidad del editor. [Informe de QA](qa/informe_final.md) · [Riesgos y condiciones de aceptación](qa/riesgos_abiertos.md).
 
 ## Continuación del 30/10/2026
 
-Se implementaron tablas/historial, API por trabajos y protecciones XLSX adicionales. Consulte [continuidad](continuidad.md) y los informes de salidas/informes. La inspección visual fue denegada por Computer Use; Docker continúa ausente. El MSIX 0.1.0.0 y sus verificaciones anteriores no corresponden a estas modificaciones. No se afirma cierre completo ni nueva certificación. El lote se acotó después de la consulta del usuario sobre tiempo y créditos.
+En ese lote se incorporaron las tablas, el historial, la API por trabajos y las protecciones XLSX. El MSIX del 27 de octubre corresponde a una compilación anterior. [Continuidad](continuidad.md).
