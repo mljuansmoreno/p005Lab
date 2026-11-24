@@ -78,4 +78,4 @@ Para consultar los resultados de la revisión que esté evaluando, abra la ejecu
 docker compose down --remove-orphans
 ```
 
-El [artículo de entrega](ruta-estadistica-articulo.pdf) conserva las capturas de una ejecución anterior.
+Las capturas de este informe corresponden a la revisión identificada al inicio. Para reproducir la prueba con el checkout actual, siga el [procedimiento de la demo](../README.md#demostración-de-dos-servicios-con-docker).
