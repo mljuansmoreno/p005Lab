@@ -76,6 +76,7 @@ Los siete criterios suman 135 puntos posibles. El cierre de Jenkins corresponde 
 **Puntaje de la rúbrica:** 15 puntos.
 
 - El [disparador declarativo](Jenkinsfile) usa `H/2 * * * *` y la [definición SCM](jenkins/trabajo-main.xml) usa `*/main`. El [registro del sondeo permanente](documentacion/evidencias-jenkins/poll-scm.txt) identifica `refs/heads/main`, el SHA remoto y #29.
+- `ruta-estadistica-main` [#9](documentacion/evidencias-jenkins/build-9/ejecucion.json) en `911f2cb` y [#29](documentacion/evidencias-jenkins/build-29/ejecucion.json) en `1da7197` terminaron en `SUCCESS` por Poll SCM. Consulte el [Console Output de #29](documentacion/evidencias-jenkins/build-29/consola.txt) con la causa y el SHA y el [historial permanente #20–#29](documentacion/evidencias-jenkins/historial-permanente.json).
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
