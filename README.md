@@ -47,6 +47,10 @@ La demo usa [`docker-compose.yml`](docker-compose.yml) en la raíz y publica la 
 
 El repositorio separa las herramientas de ejecución, los contratos y sus comprobaciones. `contratos/` define los formatos compartidos; `motor_r/` concentra el cálculo estadístico y `pruebas/` cubre unidades y flujos de integración. El [bloqueo de imágenes base](contenedores/bases.lock.json) permite cotejar los Dockerfiles con sus fuentes y huellas. [Mapa del código](documentacion/mapa_codigo.md).
 
+### Del CSV al resultado
+
+El trabajador nativo lee `solicitud.json` y `entrada.csv` mediante el contrato 1. Escribe `resultado.json` y `figura.png` en el directorio del trabajo. El adaptador admite hasta 8 MiB para el JSON del resultado. [Contrato del trabajador](documentacion/contratos_y_api.md).
+
 ## Demostración de dos servicios con Docker
 
 ### 1. Preparar el entorno y clonar
