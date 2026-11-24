@@ -16,4 +16,4 @@
 
 **Revisor:** Abrir Inicio, Probar ejemplo, Calcular. Confirmar seis mediciones y media 15,5. Revisar Interpretación, exportar HTML y abrir sin conexión. Reiniciar y abrir proyecto. Repetir con R global ausente en cuenta estándar. No se necesitan credenciales ni internet para el ejemplo.
 
-Las capturas deben corresponder a la aplicación ejecutada, no a maquetas. Falta completar pruebas, identidad, licencias y certificación según [lista de publicación](../../documentacion/lista_publicacion_tienda.md).
+Las capturas deben corresponder a la aplicación ejecutada, no a maquetas. Falta completar pruebas, identidad, licencias y certificación según [guía de empaquetado](../../documentacion/empaquetado_y_publicacion.md).
