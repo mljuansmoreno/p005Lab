@@ -216,6 +216,8 @@ Cada umbral se evalúa por separado. WinUI, MCP y el proceso HTTP quedan fuera d
 
 Tras el calentamiento, con 10.000 filas y 30 muestras, la importación .NET registró una mediana de 3,81 ms y un p95 de 22,36 ms. El descriptivo de R, incluida la figura, registró 350 y 400 ms respectivamente. En 60 consultas autenticadas de salud en loopback, la mediana fue 3,68 ms y el p95 fue 5,53 ms. [Mediciones locales](documentacion/qa/cobertura_y_limites.md).
 
+Con 100 y 50.000 filas, el pico observado del árbol de procesos con R pasó de 157.130.752 a 179.834.880 bytes. El muestreo se hizo cada 25 ms y la suma puede contar páginas compartidas varias veces. La carga sostenida queda pendiente de evaluación. [Riesgos y condiciones de aceptación](documentacion/qa/riesgos_abiertos.md).
+
 ## Aplicación de escritorio
 
 ### Inicio de desarrollo
