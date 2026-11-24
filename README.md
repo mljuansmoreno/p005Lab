@@ -53,6 +53,8 @@ El trabajador nativo lee `solicitud.json` y `entrada.csv` mediante el contrato 1
 
 En la API HTTP versión 2, `POST /datos` devuelve el `datos_id` y la huella del CSV. `POST /trabajos` responde 202 con el identificador. Consulte `GET /trabajos/{id}` con el proyecto y descargue `GET /trabajos/{id}/resultado` cuando el estado sea `completado`. El ZIP contiene las cifras y la figura. [Rutas y respuestas](documentacion/contratos_y_api.md).
 
+El motor calcula un trabajo y admite otro en espera. Una cola llena devuelve 429. El plazo de ejecución de R es de 60 s y el del cliente es de 90 s. Tras recibir el identificador, el cliente puede solicitar la cancelación con `DELETE /trabajos/{id}`. [Ciclo del trabajo](documentacion/contratos_y_api.md).
+
 ## Demostración de dos servicios con Docker
 
 ### 1. Preparar el entorno y clonar
