@@ -14,4 +14,4 @@ Se propone GPL-3.0-or-later para las contribuciones nuevas de Ruta Estadística,
 
 El [SBOM de desarrollo](../distribucion/licencias/sbom.cdx.json) enumera dependencias resueltas desde lockfiles y R. No es aún un SBOM completo certificado del MSIX y de todas las capas Linux. Mantenga los avisos incluidos en los binarios originales; prepare fuentes de R y paquetes correspondientes a la versión efectivamente distribuida y registre el mecanismo de cumplimiento antes de entrega pública.
 
-Las advertencias iniciales NuGet sobre SQLite motivaron actualización. Un informe de vulnerabilidades actual debe guardarse con fecha; no se asume ausencia por resolver correctamente. Consulte [versiones](versiones_y_compatibilidad.md) y [publicación](lista_publicacion_tienda.md).
+Las advertencias iniciales NuGet sobre SQLite motivaron actualización. Un informe de vulnerabilidades actual debe guardarse con fecha; no se asume ausencia por resolver correctamente. Consulte [versiones](versiones_y_compatibilidad.md) y [publicación](empaquetado_y_publicacion.md).
