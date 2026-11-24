@@ -1,8 +1,6 @@
 # Ruta Estadística · p005Lab
 
-[Verificación de la rúbrica y evidencias](Verificacion_Rubrica.md)
-
-[Rúbrica de Jenkins y evidencias](Rubrica.md)
+[Rúbrica de Jenkins y verificación de evidencias](Verificacion_Rubrica.md)
 
 Proyecto de Integración Continua del Politécnico Grancolombiano, por Juan Sebastián Moreno Díaz. Ruta Estadística guía un análisis desde la pregunta y los datos hasta los resultados, su interpretación y la evidencia reproducible. Los cálculos los realiza el paquete R `rutaanalitica`; la aplicación no requiere una cuenta ni un modelo de lenguaje.
 
@@ -14,6 +12,15 @@ Proyecto de Integración Continua del Politécnico Grancolombiano, por Juan Seba
 | Revisar qué controles de seguridad se ejecutaron | [Ciberseguridad: verificaciones realizadas](#ciberseguridad-verificaciones-realizadas) |
 
 Los resultados de esta guía corresponden a las revisiones, fechas y ejecuciones indicadas. Los pasos de reproducción explican qué esperar al ejecutarlos en otro equipo. Para ver los cambios consolidados, consulte la [evolución de la entrega](#evolución-de-la-entrega).
+
+### Qué se puede hacer desde el repositorio
+
+- **Probar el cálculo de extremo a extremo** con los datos sintéticos de la demo y un navegador. La demo web tiene un formulario de ejemplo fijo. El escritorio es la interfaz para importar y analizar datos propios.
+- **Trabajar con datos en Windows** con proyectos, métodos estadísticos, interpretación y exportaciones reproducibles. Puede usar el motor R local o el motor opcional en Docker.
+- **Desarrollar o evaluar la entrega** desde un clon público. Consulte los [contratos de la API](documentacion/contratos_y_api.md), la [guía de pruebas](documentacion/pruebas_y_calidad.md) y el [anexo de CI](documentacion/evidencias-jenkins/README.md) para distinguir los pasos reproducibles de los resultados ya observados.
+- **Revisar la serie de 250 casos QA** en el [informe de auditoría](documentacion/qa/informe_final.md), con cobertura, regresiones, limitaciones e instrucciones para recuperar los SHA publicados.
+
+Antes de reproducir una evidencia, ejecute `git rev-parse HEAD` y compárelo con el SHA de la ficha. El contenido de `main` sigue evolucionando.
 
 ## Arquitectura y alcance
 
@@ -29,6 +36,8 @@ Los resultados de esta guía corresponden a las revisiones, fechas y ejecuciones
 La demo usa [`docker-compose.yml`](docker-compose.yml) en la raíz y publica la web en `127.0.0.1:8080`. La web conecta también con la red bridge interna `analisis`, donde resuelve `motor:8787` por DNS y usa HTTP autenticado. El motor de la demo carece de puerto publicado. La opción Docker de WinUI usa [otro Compose](contenedores/compose.yaml): publica solo el motor en `127.0.0.1:8787`. Jenkins tiene [su propio Compose](jenkins/compose.yaml) para el controlador.
 
 [Arquitectura](documentacion/arquitectura.md) · [Mapa del código](documentacion/mapa_codigo.md) · [API y contratos](documentacion/contratos_y_api.md) · [Métodos en R](documentacion/motor_r_y_metodos.md).
+
+El repositorio separa las herramientas de ejecución, los contratos y sus comprobaciones. `contratos/` define los formatos compartidos; `motor_r/` concentra el cálculo estadístico y `pruebas/` cubre unidades y flujos de integración. El [bloqueo de imágenes base](contenedores/bases.lock.json) permite cotejar los Dockerfiles con sus fuentes y huellas. [Mapa del código](documentacion/mapa_codigo.md).
 
 ## Demostración de dos servicios con Docker
 
@@ -125,6 +134,10 @@ docker compose exec -T aplicacion python probar_compose.py
 Se espera HTTP 200 en `/salud` y HTTP 503 en `/listo` durante la caída; luego HTTP 200 en `/listo` y un nuevo cálculo válido. Para terminar, ejecute `docker compose down --remove-orphans` desde la misma carpeta y con el mismo nombre de proyecto. Puede conservar el secreto para volver a arrancar o eliminar el archivo local después de desmontar los servicios.
 
 [Operación y diagnóstico de Compose](documentacion/operacion_compose.md).
+
+### Compartir resultados de una prueba local
+
+Para una demostración pública use el CSV sintético del repositorio. Si usa el escritorio con datos propios, revise la exportación y el proyecto antes de compartirlos: pueden incluir datos originales, identificadores y resultados. Use una copia sintética para capturas, incidencias y pruebas de CI. Mantenga credenciales, `.env`, volcados y registros sin redactar fuera de Git y de los artefactos públicos. [Seguridad y privacidad](documentacion/seguridad_y_privacidad.md).
 
 ## Pruebas de Docker realizadas
 
@@ -260,6 +273,8 @@ gh workflow run jenkins-alojado.yaml --ref main -f sin_cache=true -f capturas=tr
 
 Descargue `jenkins-<SHA>-<intento>` y, si se solicitaron capturas, `jenkins-capturas-<SHA>-<intento>`. Compare el SHA del build con el de Actions y la huella del anexo publicada en el resumen. El flujo alojado demuestra un disparo manual; el sondeo SCM se observa en el controlador permanente. [Operación, recuperación y retención](documentacion/operacion_jenkins.md) · [Guía de capturas](documentacion/capturas_semana5.md).
 
+El piloto automático alojado [#11101](documentacion/evidencias-jenkins/build-11101/README.md) comprueba que el SHA del push coincida con el checkout. El controlador permanente mantiene su propio historial de Poll SCM. El pipeline vigente registra **Checkout**, **Build** y **Test** por separado, coteja las imágenes OCI antes de usar las construidas y conserva la limpieza de los proyectos por ejecución. La [rúbrica consolidada](Verificacion_Rubrica.md) reúne el catálogo de builds, el piloto, la cancelación controlada, la corrección en Jenkins y el cierre de los 155 commits.
+
 ### Pruebas de Jenkins realizadas
 
 | Build | Resultado registrado |
@@ -281,10 +296,49 @@ El build local #17 agotó el plazo de escaneo anterior después de archivar el i
 
 Los registros corresponden a inspecciones defensivas de este repositorio, sus contenedores e imágenes. Cada JSON conserva la fecha de Bogotá, el control y el SHA auditado. El [informe inicial](documentacion/informes/revision_ciberseguridad.md) conserva por separado el antecedente sobre `0aad2e5`.
 
-| Fecha y revisión auditada | Controles correctos / evaluados | Web: altas / críticas | Motor: altas / críticas |
-| --- | ---: | ---: | ---: |
-| [15 de noviembre de 2026](documentacion/informes/revisiones-seguridad/2026-11-15), `dbcafcb` | 72 / 75 | 54 / 3 | 3 / 0 |
-| [16 de noviembre de 2026](documentacion/informes/revisiones-seguridad/2026-11-16), `295325f` | 74 / 75 | 0 / 0 | 0 / 0 |
+### Perfil NIST y métodos de evaluación
+
+El perfil `p005Lab-2026-11` define **75 comprobaciones del proyecto** vinculadas a **17 controles** de [NIST SP 800-53 Rev. 5, versión 5.2.0](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final). La tabla muestra las correspondencias que registró el [lote del 23 de noviembre](documentacion/informes/revisiones-seguridad/2026-11-23).
+
+[NIST SP 800-53A Rev. 5, versión 5.2.0](https://csrc.nist.gov/pubs/sp/800/53/a/r5/final) guía **51 exámenes** de configuración, artefactos y estado observado, y **24 pruebas** que ejecutan comprobaciones y comparan sus resultados con los criterios del perfil. El perfil no usa entrevistas. Las correspondencias documentan el alcance de esta evaluación del repositorio.
+
+[NIST SP 800-190 (2017)](https://csrc.nist.gov/pubs/sp/800/190/final) guía la revisión de imágenes y contenedores. El perfil referencia §4.1.1 para vulnerabilidades de imágenes, §4.1.4 para secretos incorporados, §4.1.5 para confianza y procedencia de imágenes, §4.3.3 para separación de redes, §4.4.3 para configuración de ejecución y §4.4.4 para vulnerabilidades de las aplicaciones. El JSON de cada comprobación conserva la sección aplicable cuando el perfil la asigna.
+
+| Control de SP 800-53 | Comprobaciones de este repositorio |
+| --- | --- |
+| **AC-3** · Aplicación del control de acceso | [`http-motor-autenticacion`](documentacion/informes/revisiones-seguridad/2026-11-23/http-motor-autenticacion.json) |
+| **AC-6** · Privilegio mínimo | [`aplicacion-no-privilegiado`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-no-privilegiado.json), [`aplicacion-sin-capacidades`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-sin-capacidades.json), [`aplicacion-sin-privilegios-nuevos`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-sin-privilegios-nuevos.json), [`aplicacion-sin-socket-docker`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-sin-socket-docker.json), [`aplicacion-usuario`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-usuario.json), [`motor-no-privilegiado`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-no-privilegiado.json), [`motor-sin-capacidades`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-sin-capacidades.json), [`motor-sin-privilegios-nuevos`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-sin-privilegios-nuevos.json), [`motor-sin-socket-docker`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-sin-socket-docker.json), [`motor-usuario`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-usuario.json) |
+| **AU-4** · Capacidad de almacenamiento de auditoría | [`aplicacion-logs-rotados`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-logs-rotados.json), [`motor-logs-rotados`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-logs-rotados.json) |
+| **AU-9** · Protección de la información de auditoría | [`bitacoras-sin-secreto`](documentacion/informes/revisiones-seguridad/2026-11-23/bitacoras-sin-secreto.json) |
+| **CM-2** · Configuración de referencia | [`git-acciones-fijadas`](documentacion/informes/revisiones-seguridad/2026-11-23/git-acciones-fijadas.json), [`git-base-python-fijada`](documentacion/informes/revisiones-seguridad/2026-11-23/git-base-python-fijada.json), [`git-bases-declaradas`](documentacion/informes/revisiones-seguridad/2026-11-23/git-bases-declaradas.json) |
+| **CM-6** · Parámetros de configuración | [`aplicacion-no-privilegiado`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-no-privilegiado.json), [`aplicacion-raiz-solo-lectura`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-raiz-solo-lectura.json), [`aplicacion-reinicio-acotado`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-reinicio-acotado.json), [`aplicacion-sin-capacidades`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-sin-capacidades.json), [`aplicacion-sin-privilegios-nuevos`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-sin-privilegios-nuevos.json), [`aplicacion-sin-socket-docker`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-sin-socket-docker.json), [`git-archivos-privados`](documentacion/informes/revisiones-seguridad/2026-11-23/git-archivos-privados.json), [`git-checkout-verificacion`](documentacion/informes/revisiones-seguridad/2026-11-23/git-checkout-verificacion.json), [`git-contexto-exclusiones`](documentacion/informes/revisiones-seguridad/2026-11-23/git-contexto-exclusiones.json), [`git-secreto-ignorado`](documentacion/informes/revisiones-seguridad/2026-11-23/git-secreto-ignorado.json), [`http-csp`](documentacion/informes/revisiones-seguridad/2026-11-23/http-csp.json), [`http-nosniff`](documentacion/informes/revisiones-seguridad/2026-11-23/http-nosniff.json), [`http-sin-cache`](documentacion/informes/revisiones-seguridad/2026-11-23/http-sin-cache.json), [`http-sin-referente`](documentacion/informes/revisiones-seguridad/2026-11-23/http-sin-referente.json), [`modelo-dependencia-salud`](documentacion/informes/revisiones-seguridad/2026-11-23/modelo-dependencia-salud.json), [`modelo-dns-motor`](documentacion/informes/revisiones-seguridad/2026-11-23/modelo-dns-motor.json), [`modelo-dos-servicios`](documentacion/informes/revisiones-seguridad/2026-11-23/modelo-dos-servicios.json), [`modelo-motor-tmpfs`](documentacion/informes/revisiones-seguridad/2026-11-23/modelo-motor-tmpfs.json), [`modelo-web-sonda`](documentacion/informes/revisiones-seguridad/2026-11-23/modelo-web-sonda.json), [`motor-no-privilegiado`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-no-privilegiado.json), [`motor-raiz-solo-lectura`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-raiz-solo-lectura.json), [`motor-reinicio-acotado`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-reinicio-acotado.json), [`motor-sin-capacidades`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-sin-capacidades.json), [`motor-sin-privilegios-nuevos`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-sin-privilegios-nuevos.json), [`motor-sin-socket-docker`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-sin-socket-docker.json) |
+| **CM-8** · Inventario de componentes | [`imagen-aplicacion-sbom`](documentacion/informes/revisiones-seguridad/2026-11-23/imagen-aplicacion-sbom.json), [`imagen-motor-sbom`](documentacion/informes/revisiones-seguridad/2026-11-23/imagen-motor-sbom.json) |
+| **IA-5** · Gestión de autenticadores | [`aplicacion-secreto-montado`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-secreto-montado.json), [`bitacoras-sin-secreto`](documentacion/informes/revisiones-seguridad/2026-11-23/bitacoras-sin-secreto.json), [`git-archivos-privados`](documentacion/informes/revisiones-seguridad/2026-11-23/git-archivos-privados.json), [`git-checkout-verificacion`](documentacion/informes/revisiones-seguridad/2026-11-23/git-checkout-verificacion.json), [`git-contexto-exclusiones`](documentacion/informes/revisiones-seguridad/2026-11-23/git-contexto-exclusiones.json), [`git-historial-secretos`](documentacion/informes/revisiones-seguridad/2026-11-23/git-historial-secretos.json), [`git-secreto-ignorado`](documentacion/informes/revisiones-seguridad/2026-11-23/git-secreto-ignorado.json), [`http-motor-autenticacion`](documentacion/informes/revisiones-seguridad/2026-11-23/http-motor-autenticacion.json), [`imagen-aplicacion-sin-secreto`](documentacion/informes/revisiones-seguridad/2026-11-23/imagen-aplicacion-sin-secreto.json), [`imagen-motor-sin-secreto`](documentacion/informes/revisiones-seguridad/2026-11-23/imagen-motor-sin-secreto.json), [`modelo-motor-secreto`](documentacion/informes/revisiones-seguridad/2026-11-23/modelo-motor-secreto.json), [`modelo-secreto-archivo`](documentacion/informes/revisiones-seguridad/2026-11-23/modelo-secreto-archivo.json), [`modelo-web-secreto`](documentacion/informes/revisiones-seguridad/2026-11-23/modelo-web-secreto.json), [`motor-secreto-montado`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-secreto-montado.json) |
+| **RA-5** · Monitoreo y escaneo de vulnerabilidades | [`imagen-aplicacion-critical`](documentacion/informes/revisiones-seguridad/2026-11-23/imagen-aplicacion-critical.json), [`imagen-aplicacion-high`](documentacion/informes/revisiones-seguridad/2026-11-23/imagen-aplicacion-high.json), [`imagen-motor-critical`](documentacion/informes/revisiones-seguridad/2026-11-23/imagen-motor-critical.json), [`imagen-motor-high`](documentacion/informes/revisiones-seguridad/2026-11-23/imagen-motor-high.json) |
+| **SA-11** · Pruebas y evaluación del desarrollador | [`git-diff`](documentacion/informes/revisiones-seguridad/2026-11-23/git-diff.json), [`git-historial-secretos`](documentacion/informes/revisiones-seguridad/2026-11-23/git-historial-secretos.json), [`http-calculo-r`](documentacion/informes/revisiones-seguridad/2026-11-23/http-calculo-r.json), [`http-csp`](documentacion/informes/revisiones-seguridad/2026-11-23/http-csp.json), [`http-formulario`](documentacion/informes/revisiones-seguridad/2026-11-23/http-formulario.json), [`http-nosniff`](documentacion/informes/revisiones-seguridad/2026-11-23/http-nosniff.json), [`http-sin-cache`](documentacion/informes/revisiones-seguridad/2026-11-23/http-sin-cache.json), [`http-sin-referente`](documentacion/informes/revisiones-seguridad/2026-11-23/http-sin-referente.json) |
+| **SC-39** · Aislamiento de procesos | [`aplicacion-espacios-nombres`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-espacios-nombres.json), [`motor-espacios-nombres`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-espacios-nombres.json) |
+| **SC-5** · Protección contra denegación de servicio | [`aplicacion-limite-cpu`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-limite-cpu.json), [`aplicacion-limite-memoria`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-limite-memoria.json), [`aplicacion-limite-procesos`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-limite-procesos.json), [`motor-limite-cpu`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-limite-cpu.json), [`motor-limite-memoria`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-limite-memoria.json), [`motor-limite-procesos`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-limite-procesos.json) |
+| **SC-7** · Protección de límites | [`aplicacion-red-analisis`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-red-analisis.json), [`modelo-motor-redes`](documentacion/informes/revisiones-seguridad/2026-11-23/modelo-motor-redes.json), [`modelo-motor-sin-puertos`](documentacion/informes/revisiones-seguridad/2026-11-23/modelo-motor-sin-puertos.json), [`modelo-red-bridge`](documentacion/informes/revisiones-seguridad/2026-11-23/modelo-red-bridge.json), [`modelo-red-interna`](documentacion/informes/revisiones-seguridad/2026-11-23/modelo-red-interna.json), [`modelo-web-loopback`](documentacion/informes/revisiones-seguridad/2026-11-23/modelo-web-loopback.json), [`modelo-web-redes`](documentacion/informes/revisiones-seguridad/2026-11-23/modelo-web-redes.json), [`motor-red-analisis`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-red-analisis.json), [`red-inspeccion-interna`](documentacion/informes/revisiones-seguridad/2026-11-23/red-inspeccion-interna.json), [`red-miembros-esperados`](documentacion/informes/revisiones-seguridad/2026-11-23/red-miembros-esperados.json) |
+| **SI-11** · Manejo de errores | [`http-404`](documentacion/informes/revisiones-seguridad/2026-11-23/http-404.json) |
+| **SI-4** · Monitoreo del sistema | [`aplicacion-salud`](documentacion/informes/revisiones-seguridad/2026-11-23/aplicacion-salud.json), [`http-disponibilidad`](documentacion/informes/revisiones-seguridad/2026-11-23/http-disponibilidad.json), [`http-vida`](documentacion/informes/revisiones-seguridad/2026-11-23/http-vida.json), [`motor-salud`](documentacion/informes/revisiones-seguridad/2026-11-23/motor-salud.json) |
+| **SI-7** · Integridad de software, firmware e información | [`git-jsonlite-integridad`](documentacion/informes/revisiones-seguridad/2026-11-23/git-jsonlite-integridad.json) |
+| **SR-4** · Procedencia | [`git-acciones-fijadas`](documentacion/informes/revisiones-seguridad/2026-11-23/git-acciones-fijadas.json), [`git-base-python-fijada`](documentacion/informes/revisiones-seguridad/2026-11-23/git-base-python-fijada.json), [`git-bases-declaradas`](documentacion/informes/revisiones-seguridad/2026-11-23/git-bases-declaradas.json) |
+
+### Resultados por fecha
+
+La columna NIST cuenta los JSON que contienen `referencia_nist`. Los informes históricos se presentan como se publicaron. «Sin detalle» indica que el JSON no permite verificar el número de coincidencias del escaneo. La ficha de imagen identifica la ejecución cuando está disponible.
+
+| Fecha y revisión auditada | Correctos / evaluados | JSON con referencia NIST | Web: altas / críticas | Motor: altas / críticas |
+| --- | ---: | ---: | ---: | ---: |
+| [15 de noviembre de 2026](documentacion/informes/revisiones-seguridad/2026-11-15), `dbcafcb` | 72 / 75 | 0 | 54 / 3 | 3 / 0 |
+| [16 de noviembre de 2026](documentacion/informes/revisiones-seguridad/2026-11-16), `295325f` | 74 / 75 | 0 | 0 / 0 | 0 / 0 |
+| [17 de noviembre de 2026](documentacion/informes/revisiones-seguridad/2026-11-17), `7eff1f8` | 75 / 75 | 75 | 0 / 0 | 0 / 0 |
+| [18 de noviembre de 2026](documentacion/informes/revisiones-seguridad/2026-11-18), `17d9ab1` | 75 / 75 | 75 | 0 / 0 | 0 / 0 |
+| [19 de noviembre de 2026](documentacion/informes/revisiones-seguridad/2026-11-19), `f31460e` | 75 / 75 | 75 | 0 / 0 | 0 / 0 |
+| [20 de noviembre de 2026](documentacion/informes/revisiones-seguridad/2026-11-20), `01bde3d` | 74 / 75 | 0 | 0 / 0 | 0 / 0 |
+| [21 de noviembre de 2026](documentacion/informes/revisiones-seguridad/2026-11-21), `c130cad` | 73 / 75 | 0 | 10 / 0 | 0 / 0 |
+| [22 de noviembre de 2026](documentacion/informes/revisiones-seguridad/2026-11-22), `154c56e` | 75 / 75 | 0 | 0 / 0 | 0 / 0 |
+| [23 de noviembre de 2026](documentacion/informes/revisiones-seguridad/2026-11-23), `2e49ce8` | 75 / 75 | 75 | 0 / 0 | 0 / 0 |
 
 El 16 de noviembre, el control [de secretos en el historial de Git](documentacion/informes/revisiones-seguridad/2026-11-16/git-historial-secretos.json) quedó marcado como hallazgo. El registro no identifica una credencial concreta ni documenta el cierre del hallazgo. Es un resultado separado del escaneo de imágenes.
 
@@ -304,6 +358,12 @@ El registro del 16 enlaza los escaneos de [Actions 43863992759](https://github.c
 
 En Windows también quedaron registrados [los controles HTTP del servicio](documentacion/informes/api_seguridad.json), [la consulta NuGet de dependencias directas y transitivas](documentacion/informes/vulnerabilidades.json) y [la revisión de permisos MCP](documentacion/informes/mcp_stdio.json). El registro de NuGet no devolvió paquetes vulnerables para el escritorio en esa consulta; los informes Windows no sustituyen el análisis de capas Linux.
 
+### Remediación y evidencia reciente
+
+- El [informe de remediación](documentacion/remediacion_imagenes.md) documenta la imagen web mínima, la retirada de OpenSSL del runtime HTTP local y la comprobación de SHA-256. La web limita los destinos del motor a la topología local autorizada y evita proxies y redirecciones en esa comunicación.
+- La revisión del historial y de archivos publicables, incluidos comprimidos, usa Gitleaks. Las [excepciones históricas de Jenkins](documentacion/secretos-historial-jenkins.md) se validan por huella individual y corresponden a versiones públicas de plugins. Los informes publicados conservan el estado del control y omiten los valores sensibles.
+- La [corrida del 23 de noviembre](https://github.com/mljuansmoreno/p005Lab/actions/runs/45198362075) verificó Windows, Docker Linux y secretos sobre `2e49ce8`. Los 75 JSON publicados para esa fecha quedaron en `correcto`, con cero coincidencias altas o críticas en ambas imágenes. El perfil exige una base de avisos de hasta 48 horas y conserva la huella del inventario CycloneDX, el identificador de imagen y la ejecución en los controles de escaneo.
+
 ## Evolución de la entrega
 
 | Etapa | Cambios incorporados |
@@ -313,7 +373,8 @@ En Windows también quedaron registrados [los controles HTTP del servicio](docum
 | Demo Docker y GitHub Actions | Dos servicios, puertos y redes separados, sondas de vida y disponibilidad, cálculo cruzado y recuperación. Se añadieron metadatos OCI, verificación de fuentes, huella de revisión, informes por intento y limpieza de recursos. En paralelo se conservó el trabajo nativo de Windows. |
 | Interfaz y seguridad | Tema claro predeterminado, selector de apariencia persistente y ajustes de contraste; formularios, tablas y avisos revisados. Se incorporaron controles de aislamiento, autenticación, publicación de secretos, SBOM y bloqueo por coincidencias altas o críticas. |
 | Jenkins y trazabilidad | Controlador y agente WebSocket, sondeo SCM, runner alojado y autoprueba aislada. Se ampliaron los plazos de arranque y escaneo a partir de fallos observados, se verificó la caché de herramientas y se agregó recuperación de limpieza por proyecto. JUnit, huellas, capturas autenticadas, evidencia de coexistencia y exportación a Word/PDF quedaron vinculados al build y a la revisión. |
-| Revisión de cierre y auditorías | El lote de Jenkins abarcó 84 commits desde `0b0a87d` hasta `295325f`, según la bitácora de cierre y el rango Git. Las revisiones de seguridad por control se registraron aparte. Los commits de este README documentan esa evidencia histórica. |
+| Cierre de Jenkins | El lote histórico de 84 commits llega a `295325f`. La entrega posterior de 155 commits parte de `baed0fb` y cierra en `2e49ce8`. La [trazabilidad y el cierre reproducible](Verificacion_Rubrica.md#trazabilidad-de-los-155-commits) identifican la entrega de 155 commits y sus evidencias. |
+| Auditorías y remediación | Los controles por fecha conservan el SHA evaluado y los estados publicados. La remediación separa los hallazgos históricos, los cambios del runtime y las comprobaciones posteriores. |
 
 Para ver los cambios de Jenkins en orden y abrir cualquier revisión desde el checkout:
 

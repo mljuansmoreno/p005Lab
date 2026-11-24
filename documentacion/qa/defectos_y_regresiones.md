@@ -1,0 +1,13 @@
+# Defectos reproducidos y regresiones
+
+| Caso y revisión | Observación anterior | Reparación y comprobación |
+|---|---|---|
+| QA-004 · `351f167` | Tres pruebas del coordinador fallaban en Windows porque el doble de entorno separaba la configuración de Git de sus valores. | La simulación conserva las variables relacionadas. Se repitió la suite del coordinador y se conservaron las omisiones por plataforma. |
+| QA-041 · `80b3ab1` | Al importar un libro sin catálogo de relaciones, el lector generaba una excepción interna. | El importador devuelve el código de dominio de libro inválido. La regresión construye un XLSX sintético sin ese catálogo. |
+| QA-043 · `569f71a` | Un XLSX truncado propagaba la excepción del lector de archivos comprimidos. | La regresión entrega un archivo truncado al importador y exige el error público de libro inválido. |
+| QA-054 · `65efa5a` | El validador aceptaba un hash de 64 dígitos hexadecimales seguido por un salto de línea. | La comprobación exige que toda la cadena cumpla el contrato. La aserción previa falló al faltar `DATOS_HASH_INVALIDO`. |
+| QA-149 · `c237f8b` | En Chromium el formulario recibió HTTP 403. Con la política anterior, el navegador enviaba un origen nulo en el POST. | El HTML usa `Referrer-Policy: same-origin`. El mismo navegador envió el formulario, obtuvo HTTP 200 y verificó la media de 25/6. |
+| Corrección adicional · `b96d7fc` | La [verificación Windows de QA-150](https://github.com/mljuansmoreno/p005Lab/actions/runs/45226341693) rechazó identificadores nuevos de las pruebas numéricas después de aprobar las 148 comprobaciones. | Se ampliaron dos abreviaturas y se revisaron los nombres del glosario. La [repetición en Windows](https://github.com/mljuansmoreno/p005Lab/actions/runs/45228160699) terminó con éxito. |
+| Corrección adicional · `3c0b9a4` | El [runner Linux de QA-230](https://github.com/mljuansmoreno/p005Lab/actions/runs/45229896192) representó los puertos sin publicar con un diccionario vacío. Docker Desktop los había devuelto con valores nulos. | La prueba verifica el puerto interno declarado, la ausencia de enlaces al host y la salida real de `docker port`. Las 24 pruebas Compose de la [repetición en Linux](https://github.com/mljuansmoreno/p005Lab/actions/runs/45231440353) aprobaron. |
+
+Las revisiones anteriores se consultan con `git show <revisión>`. Los registros previos y posteriores a la corrección se conservan localmente en `salidas/qa/`. Las pruebas están en el [arnés .NET](../../pruebas/RutaEstadistica.PruebasUnitarias/Program.cs), la [suite del coordinador](../../pruebas/ci) y la [suite de navegador](../../pruebas/navegador/test_navegador_web.py).

@@ -69,6 +69,8 @@ with crear_temporal() as temporal:
     try:
         inicio = time.monotonic()
         while True:
+            if proceso.poll() is not None:
+                raise RuntimeError(f'API_TERMINADA_ANTES_DE_SALUD: código {proceso.returncode}')
             try:
                 if consultar('/salud', {})[0] == 403:
                     break

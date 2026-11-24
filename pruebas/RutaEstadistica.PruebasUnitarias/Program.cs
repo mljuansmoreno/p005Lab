@@ -6,12 +6,173 @@ using RutaEstadistica.Infraestructura;
 using RutaEstadistica.Aplicacion;
 
 Console.OutputEncoding = new System.Text.UTF8Encoding(false);
+if (args is ["--medir-csv"])
+{
+    var carpeta = Directory.CreateTempSubdirectory("ruta_qa_csv_");
+    try
+    {
+        var archivo = Path.Combine(carpeta.FullName, "muestra.csv");
+        await File.WriteAllLinesAsync(archivo, Enumerable.Range(0, 10001).Select(i => i == 0 ? "valor" : i.ToString()));
+        var tiempos = new List<double>();
+        for (int repeticion = 0; repeticion <= 30; repeticion++)
+        {
+            var reloj = System.Diagnostics.Stopwatch.StartNew();
+            var datos = await ImportadorDatos.ImportarAsync(archivo, new());
+            reloj.Stop();
+            if (datos.Filas.Count != 10000 || datos.Filas[^1][0] != "10000")
+                throw new InvalidDataException("La importación medida no conservó las filas.");
+            if (repeticion > 0) tiempos.Add(reloj.Elapsed.TotalMilliseconds);
+        }
+        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new { filas = 10000, unidad = "ms", muestras = tiempos }));
+    }
+    finally { carpeta.Delete(true); }
+    return;
+}
 var verificadas = 0;
 void Verificar(bool condicion, string descripcion) { if (!condicion) throw new Exception("FALLO: " + descripcion); Console.WriteLine("VERIFICADO: " + descripcion); verificadas++; }
 void Rechazar(Action accion, string codigo) { try { accion(); throw new Exception("No se rechazó " + codigo); } catch (ErrorAplicacion error) { Verificar(error.Codigo == codigo, codigo); } }
 var temporal = Path.Combine(Path.GetTempPath(), "ruta_pruebas_" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(temporal);
 try
 {
+    async Task<ConjuntoDatos> ImportarMuestra(string contenido, OpcionesImportacion? opciones = null)
+    {
+        var archivo = Path.Combine(temporal, "muestra.csv");
+        await File.WriteAllTextAsync(archivo, contenido, new UTF8Encoding(false));
+        return await ImportadorDatos.ImportarAsync(archivo, opciones ?? new());
+    }
+    {
+        var muestra = await ImportarMuestra("Ciudad;Región\nBogotá;Nariño\nQuibdó;Chocó\n");
+        Verificar(muestra.Filas[1].SequenceEqual(["Quibdó", "Chocó"]) && muestra.Columnas[1].Etiqueta == "Región", "CSV UTF-8 preserva etiquetas y valores con tildes");
+    }
+    {
+        var muestra = await ImportarMuestra("\uFEFFCiudad\nSan\uFEFFAndrés\n");
+        Verificar(muestra.Columnas[0].Etiqueta == "Ciudad" && muestra.Filas.Single()[0] == "San\uFEFFAndrés", "El BOM inicial no elimina caracteres interiores");
+    }
+    {
+        foreach (var separador in new[] { ',', ';', '\t' })
+        {
+            var muestra = await ImportarMuestra($"Nombre{separador}Texto\nA{separador}\"B{separador}C\"\n", new(Separador: separador));
+            Verificar(muestra.Filas.Single().SequenceEqual(["A", $"B{separador}C"]), "El separador explícito respeta el campo entre comillas");
+        }
+    }
+    {
+        var muestra = await ImportarMuestra("Nombre\n\"Ana \"\"Luz\"\"\"\n");
+        var recuperadas = ImportadorDatos.LeerDelimitado(ImportadorDatos.CsvNormalizado(muestra), ',');
+        Verificar(recuperadas[1].Single() == "Ana \"Luz\"", "Las comillas dobles sobreviven a la normalización");
+    }
+    {
+        var muestra = await ImportarMuestra("Texto\r\n\"a\r\nb\"\n\"c\nd\"");
+        Verificar(muestra.Filas.Select(f => f[0]).SequenceEqual(["a\r\nb", "c\nd"]), "CSV conserva saltos internos con terminadores mixtos");
+    }
+    {
+        foreach (var fila in new[] { "uno", "uno;dos;tres" })
+        {
+            try { await ImportarMuestra("A;B\n" + fila); throw new Exception("Fila desigual admitida"); }
+            catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_DIMENSIONES_INVALIDAS", "Las dimensiones inválidas tienen un código estable"); }
+        }
+    }
+    {
+        var muestra = await ImportarMuestra("A;B;C\n;NA;sin dato\n", new(MarcadorFaltante: "sin dato"));
+        Verificar(muestra.Filas.Single().SequenceEqual(["", "NA", ""]), "Sólo el marcador configurado se convierte en ausente");
+    }
+    {
+        const string codigoLargo = "00009007199254740993";
+        var muestra = await ImportarMuestra("Código\n" + codigoLargo);
+        var confirmada = ImportadorDatos.ConfirmarRoles(muestra, new Dictionary<string, string> { ["c001"] = "identificador" }, new());
+        Verificar(confirmada.Filas.Single()[0] == codigoLargo, "Un identificador largo conserva todos sus dígitos");
+    }
+    {
+        var muestra = await ImportarMuestra("Valor\n-1.234,5E-1\n");
+        var confirmada = ImportadorDatos.ConfirmarRoles(muestra, new Dictionary<string, string> { ["c001"] = "numerica" }, new(Miles: '.'));
+        Verificar(confirmada.Filas.Single()[0] == "-123.45" && muestra.Filas.Single()[0] == "-1.234,5E-1", "Conversión con miles y exponente conserva el original");
+    }
+    {
+        var muestra = await ImportarMuestra("Valor\n1,234.50");
+        Rechazar(() => ImportadorDatos.ConfirmarRoles(muestra, new Dictionary<string, string> { ["c001"] = "numerica" }, new(Decimal: '.')), "DATOS_NUMERO_INVALIDO");
+    }
+    {
+        foreach (var valor in new[] { "NaN", "Infinity", "-Infinity", "1E999" })
+        {
+            var muestra = await ImportarMuestra("Valor\n" + valor);
+            Rechazar(() => ImportadorDatos.ConfirmarRoles(muestra, new Dictionary<string, string> { ["c001"] = "numerica" }, new()), "DATOS_NUMERO_INVALIDO");
+        }
+    }
+    {
+        var muestra = await ImportarMuestra("Monto;Monto\n10;20");
+        Verificar(muestra.Columnas.Select(c => c.Id).SequenceEqual(["c001", "c002"])
+            && muestra.Columnas.All(c => c.Etiqueta == "Monto") && muestra.Filas.Single().SequenceEqual(["10", "20"]), "Encabezados homónimos conservan identidad y orden");
+    }
+    {
+        var columnas = string.Join(';', Enumerable.Range(1, 200));
+        var muestra = await ImportarMuestra(columnas + "\n" + columnas);
+        Verificar(muestra.Columnas.Count == 200 && muestra.Filas.Single()[199] == "200", "CSV de doscientas columnas conserva la última");
+        try { await ImportarMuestra(columnas + ";extra\n"); throw new Exception("Se aceptaron 201 columnas"); }
+        catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_LIMITE_EXCEDIDO", "CSV rechaza la columna 201"); }
+    }
+    {
+        var variante = Path.Combine(temporal, "umbral.bin");
+        using (var salida = File.Create(variante)) salida.SetLength(ImportadorDatos.LimiteBytes);
+        try { await ImportadorDatos.ImportarAsync(variante, new()); throw new Exception("Formato desconocido admitido"); }
+        catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_FORMATO_NO_ADMITIDO", "El tamaño máximo inclusivo alcanza la validación de formato"); }
+        using (var salida = File.OpenWrite(variante)) salida.SetLength(ImportadorDatos.LimiteBytes + 1);
+        try { await ImportadorDatos.ImportarAsync(variante, new()); throw new Exception("Exceso de tamaño admitido"); }
+        catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_LIMITE_EXCEDIDO", "Un byte sobre el límite rechaza la carga"); }
+    }
+    {
+        const string valor = " -12";
+        var ordinario = ImportadorDatos.LeerDelimitado(ImportadorDatos.EscaparCsv(valor), ',');
+        var seguro = ImportadorDatos.LeerDelimitado(ImportadorDatos.EscaparCsv(valor, true), ',');
+        Verificar(ordinario.Single()[0] == valor && seguro.Single()[0] == "'" + valor, "CSV distingue representación de cálculo y apertura en hoja");
+    }
+    {
+        var variante = Path.Combine(temporal, "cancelada.csv");
+        await File.WriteAllTextAsync(variante, "Dato\n1\n");
+        using var cancelacion = new CancellationTokenSource();
+        cancelacion.Cancel();
+        try { await ImportadorDatos.ImportarAsync(variante, new(), cancelacion: cancelacion.Token); throw new Exception("Lectura cancelada aceptada"); }
+        catch (OperationCanceledException)
+        {
+            using var exclusivo = new FileStream(variante, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+            Verificar(exclusivo.Length > 0, "La cancelación libera el archivo original para un acceso exclusivo");
+        }
+    }
+    {
+        var muestra = await ImportarMuestra("Grupo;Valor\n01;01\n");
+        var confirmada = ImportadorDatos.ConfirmarRoles(muestra, new Dictionary<string, string> { ["c001"] = "categorica", ["c002"] = "numerica" }, new());
+        Verificar(confirmada.Filas.Single().SequenceEqual(["01", "1"]) && confirmada.Columnas[0].Rol == "categorica", "El mismo literal conserva semánticas distintas por rol");
+    }
+    {
+        const string privado = "valor sintetico reservado";
+        var muestra = await ImportarMuestra("Dato\n" + privado);
+        try { ImportadorDatos.ConfirmarRoles(muestra, new Dictionary<string,string> { ["c001"] = "numerica" }, new()); throw new Exception("Texto numérico admitido"); }
+        catch (ErrorAplicacion error) { Verificar(error.Message == "DATOS_NUMERO_INVALIDO" && !error.Message.Contains(privado), "El diagnóstico no incluye el valor de la fila"); }
+    }
+    {
+        var estado = new EstadoTrabajoMotor("trabajo", "proyecto", "completado", null);
+        var json = System.Text.Json.JsonSerializer.SerializeToElement(estado, Serializacion.Opciones);
+        Verificar(json.GetProperty("codigo_error").ValueKind == System.Text.Json.JsonValueKind.Null, "El diagnóstico ausente es null en JSON");
+    }
+    {
+        var json = System.Text.Json.JsonSerializer.SerializeToElement(new DatosMotor("dato", new string('a', 64), 2, 3), Serializacion.Opciones);
+        var claves = json.EnumerateObject().Select(propiedad => propiedad.Name).ToHashSet();
+        Verificar(claves.SetEquals(["datos_id", "hash_datos", "filas", "columnas"]), "La carga conserva los nombres públicos en snake_case");
+    }
+    {
+        var origen = Path.Combine(temporal, "fuente_html");
+        Directory.CreateDirectory(origen);
+        foreach (var nombre in new[] { "entrada.csv", "solicitud.json", "figura.png" }) File.WriteAllBytes(Path.Combine(origen, nombre), []);
+        File.WriteAllText(Path.Combine(origen, "resultado.json"), """{"interpretacion":"A < B & C","cifras":{},"tablas":[]}""");
+        var destino = Path.Combine(temporal, "salida_html");
+        Exportador.Exportar(origen, destino, false);
+        var informe = File.ReadAllText(Path.Combine(destino, "informe.html"));
+        Verificar(informe.Contains("A &lt; B &amp; C") && !informe.Contains("A < B & C"), "La interpretación se presenta como texto en el informe HTML");
+    }
+    {
+        using var cancelacionCsv = new CancellationTokenSource();
+        cancelacionCsv.Cancel();
+        try { ImportadorDatos.LeerDelimitado("a,b\n1,2\n", ',', cancelacionCsv.Token); throw new Exception("Cancelación ignorada"); }
+        catch (OperationCanceledException error) { Verificar(error.CancellationToken == cancelacionCsv.Token, "El parser propaga el token que solicitó la cancelación"); }
+    }
     var filas = ImportadorDatos.LeerDelimitado("nombre;valor\r\n\"José; Díaz\";\"1,5\"\r\n\"dos\nlineas\";2\r\n", ';');
     Verificar(filas.Count == 3 && filas[1][0] == "José; Díaz" && filas[2][0].Contains('\n'), "CSV conserva Unicode, comillas y saltos internos");
     Rechazar(() => ImportadorDatos.LeerDelimitado("a;\"sin cerrar", ';'), "DATOS_CSV_INVALIDO");
@@ -34,6 +195,60 @@ try
         foreach (var parte in partes) { using var escritor = new StreamWriter(archivo.CreateEntry(parte.Key).Open()); escritor.Write(parte.Value); }
     }
     Verificar(ImportadorDatos.ListarHojas(await File.ReadAllBytesAsync(libro)).SequenceEqual(["Mediciones"]), "XLSX enumera hojas sin ejecutar contenido");
+    {
+        try { await ImportadorDatos.ImportarAsync(libro, new(), "Ausente"); throw new Exception("Hoja inexistente admitida"); }
+        catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_HOJA_INVALIDA", "XLSX exige la hoja nombrada"); }
+    }
+    const string EspacioHoja = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+    static void CambiarParte(ZipArchive archivo, string nombre, string contenido)
+    {
+        archivo.GetEntry(nombre)?.Delete();
+        using var escritor = new StreamWriter(archivo.CreateEntry(nombre).Open());
+        escritor.Write(contenido);
+    }
+    {
+        var variante = Path.Combine(temporal, "compartidas.xlsx");
+        File.Copy(libro, variante);
+        using (var archivo = ZipFile.Open(variante, ZipArchiveMode.Update))
+        {
+            CambiarParte(archivo, "xl/sharedStrings.xml", $"<sst xmlns='{EspacioHoja}'><si><r><t>Medici</t></r><r><t>ón</t></r></si></sst>");
+            CambiarParte(archivo, "xl/worksheets/sheet1.xml", $"<worksheet xmlns='{EspacioHoja}'><sheetData><row><c r='A1' t='s'><v>0</v></c></row><row><c r='A2'><v>3</v></c></row></sheetData></worksheet>");
+        }
+        var muestra = await ImportadorDatos.ImportarAsync(variante, new(), "Mediciones");
+        Verificar(muestra.Columnas.Single().Etiqueta == "Medición" && muestra.Filas.Single()[0] == "3", "XLSX concatena fragmentos enriquecidos en orden");
+    }
+    {
+        var variante = Path.Combine(temporal, "mixta.xlsx");
+        File.Copy(libro, variante);
+        using (var archivo = ZipFile.Open(variante, ZipArchiveMode.Update))
+            CambiarParte(archivo, "xl/worksheets/sheet1.xml", $"<worksheet xmlns='{EspacioHoja}'><sheetData><row><c r='A1' t='inlineStr'><is><t>Dato</t></is></c></row><row><c r='A2'><v>42</v></c></row><row><c r='A3' t='inlineStr'><is><t>sin medir</t></is></c></row></sheetData></worksheet>");
+        var muestra = await ImportadorDatos.ImportarAsync(variante, new(), "Mediciones");
+        Verificar(muestra.Filas.Select(f => f[0]).SequenceEqual(["42", "sin medir"]) && muestra.Columnas[0].Rol == "texto", "XLSX no infiere un rol numérico por la primera observación");
+    }
+    {
+        var variante = Path.Combine(temporal, "sin_relaciones.xlsx");
+        File.Copy(libro, variante);
+        using (var archivo = ZipFile.Open(variante, ZipArchiveMode.Update))
+            archivo.GetEntry("xl/_rels/workbook.xml.rels")!.Delete();
+        try { await ImportadorDatos.ImportarAsync(variante, new(), "Mediciones"); throw new Exception("Libro sin relaciones admitido"); }
+        catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_LIBRO_INVALIDO", "XLSX sin relaciones devuelve un error de dominio"); }
+    }
+    {
+        var variante = Path.Combine(temporal, "entradas.xlsx");
+        File.Copy(libro, variante);
+        using (var archivo = ZipFile.Open(variante, ZipArchiveMode.Update))
+            for (var indice = archivo.Entries.Count; indice < 1000; indice++) archivo.CreateEntry($"hoja_auxiliar_{indice}");
+        Verificar(ImportadorDatos.ListarHojas(await File.ReadAllBytesAsync(variante)).Single() == "Mediciones", "El límite de mil entradas es inclusivo");
+        using (var archivo = ZipFile.Open(variante, ZipArchiveMode.Update)) archivo.CreateEntry("una_mas");
+        var contenido = await File.ReadAllBytesAsync(variante);
+        Rechazar(() => ImportadorDatos.ListarHojas(contenido), "DATOS_LIBRO_INVALIDO");
+    }
+    {
+        var variante = Path.Combine(temporal, "truncado.xlsx");
+        await File.WriteAllBytesAsync(variante, (await File.ReadAllBytesAsync(libro))[..12]);
+        try { await ImportadorDatos.ImportarAsync(variante, new(), "Mediciones"); throw new Exception("Libro truncado admitido"); }
+        catch (ErrorAplicacion error) { Verificar(error.Codigo == "DATOS_LIBRO_INVALIDO", "XLSX incompleto devuelve diagnóstico estable"); }
+    }
     var datosLibro = await ImportadorDatos.ImportarAsync(libro, new(), "Mediciones");
     Verificar(datosLibro.Filas[0][0] == "001" && datosLibro.Filas[0][1] == "2.5", "XLSX conserva texto y valores originales");
     try { await ImportadorDatos.ImportarAsync(libro, new()); throw new Exception("Hoja no confirmada aceptada"); }
@@ -77,6 +292,52 @@ try
     Verificar(conFilaVacia.Filas.Count == 2 && conFilaVacia.Filas[0][0] == "" && conFilaVacia.Filas[1][0] == "3", "XLSX conserva filas vacías explícitas para revisar sus faltantes sin excluirlas automáticamente");
     var repositorio = new RepositorioProyectos(Path.Combine(temporal, "proyectos")); var proyecto = repositorio.Crear("Prueba con tildes á"); repositorio.GuardarDatos(proyecto.Id, preparados, original);
     Verificar(new RepositorioProyectos(repositorio.Raiz).LeerDatos(proyecto.Id)!.Filas[0][0] == "001", "SQLite y datos se reabren sin pérdida");
+    {
+        var editado = proyecto with { Pregunta = "¿Cambió la media?", Contexto = "Mediciones pareadas" };
+        repositorio.Guardar(editado);
+        var recuperado = new RepositorioProyectos(repositorio.Raiz).Listar().Single(p => p.Id == proyecto.Id);
+        Verificar(recuperado.Pregunta == editado.Pregunta && recuperado.Contexto == editado.Contexto && recuperado.Nombre == proyecto.Nombre, "Los metadatos de investigación persisten");
+        repositorio.Guardar(proyecto);
+    }
+    {
+        var destino = Path.Combine(temporal, "destino_ocupado");
+        Directory.CreateDirectory(destino);
+        try { RepositorioProyectos.EscribirAtomico(destino, "contenido"); throw new Exception("Reemplazo de directorio aceptado"); }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+            Verificar(Directory.Exists(destino) && !Directory.EnumerateFiles(temporal, "destino_ocupado.*.tmp").Any(), "Una escritura fallida conserva el directorio y retira el temporal");
+        }
+    }
+    {
+        var alterado = original.ToArray();
+        alterado[^1] ^= 1;
+        Rechazar(() => repositorio.GuardarDatos(proyecto.Id, preparados, alterado), "DATOS_HASH_INVALIDO");
+        var recuperado = repositorio.LeerDatos(proyecto.Id)!;
+        Verificar(recuperado.HashOriginal == preparados.HashOriginal && recuperado.Filas.Count == preparados.Filas.Count, "Una carga rechazada conserva los datos previos");
+    }
+    {
+        var auxiliar = Path.Combine(proyecto.Directorio, "pendiente.tmp");
+        File.WriteAllText(auxiliar, "borrador");
+        var paquete = Path.Combine(temporal, "sin_temporales.rutaestadistica");
+        repositorio.ExportarProyecto(proyecto.Id, paquete);
+        using var archivo = ZipFile.OpenRead(paquete);
+        var nombres = archivo.Entries.Select(entrada => entrada.FullName).ToHashSet();
+        Verificar(nombres.SetEquals(["proyecto.json", "datos.json", "datos.csv", "original_" + preparados.HashOriginal + ".csv", "manifiesto.json"]), "El paquete mínimo contiene sólo las cinco entradas previstas");
+        File.Delete(auxiliar);
+    }
+    {
+        var paquete = Path.Combine(temporal, "duplicadas.rutaestadistica");
+        using (var archivo = ZipFile.Open(paquete, ZipArchiveMode.Create)) { archivo.CreateEntry("datos.csv"); archivo.CreateEntry("DATOS.csv"); }
+        var anteriores = repositorio.Listar().Count;
+        Rechazar(() => repositorio.ImportarProyecto(paquete), "PROYECTO_ARCHIVO_INSEGURO");
+        Verificar(repositorio.Listar().Count == anteriores, "Un paquete ambiguo no crea un proyecto parcial");
+    }
+    {
+        var paquete = Path.Combine(temporal, "cantidad.rutaestadistica");
+        using (var archivo = ZipFile.Open(paquete, ZipArchiveMode.Create))
+            for (var indice = 0; indice <= 2000; indice++) archivo.CreateEntry($"{indice}.csv");
+        Rechazar(() => repositorio.ImportarProyecto(paquete), "PROYECTO_ARCHIVO_INSEGURO");
+    }
     var portatil = Path.Combine(temporal, "exportado.rutaestadistica"); repositorio.ExportarProyecto(proyecto.Id, portatil); var copia = repositorio.ImportarProyecto(portatil);
     Verificar(copia.Id != proyecto.Id && repositorio.LeerDatos(copia.Id)!.HashOriginal == datos.HashOriginal, "Archivo portátil valida hashes y crea identidad nueva");
     var malicioso = Path.Combine(temporal, "malicioso.zip"); using (var archivo = ZipFile.Open(malicioso, ZipArchiveMode.Create)) { using var escritor = new StreamWriter(archivo.CreateEntry("../escape.json").Open()); escritor.Write("{}"); }
@@ -90,6 +351,14 @@ try
         try { await intermediario.AtenderAsync(new("listar_proyectos_autorizados")); throw new Exception("MCP habilitado por omisión"); }
         catch (ErrorAplicacion error) { Verificar(error.Codigo == "MCP_DESHABILITADO", "MCP deshabilitado inicialmente"); }
         intermediario.Conceder(new(proyecto.Id, true, false, false, false)); intermediario.Activar();
+    {
+        try { await intermediario.AtenderAsync(new("no_catalogada", proyecto.Id)); throw new Exception("Herramienta desconocida admitida"); }
+        catch (ErrorAplicacion error) { Verificar(error.Codigo == "MCP_HERRAMIENTA_NO_ADMITIDA", "Una herramienta inexistente produce error estable"); }
+    }
+    {
+        try { await intermediario.AtenderAsync(new("consultar_trabajo", proyecto.Id)); throw new Exception("Consulta sin trabajo admitida"); }
+        catch (ErrorAplicacion error) { Verificar(error.Codigo == "MCP_PERMISO_DENEGADO", "MCP exige un trabajo autorizado para consultar su estado"); }
+    }
         var autorizado = await intermediario.AtenderAsync(new("obtener_resumen_datos", proyecto.Id));
         Verificar(System.Text.Json.JsonSerializer.Serialize(autorizado).Contains("filas"), "MCP permite resumen autorizado");
         try { await intermediario.AtenderAsync(new("obtener_resumen_datos", Guid.NewGuid().ToString("N"))); throw new Exception("Se filtró proyecto ajeno"); }
@@ -116,6 +385,40 @@ try
         try { await intermediario.AtenderAsync(new("obtener_resumen_datos", proyecto.Id)); throw new Exception("Revocación ignorada"); }
         catch (ErrorAplicacion error) { Verificar(error.Codigo == "MCP_DESHABILITADO", "Revocación MCP es inmediata"); }
     }
+    var reloj = new RelojPrueba();
+    await using (var almacen = new GestorTrabajosMotor(new MotorEsperaControlada(), temporal, reloj))
+    {
+        var carga = new CargaDatosMotor(proyecto.Id, "c001\n1\n");
+        var inicial = almacen.Cargar(carga);
+        {
+            var solicitudCarga = new CargaDatosMotor(proyecto.Id, "c001\n2\n");
+            var vigente = almacen.Cargar(solicitudCarga);
+            reloj.Avanzar(TimeSpan.FromMinutes(15));
+            Verificar(almacen.Cargar(solicitudCarga).DatosId == vigente.DatosId, "La carga a los quince minutos exactos renueva el plazo");
+            reloj.Avanzar(TimeSpan.FromMinutes(14));
+            Verificar(almacen.Cargar(solicitudCarga).DatosId == vigente.DatosId, "Una recarga reciente conserva la misma revisión");
+        }
+        {
+            var csvPrueba = "c001\n4\n6\n";
+            var datosPrueba = almacen.Cargar(new(proyecto.Id, csvPrueba));
+            var peticionPrueba = new SolicitudAnalisis(1, Guid.NewGuid().ToString("N"), proyecto.Id, datosPrueba.HashDatos, datosPrueba.HashDatos, "descriptivo", ["c001"]);
+            var admitido = almacen.Encolar(new(datosPrueba.DatosId, peticionPrueba));
+            almacen.Cancelar(admitido.TrabajoId, proyecto.Id);
+            var limiteReal = System.Diagnostics.Stopwatch.StartNew();
+            var depurado = false;
+            while (limiteReal.Elapsed < TimeSpan.FromSeconds(5) && !depurado)
+            {
+                reloj.Avanzar(TimeSpan.FromMinutes(16));
+                almacen.Cargar(new(proyecto.Id, csvPrueba));
+                try { almacen.Consultar(admitido.TrabajoId, proyecto.Id); }
+                catch (ErrorAplicacion error) when (error.Codigo == "TRABAJO_NO_ENCONTRADO") { depurado = true; }
+                if (!depurado) await Task.Delay(10);
+            }
+            Verificar(depurado, "La depuración retira un trabajo cancelado una vez finalizada la tarea");
+        }
+        reloj.Avanzar(TimeSpan.FromMinutes(16));
+        Verificar(almacen.Cargar(carga).DatosId != inicial.DatosId, "Una carga inactiva caduca al superar quince minutos");
+    }
     await using (var gestor = new GestorTrabajosMotor(new MotorEsperaControlada(), temporal))
     {
         var csv = ImportadorDatos.CsvNormalizado(preparados); var hash = ImportadorDatos.Hash(Encoding.UTF8.GetBytes(csv));
@@ -123,6 +426,68 @@ try
         Verificar(carga.HashDatos == hash && carga.Filas == 3, "Carga de API registra revisión y recuentos sin truncar");
         Verificar(gestor.Cargar(new(proyecto.Id, csv)).DatosId == carga.DatosId, "Recalcular sobre la misma revisión reutiliza la carga sin agotar el almacén");
         var solicitud = new SolicitudAnalisis(1, Guid.NewGuid().ToString("N"), proyecto.Id, hash, hash, "descriptivo", ["c002"], PoliticaFaltantes: "excluir_confirmados");
+    {
+        foreach (var version in new[] { 0, 2, int.MaxValue })
+            Rechazar(() => Validacion.Validar(solicitud with { VersionContrato = version }, preparados), "CONTRATO_VERSION_NO_ADMITIDA");
+    }
+    {
+        Validacion.Validar(solicitud with { ProyectoId = new string('p', 64) }, preparados);
+        foreach (var id in new[] { "", " ", new string('p', 65) })
+            Rechazar(() => Validacion.Validar(solicitud with { ProyectoId = id }, preparados), "CONTRATO_SOLICITUD_INVALIDA");
+    }
+    {
+        Validacion.Validar(solicitud with { SolicitudId = new string('s', 64) }, preparados);
+        foreach (var id in new[] { "", "\t", new string('s', 65) })
+            Rechazar(() => Validacion.Validar(solicitud with { SolicitudId = id }, preparados), "CONTRATO_SOLICITUD_INVALIDA");
+    }
+    {
+        foreach (var valor in new[] { hash[..63], hash + "0", new string('g', 64), hash + "\n" })
+            Rechazar(() => Validacion.Validar(solicitud with { HashDatos = valor }, preparados), "DATOS_HASH_INVALIDO");
+    }
+    {
+        var otraPreparacion = new string('b', 64);
+        Validacion.Validar(solicitud with { HashPreparacion = otraPreparacion }, preparados);
+        foreach (var valor in new[] { otraPreparacion.ToUpperInvariant(), otraPreparacion + "\n", "" })
+            Rechazar(() => Validacion.Validar(solicitud with { HashPreparacion = valor }, preparados), "DATOS_HASH_INVALIDO");
+    }
+    {
+        foreach (var tipo in new[] { "Welch", "pearson ", "regresion", "" })
+            Rechazar(() => Validacion.Validar(solicitud with { Tipo = tipo }, preparados), "ANALISIS_NO_ADMITIDO");
+    }
+    {
+        foreach (var tipo in Validacion.Tipos)
+        {
+            var univariada = tipo is "descriptivo" or "cuestionario";
+            var valida = solicitud with { Tipo = tipo, PareamientoConfirmado = true, Columnas = univariada ? ["c002"] : ["c001", "c002"] };
+            Validacion.Validar(valida, preparados);
+            Rechazar(() => Validacion.Validar(valida with { Columnas = univariada ? ["c001", "c002"] : ["c002"] }, preparados), "DATOS_COLUMNA_INVALIDA");
+            if (!univariada) Rechazar(() => Validacion.Validar(valida with { Columnas = ["c002", "c002"] }, preparados), "DATOS_COLUMNA_INVALIDA");
+        }
+    }
+    {
+        foreach (var confianza in new[] { .8, .99 })
+            Validacion.Validar(solicitud with { Confianza = confianza }, preparados);
+        foreach (var confianza in new[] { Math.BitDecrement(.8), Math.BitIncrement(.99), double.NaN })
+            Rechazar(() => Validacion.Validar(solicitud with { Confianza = confianza }, preparados), "ANALISIS_OPCION_INVALIDA");
+    }
+    {
+        foreach (var politica in new[] { "rechazar", "excluir_confirmados" })
+            Validacion.Validar(solicitud with { PoliticaFaltantes = politica }, preparados);
+        foreach (var politica in new[] { "", "excluir", "imputar" })
+            Rechazar(() => Validacion.Validar(solicitud with { PoliticaFaltantes = politica }, preparados), "ANALISIS_OPCION_INVALIDA");
+    }
+    {
+        var opciones = Serializacion.Opciones;
+        var objeto = System.Text.Json.JsonSerializer.SerializeToNode(solicitud with { InferenciaConfirmada = true }, opciones)!.AsObject();
+        objeto.Remove("inferencia_confirmada");
+        var leida = System.Text.Json.JsonSerializer.Deserialize<SolicitudAnalisis>(objeto.ToJsonString(), opciones)!;
+        Verificar(!leida.InferenciaConfirmada, "Una solicitud sin consentimiento explícito mantiene la inferencia desactivada");
+    }
+    {
+        var pares = solicitud with { Tipo = "pareado", Columnas = ["c001", "c002"], InferenciaConfirmada = true };
+        Rechazar(() => Validacion.Validar(pares with { PareamientoConfirmado = false }, preparados), "ANALISIS_PAREAMIENTO_NO_CONFIRMADO");
+        Validacion.Validar(pares with { PareamientoConfirmado = true, InferenciaConfirmada = false }, preparados);
+    }
         var primero = gestor.Encolar(new(carga.DatosId, solicitud));
         var plazoInicio = DateTimeOffset.UtcNow.AddSeconds(10);
         while (gestor.Consultar(primero.TrabajoId, proyecto.Id).Estado == "pendiente" && DateTimeOffset.UtcNow < plazoInicio) await Task.Delay(10);
@@ -151,6 +516,20 @@ try
         var idHistorial = Guid.NewGuid().ToString("N");
         var trabajo = Path.Combine(proyecto.Directorio, "trabajo_" + idHistorial);
         var resultado = await new MotorRLocal(Path.GetFullPath(args[0])).EjecutarAsync(solicitud, csv, trabajo, CancellationToken.None);
+    {
+        var contenido = resultado.Contenido;
+        Verificar(contenido.GetProperty("solicitud_id").GetString() == solicitud.SolicitudId
+            && contenido.GetProperty("proyecto_id").GetString() == solicitud.ProyectoId
+            && contenido.GetProperty("hash_preparacion").GetString() == solicitud.HashPreparacion
+            && contenido.GetProperty("hash_datos").GetString() == solicitud.HashDatos, "El resultado conserva la procedencia de la solicitud");
+    }
+    {
+        var imagen = await File.ReadAllBytesAsync(Path.Combine(trabajo, "figura.png"));
+        Verificar(imagen.AsSpan(0, 8).SequenceEqual(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 })
+            && Encoding.ASCII.GetString(imagen, 12, 4) == "IHDR"
+            && System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(imagen.AsSpan(16, 4)) == 1400
+            && System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(imagen.AsSpan(20, 4)) == 900, "PNG del trabajador declara sus dimensiones reales");
+    }
         Verificar(resultado.Contenido.GetProperty("cifras").GetProperty("media").GetDouble() == 2, "Trabajador R real devuelve media conocida con exclusión");
         Verificar(PresentacionResultados.Cifras(resultado).Any(fila => fila.Indicador == "Media" && fila.Valor == "2"), "Tabla nativa presenta la media calculada por R");
         Verificar(PresentacionResultados.Frecuencias(resultado).Count == 0, "Una ruta numérica no inventa frecuencias categóricas");
@@ -194,4 +573,11 @@ sealed class MotorEsperaControlada : IMotorAnalisis
         await Task.Delay(Timeout.Infinite, cancelacion);
         throw new ErrorAplicacion("MOTOR_CALCULO_FALLIDO");
     }
+}
+
+sealed class RelojPrueba : TimeProvider
+{
+    private DateTimeOffset instante = DateTimeOffset.UnixEpoch;
+    public override DateTimeOffset GetUtcNow() => instante;
+    public void Avanzar(TimeSpan intervalo) => instante += intervalo;
 }

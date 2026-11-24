@@ -1,5 +1,7 @@
 # Pruebas y calidad
 
+El [plan de 250 controles](qa/plan_250_commits.md) enumera los criterios de aceptación. La [línea base](qa/linea_base.md) registra las primeras ejecuciones. Consulte la [matriz numérica](qa/matriz_trazabilidad.md) para identificar el oráculo de cada familia y la [guía de ejecución](qa/ejecucion_y_mantenimiento.md) para repetir las suites.
+
 ## Apariencia del escritorio
 
 En Windows, abre la aplicación en un perfil sin preferencia de tema y comprueba el fondo claro y el selector. Desde **Apariencia**, selecciona **Oscuro** y **Según Windows**, vuelve a **Claro** y confirma que cada cambio actualiza la ventana. Cierra y vuelve a abrir para comprobar la selección guardada. Revisa la barra de título, el cuadro de eliminación y las tablas con un cálculo de ejemplo. Activa temporalmente un tema de contraste de Windows y comprueba que el texto, el foco y los controles se distingan antes de volver a tu configuración habitual.

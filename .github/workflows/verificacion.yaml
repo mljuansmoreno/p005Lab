@@ -18,12 +18,42 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Probar validación del detector y excepciones
+      - name: Verificar inventario QA antes de las suites
+        run: python3 guiones/ci/probar_python.py --suite rapida
+      - name: Ejecutar suites Python de coordinación, web y resiliencia
         run: |
-          python3 -m unittest discover -s pruebas/ci -p "test_*secretos.py"
-          python3 -m unittest discover -s pruebas/ci -p test_runtime_web.py
+          python3 -m venv "$RUNNER_TEMP/qa-python"
+          "$RUNNER_TEMP/qa-python/bin/python" -m pip install coverage==7.17.5
+          "$RUNNER_TEMP/qa-python/bin/python" guiones/ci/medir_cobertura_python.py
       - name: Revisar el contenido publicable
         run: bash guiones/verificar_secretos.sh
+      - name: Verificar las revisiones QA publicadas en main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          corte="$(git log -1 --format=%H --grep=': QA-250 ' "$GITHUB_SHA")"
+          test -n "$corte"
+          python3 guiones/ci/auditar_serie_qa.py --hasta "$corte" --completo
+      - name: Archivar la auditoría del historial QA
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: historial-qa
+          if-no-files-found: error
+          path: |
+            salidas/qa/auditoria/historial.md
+            salidas/qa/auditoria/historial.json
+      - name: Preparar cobertura publicable
+        run: python guiones/ci/publicar_cobertura.py python
+      - name: Archivar informes QA de python
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: qa-python
+          if-no-files-found: warn
+          path: |
+            salidas/qa/reportes/*.xml
+            salidas/qa/publicable/*.xml
+            salidas/qa/publicable/resumen.html
 
   verificar:
     runs-on: windows-2025
@@ -56,19 +86,51 @@ jobs:
           ./guiones/preparar_desarrollo.ps1 -RutaR $rutaR -AdquirirJson
       - name: Verificar cifras, integración, documentación y nombres
         shell: pwsh
-        run: ./guiones/ejecutar_pruebas.ps1 -RutaR $env:RUTA_ESTADISTICA_R_CI
+        run: |
+          $herramientas = Join-Path $env:RUNNER_TEMP 'coverage-dotnet'
+          dotnet tool install dotnet-coverage --version 18.12.0 --tool-path $herramientas
+          if ($LASTEXITCODE) { throw 'Falló la instalación de dotnet-coverage' }
+          ./guiones/ejecutar_pruebas.ps1 -RutaR $env:RUTA_ESTADISTICA_R_CI -HerramientaCobertura "$herramientas/dotnet-coverage.exe"
+      - name: Verificar permutaciones con el paquete R nativo
+        shell: pwsh
+        run: |
+          $env:R_LIBS_USER = (Resolve-Path .dependencias/R/biblioteca).Path
+          Rscript --vanilla pruebas/numericas/verificar_permutaciones.R
       - name: Compilar escritorio
         shell: pwsh
         run: ./guiones/compilar.ps1
+      - name: Comprobar carga declarada de XAML y recursos compilados
+        run: python guiones/ci/verificar_recursos_winui.py --compilado
+      - name: Medir cobertura del paquete R nativo
+        shell: pwsh
+        run: |
+          $env:R_LIBS_USER = (Resolve-Path .dependencias/R/biblioteca).Path
+          Rscript --vanilla -e 'install.packages(c("covr","xml2"), repos="https://cloud.r-project.org", type="binary", quiet=TRUE)'
+          if ($LASTEXITCODE) { throw 'Falló la instalación de dependencias de cobertura R' }
+          Rscript --vanilla guiones/ci/medir_cobertura_r.R
       - name: Compilar API de trabajos
         shell: pwsh
         run: dotnet build codigo/RutaEstadistica.ServidorLocal -c Release --no-restore
       - name: Verificar API y adaptador con R real en Windows
         shell: pwsh
         run: python guiones/probar_api.py
+      - name: Verificar contratos del servidor .NET por HTTP
+        run: python guiones/ci/probar_junit.py pruebas/api salidas/qa/reportes/api.xml
       - name: Compilar host MCP
         shell: pwsh
         run: dotnet build codigo/RutaEstadistica.ServidorMcp -c Release --no-restore
+      - name: Preparar cobertura publicable
+        run: python guiones/ci/publicar_cobertura.py dotnet r
+      - name: Archivar informes QA de windows
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: qa-windows
+          if-no-files-found: warn
+          path: |
+            salidas/qa/reportes/*.xml
+            salidas/qa/publicable/*.xml
+            salidas/qa/publicable/resumen.html
 
   docker:
     name: Docker Linux y cálculo entre contenedores
@@ -85,10 +147,6 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Probar el contrato web sin Docker
-        env:
-          PYTHONPATH: aplicacion:guiones
-        run: python3 -m unittest discover -s pruebas -p test_aplicacion_web.py
       - name: Cotejar bases y fuentes fijadas
         run: python3 guiones/ci/verificar_fuentes.py
       - name: Preparar secreto temporal y carpeta de evidencias
@@ -112,6 +170,11 @@ jobs:
         run: docker compose --progress plain build 2>&1 | tee "$RUTA_ESTADISTICA_EVIDENCIAS/01-compilacion.txt"
       - name: Arrancar Compose y esperar la salud de los servicios
         run: docker compose up -d --wait --wait-timeout 90 2>&1 | tee "$RUTA_ESTADISTICA_EVIDENCIAS/02-arranque.txt"
+      - name: Ejecutar regresiones del despliegue con las imágenes del build
+        run: |
+          export RUTA_QA_IMAGEN_APLICACION="$(docker inspect --format '{{.Config.Image}}' "$(docker compose ps -q aplicacion)")"
+          export RUTA_QA_IMAGEN_MOTOR="$(docker inspect --format '{{.Config.Image}}' "$(docker compose ps -q motor)")"
+          python3 guiones/ci/probar_junit.py pruebas/contenedores salidas/qa/reportes/compose.xml
       - name: Registrar el estado y la red
         run: |
           docker ps --filter "label=com.docker.compose.project=$COMPOSE_PROJECT_NAME" | tee "$RUTA_ESTADISTICA_EVIDENCIAS/03-docker-ps.txt"
@@ -183,3 +246,11 @@ jobs:
             trap 'rm -f -- "$RUTA_ESTADISTICA_ARCHIVO_SECRETO"; rmdir -- "${RUTA_ESTADISTICA_ARCHIVO_SECRETO%/*}"' EXIT
             docker compose down --remove-orphans --rmi local
           fi
+      - name: Archivar informes QA de docker
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: qa-docker
+          if-no-files-found: warn
+          path: |
+            salidas/qa/reportes/*.xml

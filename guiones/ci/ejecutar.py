@@ -490,7 +490,10 @@ def manifestar(exigir):
             if evidencia_regular(ruta) else {"estado": "no generado"}
         ) for ruta in rutas_evidencia()
     }
-    json_archivo(SALIDA / "manifest.json", {"revision": revision(), "archivos": estados})
+    json_archivo(SALIDA / "manifest.json", {
+        "revision": revision(), "archivos": estados,
+        "python": sys.version.split()[0], "sistema": sys.platform,
+    })
     if exigir and any("sha256" not in estado for estado in estados.values()):
         raise ValueError("Faltan evidencias obligatorias")
 

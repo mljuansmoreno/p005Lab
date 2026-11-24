@@ -9,7 +9,7 @@ namespace RutaEstadistica.Aplicacion;
 public sealed class GestorTrabajosMotor : IAsyncDisposable
 {
     private sealed record EntradaDatos(string ProyectoId, string Csv, string Hash, ConjuntoDatos Datos, DateTimeOffset Fecha, long Octetos);
-    private sealed class EntradaTrabajo(string id, SolicitudAnalisis solicitud, string directorio, CancellationTokenSource cancelacion)
+    private sealed class EntradaTrabajo(string id, SolicitudAnalisis solicitud, string directorio, CancellationTokenSource cancelacion, DateTimeOffset fecha)
     {
         public string Id { get; } = id;
         public SolicitudAnalisis Solicitud { get; } = solicitud;
@@ -17,19 +17,24 @@ public sealed class GestorTrabajosMotor : IAsyncDisposable
         public CancellationTokenSource Cancelacion { get; } = cancelacion;
         public EstadoTrabajo Estado { get; set; } = EstadoTrabajo.Pendiente;
         public string? Codigo { get; set; }
-        public DateTimeOffset Fecha { get; set; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset Fecha { get; set; } = fecha;
         public Task Tarea { get; set; } = Task.CompletedTask;
     }
     private readonly object cerrojo = new();
     private readonly Dictionary<string, EntradaDatos> conjuntos = new();
     private readonly Dictionary<string, EntradaTrabajo> trabajos = new();
+    private readonly TimeProvider reloj;
     private readonly IMotorAnalisis motor;
     private readonly string raiz;
     private readonly CancellationTokenSource cierre = new();
     private readonly SemaphoreSlim ejecucion = new(1, 1);
     private bool estaCerrado;
     public GestorTrabajosMotor(IMotorAnalisis motor, string directorioTemporal)
+        : this(motor, directorioTemporal, TimeProvider.System) { }
+
+    public GestorTrabajosMotor(IMotorAnalisis motor, string directorioTemporal, TimeProvider reloj)
     {
+        this.reloj = reloj;
         this.motor = motor;
         raiz = Path.GetFullPath(Path.Combine(directorioTemporal, "ruta_motor_" + Guid.NewGuid().ToString("N")));
         Directory.CreateDirectory(raiz);
@@ -50,12 +55,12 @@ public sealed class GestorTrabajosMotor : IAsyncDisposable
             var existente = conjuntos.FirstOrDefault(par => par.Value.ProyectoId == carga.ProyectoId && par.Value.Hash == hash);
             if (existente.Value is { } anterior)
             {
-                conjuntos[existente.Key] = anterior with { Fecha = DateTimeOffset.UtcNow };
+                conjuntos[existente.Key] = anterior with { Fecha = reloj.GetUtcNow() };
                 return new(existente.Key, hash, datos.Filas.Count, datos.Columnas.Count);
             }
             if (conjuntos.Count >= 4 || conjuntos.Values.Sum(conjunto => conjunto.Octetos) + octetos > 100 * 1024 * 1024) throw new ErrorAplicacion("MOTOR_ALMACEN_LLENO");
             var id = Guid.NewGuid().ToString("N");
-            conjuntos[id] = new(carga.ProyectoId, carga.Csv, hash, datos, DateTimeOffset.UtcNow, octetos);
+            conjuntos[id] = new(carga.ProyectoId, carga.Csv, hash, datos, reloj.GetUtcNow(), octetos);
             return new(id, hash, datos.Filas.Count, datos.Columnas.Count);
         }
     }
@@ -69,7 +74,7 @@ public sealed class GestorTrabajosMotor : IAsyncDisposable
             if (peticion.Solicitud.HashDatos != conjunto.Hash) throw new ErrorAplicacion("DATOS_HASH_INVALIDO");
             if (trabajos.Count >= 100 || trabajos.Values.Count(trabajo => trabajo.Estado is EstadoTrabajo.Pendiente or EstadoTrabajo.Ejecutando) >= 2) throw new ErrorAplicacion("TRABAJO_COLA_LLENA");
             var id = Guid.NewGuid().ToString("N");
-            var trabajo = new EntradaTrabajo(id, peticion.Solicitud, Path.Combine(raiz, id), CancellationTokenSource.CreateLinkedTokenSource(cierre.Token));
+            var trabajo = new EntradaTrabajo(id, peticion.Solicitud, Path.Combine(raiz, id), CancellationTokenSource.CreateLinkedTokenSource(cierre.Token), reloj.GetUtcNow());
             trabajos.Add(id, trabajo);
             // Desacoplar antes de iniciar R evita que POST espere al cálculo o a sus escrituras.
             trabajo.Tarea = Task.Run(() => CalcularAsync(trabajo, conjunto.Csv));
@@ -88,7 +93,7 @@ public sealed class GestorTrabajosMotor : IAsyncDisposable
             if (trabajo.Estado is EstadoTrabajo.Pendiente or EstadoTrabajo.Ejecutando)
             {
                 trabajo.Cancelacion.Cancel(); trabajo.Estado = EstadoTrabajo.Cancelado;
-                trabajo.Codigo = "TRABAJO_CANCELADO"; trabajo.Fecha = DateTimeOffset.UtcNow;
+                trabajo.Codigo = "TRABAJO_CANCELADO"; trabajo.Fecha = reloj.GetUtcNow();
             }
             return Estado(trabajo);
         }
@@ -125,7 +130,7 @@ public sealed class GestorTrabajosMotor : IAsyncDisposable
             lock (cerrojo)
             {
                 trabajo.Estado = trabajo.Cancelacion.IsCancellationRequested ? EstadoTrabajo.Cancelado : EstadoTrabajo.Completado;
-                trabajo.Fecha = DateTimeOffset.UtcNow;
+                trabajo.Fecha = reloj.GetUtcNow();
             }
         }
         catch (Exception error)
@@ -134,7 +139,7 @@ public sealed class GestorTrabajosMotor : IAsyncDisposable
             {
                 trabajo.Codigo = error is ErrorAplicacion conocido ? conocido.Codigo : error is OperationCanceledException ? "TRABAJO_CANCELADO" : "MOTOR_CALCULO_FALLIDO";
                 trabajo.Estado = trabajo.Cancelacion.IsCancellationRequested || trabajo.Codigo == "TRABAJO_CANCELADO" ? EstadoTrabajo.Cancelado : EstadoTrabajo.Fallido;
-                trabajo.Fecha = DateTimeOffset.UtcNow;
+                trabajo.Fecha = reloj.GetUtcNow();
             }
         }
         finally { if (ocupada) ejecucion.Release(); }
@@ -145,7 +150,7 @@ public sealed class GestorTrabajosMotor : IAsyncDisposable
     public void Detener() { lock (cerrojo) { estaCerrado = true; cierre.Cancel(); } }
     private void Depurar()
     {
-        var limite = DateTimeOffset.UtcNow.AddMinutes(-15);
+        var limite = reloj.GetUtcNow().AddMinutes(-15);
         foreach (var id in conjuntos.Where(par => par.Value.Fecha < limite).Select(par => par.Key).ToArray()) conjuntos.Remove(id);
         foreach (var id in trabajos.Where(par => par.Value.Fecha < limite && par.Value.Tarea.IsCompleted).Select(par => par.Key).ToArray())
         {

@@ -1,0 +1,14 @@
+{
+  "fecha_bogota": "2026-11-23",
+  "control": "motor-raiz-solo-lectura",
+  "revision_auditada": "2e49ce856e6b4f8ae5cb1428e30c96e7912099a1",
+  "estado": "correcto",
+  "referencia_nist": {
+    "perfil": "p005Lab-2026-11",
+    "sp_800_53": [
+      "CM-6"
+    ],
+    "metodo": "examen",
+    "sp_800_190": "4.4.3"
+  }
+}

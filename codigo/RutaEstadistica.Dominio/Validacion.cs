@@ -11,7 +11,7 @@ public static class Validacion
         if (solicitud.Columnas.Length != (solicitud.Tipo is "descriptivo" or "cuestionario" ? 1 : 2) || solicitud.Columnas.Distinct().Count() != solicitud.Columnas.Length || solicitud.Columnas.Any(columna => !datos.Columnas.Any(definicion => definicion.Id == columna))) throw new ErrorAplicacion("DATOS_COLUMNA_INVALIDA");
         if (!double.IsFinite(solicitud.Confianza) || solicitud.Confianza is < .8 or > .99) throw new ErrorAplicacion("ANALISIS_OPCION_INVALIDA");
         if (solicitud.Tipo == "pareado" && !solicitud.PareamientoConfirmado) throw new ErrorAplicacion("ANALISIS_PAREAMIENTO_NO_CONFIRMADO");
-        if (solicitud.HashDatos is null || solicitud.HashPreparacion is null || !System.Text.RegularExpressions.Regex.IsMatch(solicitud.HashDatos, "^[a-f0-9]{64}$") || !System.Text.RegularExpressions.Regex.IsMatch(solicitud.HashPreparacion, "^[a-f0-9]{64}$")) throw new ErrorAplicacion("DATOS_HASH_INVALIDO");
+        if (solicitud.HashDatos is null || solicitud.HashPreparacion is null || !System.Text.RegularExpressions.Regex.IsMatch(solicitud.HashDatos, @"\A[a-f0-9]{64}\z") || !System.Text.RegularExpressions.Regex.IsMatch(solicitud.HashPreparacion, @"\A[a-f0-9]{64}\z")) throw new ErrorAplicacion("DATOS_HASH_INVALIDO");
         if (solicitud.PoliticaFaltantes is not ("rechazar" or "excluir_confirmados")) throw new ErrorAplicacion("ANALISIS_OPCION_INVALIDA");
     }
     public static string ProponerRuta(string objetivo, string diseno) => objetivo switch

@@ -45,7 +45,8 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh 'python3 -m unittest discover -s pruebas/ci'
+                sh 'python3 guiones/ci/probar_junit.py pruebas/ci salidas/jenkins-ci/reportes/coordinacion.xml'
+                sh 'RUTA_QA_REPORTES=salidas/jenkins-ci/reportes python3 guiones/ci/probar_python.py --suite resiliencia'
                 sh 'python3 guiones/ci/ejecutar.py web'
                 sh 'python3 guiones/ci/ejecutar.py probar-imagenes'
             }
@@ -70,10 +71,13 @@ pipeline {
                         }
                     }
                 } finally {
-                    for (def informe : ['web', 'integracion']) {
+                    for (def informe : ['web', 'integracion', 'coordinacion', 'resiliencia']) {
                         def ruta = "${salida}/reportes/${informe}.xml"
                         if (fileExists(ruta)) {
                             junit testResults: ruta
+                            if (informe in ['coordinacion', 'resiliencia']) {
+                                archiveArtifacts artifacts: ruta, fingerprint: true, followSymlinks: false
+                            }
                         } else if (currentBuild.currentResult == 'SUCCESS') {
                             error("Falta el informe obligatorio ${ruta}")
                         }

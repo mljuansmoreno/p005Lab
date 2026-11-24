@@ -1,5 +1,6 @@
 """Regresiones de la interfaz web sin depender del motor R."""
 
+import json
 import tempfile
 import unittest
 from http.client import HTTPConnection
@@ -13,6 +14,19 @@ from urllib.request import HTTPHandler, Request
 
 
 class ConfiguracionWeb(unittest.TestCase):
+    def test_direcciones_ipv6_permitidas(self):
+        self.assertEqual(configurar_destino("http://[::1]:1234"), "http://[::1]:1234")
+        with patch("web.cliente_http") as cliente, self.assertRaises(ValueError):
+            analizar("http://[2001:db8::1]:1234", "sintetico")
+        cliente.assert_not_called()
+
+    def test_esquema_invalido_sin_cliente(self):
+        with patch("web.cliente_http") as cliente:
+            for url in ("ftp://localhost:8787", "https://localhost:8787", "//localhost:8787"):
+                with self.subTest(url=url), self.assertRaises(ValueError):
+                    motor_disponible(url, "sintetico")
+            cliente.assert_not_called()
+
     def test_destino(self):
         self.assertEqual(configurar_destino("http://motor:8787/"), "http://motor:8787")
         for url in (
@@ -85,6 +99,13 @@ class InterfazWeb(unittest.TestCase):
         finally:
             cliente.close()
 
+    def test_dos_instancias_reciben_puertos_locales_distintos(self):
+        with ServidorWeb(("127.0.0.1", 0), "http://motor:8787", "e" * 64) as segundo:
+            self.assertEqual(segundo.server_address[0], "127.0.0.1")
+            self.assertGreater(segundo.server_port, 0)
+            self.assertNotEqual(self.direccion[1], segundo.server_port)
+            self.assertEqual(self.solicitar("GET", "/salud")[0], 200)
+
     def test_vida_y_disponibilidad(self):
         with patch("web.motor_disponible", return_value=False):
             self.assertEqual(self.solicitar("GET", "/salud")[0], 200)
@@ -120,3 +141,145 @@ class InterfazWeb(unittest.TestCase):
         self.assertEqual(estado, 503)
         self.assertEqual(cabeceras["Retry-After"], "2")
         self.assertIn(b"capacidad_ocupada", cuerpo)
+
+
+    def test_portada_utf8(self):
+        estado, cabeceras, cuerpo = self.solicitar("GET", "/")
+        self.assertEqual((estado, cabeceras["Content-Type"]), (200, "text/html; charset=utf-8"))
+        self.assertEqual(int(cabeceras["Content-Length"]), len(cuerpo))
+        self.assertIn("Ruta Estadística", cuerpo.decode("utf-8"))
+
+
+    def test_vida_sin_motor(self):
+        with patch("web.motor_disponible", side_effect=AssertionError("consulta inesperada")) as sonda:
+            estado, _, cuerpo = self.solicitar("GET", "/salud")
+        self.assertEqual((estado, json.loads(cuerpo)), (200, {"estado": "activo"}))
+        sonda.assert_not_called()
+
+
+    def test_listo_consulta_destino(self):
+        with patch("web.motor_disponible", return_value=True) as sonda:
+            estado, _, cuerpo = self.solicitar("GET", "/listo")
+        self.assertEqual((estado, json.loads(cuerpo)), (200, {"listo": True}))
+        sonda.assert_called_once_with(self.servidor.destino, self.servidor.secreto)
+
+
+    def test_disponibilidad_se_actualiza(self):
+        with patch("web.motor_disponible", side_effect=[True, False, True]):
+            estados = [self.solicitar("GET", "/listo") for _ in range(3)]
+        self.assertEqual([(e, json.loads(c)["listo"]) for e, _, c in estados],
+                         [(200, True), (503, False), (200, True)])
+
+
+    def test_calculo_json(self):
+        resultado = {"media": 2.5, "filas_analizadas": 4, "estado": "completado"}
+        with patch("web.analizar", return_value=resultado) as calcular:
+            estado, cabeceras, cuerpo = self.solicitar("POST", "/analizar", {"Accept": "application/json"})
+        self.assertEqual(estado, 200)
+        self.assertEqual(cabeceras["Content-Type"], "application/json; charset=utf-8")
+        self.assertEqual(json.loads(cuerpo), resultado)
+        calcular.assert_called_once_with(self.servidor.destino, self.servidor.secreto)
+
+
+    def test_intento_tras_fallo(self):
+        with patch("web.analizar", side_effect=[OSError("interrumpido"), {"media": 1}]):
+            primera = self.solicitar("POST", "/analizar", {"Accept": "application/json"})
+            segunda = self.solicitar("POST", "/analizar", {"Accept": "application/json"})
+        self.assertEqual((primera[0], segunda[0], json.loads(segunda[2])), (502, 200, {"media": 1}))
+
+
+    def test_ocupado_sin_consulta(self):
+        while self.servidor.analisis.acquire(blocking=False):
+            self.addCleanup(self.servidor.analisis.release)
+        with patch("web.analizar") as calcular:
+            estado, cabeceras, cuerpo = self.solicitar("POST", "/analizar")
+        calcular.assert_not_called()
+        self.assertEqual((estado, cabeceras["Retry-After"], json.loads(cuerpo)),
+                         (503, "2", {"error": "capacidad_ocupada"}))
+
+
+    def test_clave_faltante_se_sanea(self):
+        with patch("web.analizar", side_effect=KeyError("referencia-sintetica")):
+            estado, _, cuerpo = self.solicitar("POST", "/analizar", {"Accept": "application/json"})
+        self.assertEqual(estado, 502)
+        self.assertEqual(json.loads(cuerpo), {"error": "motor_no_disponible"})
+        self.assertNotIn(b"referencia-sintetica", cuerpo)
+
+
+    def test_alerta_mantiene_formulario(self):
+        with patch("web.analizar", side_effect=ValueError("detalle de lectura")):
+            estado, _, cuerpo = self.solicitar("POST", "/analizar")
+        self.assertEqual(estado, 502)
+        self.assertIn(b'role="alert"', cuerpo)
+        self.assertIn(b'<form action="/analizar" method="post">', cuerpo)
+        self.assertNotIn(b"detalle de lectura", cuerpo)
+
+
+    def test_metodo_no_implementado(self):
+        with patch("web.analizar") as calcular:
+            estado, _, _ = self.solicitar("PUT", "/analizar")
+        self.assertEqual(estado, 501)
+        calcular.assert_not_called()
+
+
+    def test_ruta_desconocida(self):
+        with patch("web.analizar") as calcular:
+            for metodo in ("GET", "POST"):
+                with self.subTest(metodo=metodo):
+                    self.assertEqual(self.solicitar(metodo, "/ruta-ausente")[0], 404)
+        calcular.assert_not_called()
+
+
+    def test_redireccion_relativa(self):
+        from urllib.error import HTTPError
+        from urllib.request import Request
+        peticion = Request("http://localhost:8787/salud", headers={"Authorization": "Bearer sintetico"})
+        with self.assertRaises(HTTPError) as recibido:
+            cliente_http().error("http", peticion, None, 307, "redirección", {"Location": "/otro"})
+        self.assertEqual(recibido.exception.code, 307)
+
+
+    def test_proxy_global(self):
+        import os
+        with patch.object(os, "environ", dict(os.environ, ALL_PROXY="http://proxy.invalid:8080")):
+            cliente = cliente_http()
+        self.assertFalse(any(hasattr(manejador, "proxy_open") for manejador in cliente.handlers))
+
+
+    def test_destino_parecido(self):
+        with patch("web.cliente_http") as cliente:
+            for destino in ("http://motor.example.invalid:8787", "http://localhost.example.invalid:8787"):
+                with self.subTest(destino=destino), self.assertRaises(ValueError):
+                    analizar(destino, "sintetico")
+            cliente.assert_not_called()
+
+
+    def test_politica_de_formulario(self):
+        _, cabeceras, _ = self.solicitar("GET", "/")
+        directivas = {d.strip() for d in cabeceras["Content-Security-Policy"].split(";")}
+        self.assertTrue({"form-action 'self'", "base-uri 'none'", "default-src 'none'"}.issubset(directivas))
+
+
+    def test_cabeceras_en_error(self):
+        with patch("web.analizar", side_effect=OSError()):
+            _, cabeceras, _ = self.solicitar("POST", "/analizar", {"Accept": "application/json"})
+        self.assertEqual(cabeceras["Cache-Control"], "no-store")
+        self.assertEqual(cabeceras["X-Content-Type-Options"], "nosniff")
+        self.assertEqual(cabeceras["Referrer-Policy"], "no-referrer")
+
+
+    def test_resultado_html_escapado(self):
+        with patch("web.analizar", return_value={"etiqueta": "A < B & C"}):
+            estado, _, cuerpo = self.solicitar("POST", "/analizar")
+        self.assertEqual(estado, 200)
+        self.assertIn(b"A &lt; B &amp; C", cuerpo)
+        self.assertNotIn(b"A < B & C", cuerpo)
+
+
+    def test_error_de_dominio_visible(self):
+        from web import ErrorMotor
+        with patch("web.analizar", side_effect=ErrorMotor("Falta una columna")):
+            estado, _, cuerpo = self.solicitar("POST", "/analizar")
+        self.assertEqual(estado, 502)
+        self.assertIn(b"Falta una columna", cuerpo)
+        self.assertNotIn(b"Traceback", cuerpo)

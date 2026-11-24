@@ -1,0 +1,15 @@
+{
+  "fecha_bogota": "2026-11-23",
+  "control": "http-motor-autenticacion",
+  "revision_auditada": "2e49ce856e6b4f8ae5cb1428e30c96e7912099a1",
+  "estado": "correcto",
+  "referencia_nist": {
+    "perfil": "p005Lab-2026-11",
+    "sp_800_53": [
+      "AC-3",
+      "IA-5"
+    ],
+    "metodo": "prueba",
+    "sp_800_190": "4.4.4"
+  }
+}

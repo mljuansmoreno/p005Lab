@@ -1,4 +1,5 @@
 jenkins/*.sh text eol=lf
+guiones/*.sh text eol=lf
 guiones/ci/*.sh text eol=lf
 # El manifiesto del build valida los bytes originales del runner Linux.
 documentacion/evidencias-jenkins/build-11101/** -text

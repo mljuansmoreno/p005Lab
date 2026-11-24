@@ -19,6 +19,66 @@ from reportes import Reporte, ResultadoWeb
 
 
 class PruebasInforme(unittest.TestCase):
+    def test_artefacto_no_escribible(self):
+        reporte = Reporte("simulacion")
+        reporte.caso("calculo", "prueba", 0)
+        with TemporaryDirectory() as directorio:
+            carpeta = Path(directorio)
+            with self.assertRaises(OSError):
+                reporte.guardar(carpeta)
+            ruta = carpeta / "casos.xml"
+            reporte.guardar(ruta)
+            self.assertEqual(ET.parse(ruta).getroot().find("testcase").get("name"), "calculo")
+
+    def test_almacenamiento_temporal_lleno(self):
+        import errno
+        reporte = Reporte("simulacion")
+        with TemporaryDirectory() as directorio:
+            carpeta = Path(directorio)
+            with patch.object(ejecutar, "comando", side_effect=OSError(errno.ENOSPC, "espacio agotado")):
+                with self.assertRaisesRegex(ValueError, "OSError"):
+                    ejecutar.ejecutar_caso(reporte, "calculo", carpeta, os.environ, ["simulado"], 1)
+            self.assertFalse((carpeta / "paso.log").exists())
+            destino = carpeta / "casos.xml"
+            reporte.guardar(destino)
+            self.assertEqual(ET.parse(destino).getroot().get("errors"), "1")
+
+    def test_secretos_fuera_del_indice(self):
+        nombres = ["credenciales/motor.secreto", ".env", ".env.local", "respaldo.pfx"]
+        for nombre in nombres:
+            with self.subTest(nombre=nombre):
+                ignorado = subprocess.run(["git","check-ignore","--no-index","-q","--",nombre], cwd=ejecutar.RAIZ)
+                self.assertEqual(ignorado.returncode, 0)
+        rastreados = subprocess.check_output(["git","ls-files","-z"],cwd=ejecutar.RAIZ).decode().split("\0")
+        self.assertFalse(any(n in rastreados for n in nombres))
+
+    def test_fallo_de_proceso_publica_el_codigo_y_descarta_la_salida_privada(self):
+        reporte = Reporte("integracion")
+        with TemporaryDirectory() as directorio:
+            carpeta = Path(directorio)
+            orden = [sys.executable, "-c", "print('dato-sintetico-privado'); raise SystemExit(3)"]
+            with self.assertRaisesRegex(ValueError, "código de salida 3"):
+                ejecutar.ejecutar_caso(reporte, "calculo", carpeta, os.environ, orden, 10)
+            xml = carpeta / "integracion.xml"
+            reporte.guardar(xml)
+            self.assertEqual(ET.parse(xml).getroot().get("failures"), "1")
+            self.assertIn("código de salida 3", xml.read_text("utf-8"))
+            self.assertNotIn("dato-sintetico-privado", xml.read_text("utf-8"))
+            self.assertFalse((carpeta / "paso.log").exists())
+
+    def test_truncar_evidencia_invalida_la_huella_del_manifiesto(self):
+        with TemporaryDirectory() as carpeta, patch.object(ejecutar, "SALIDA", Path(carpeta)):
+            ruta = Path(carpeta) / "02-arranque.txt"
+            manifiesto = Path(carpeta) / "manifest.json"
+            ruta.write_bytes(b"abc")
+            ejecutar.manifestar(exigir=False)
+            registro = json.loads(manifiesto.read_text("utf-8"))["archivos"][ruta.name]
+            self.assertEqual(registro, {"bytes": 3, "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"})
+            ruta.write_bytes(b"")
+            ejecutar.manifestar(exigir=False)
+            self.assertEqual(json.loads(manifiesto.read_text("utf-8"))["archivos"][ruta.name],
+                             {"estado": "no generado"})
+
     def test_junit_refleja_exito_y_fallo(self):
         reporte = Reporte("fixture")
         resultado = ResultadoWeb(reporte)
@@ -48,6 +108,8 @@ class PruebasInforme(unittest.TestCase):
                 ejecutar.manifestar(exigir=True)
             datos = json.loads((Path(directorio) / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(datos["archivos"]["reportes/web.xml"]["estado"], "no generado")
+            self.assertEqual(datos["python"], sys.version.split()[0])
+            self.assertEqual(datos["sistema"], sys.platform)
 
     def test_archivo_ignora_nombres_ajenos_y_reportes_vacios(self):
         with TemporaryDirectory() as directorio:
@@ -93,7 +155,8 @@ class PruebasEjecucion(unittest.TestCase):
             self.assertIsNotNone(xml.find("testcase[@name='limpieza']"))
 
     def test_compose_aislado_de_variables_heredadas(self):
-        with patch.dict(os.environ, {"COMPOSE_PROFILES": "ajeno", "COMPOSE_PROJECT_NAME": "demo"}):
+        entorno = dict(os.environ, COMPOSE_PROFILES="ajeno", COMPOSE_PROJECT_NAME="demo")
+        with patch.object(os, "environ", entorno):
             ruta = Path("/tmp/con espacios/secreto")
             env = ejecutar.entorno_compose("ruta-ci-prueba", ruta, 18180)
         self.assertNotIn("COMPOSE_PROFILES", env)
@@ -184,6 +247,21 @@ class PruebasEjecucion(unittest.TestCase):
             self.assertIsNotNone(reporte.find("testcase[@name='limpieza']"))
             self.assertTrue((ruta / "09-limpieza.txt").exists())
 
+    def test_reintento_limpia_solo_los_informes_del_coordinador(self):
+        with TemporaryDirectory() as carpeta:
+            salida = Path(carpeta) / "salidas"
+            reportes = salida / "reportes"
+            reportes.mkdir(parents=True)
+            anterior = reportes / "web.xml"
+            propio_usuario = reportes / "observaciones.txt"
+            anterior.write_text("obsoleto", encoding="utf-8")
+            propio_usuario.write_text("conservar", encoding="utf-8")
+            with (patch.object(ejecutar, "SALIDA", salida),
+                  patch.object(ejecutar, "preflight", return_value={})):
+                ejecutar.preparar()
+            self.assertFalse(anterior.exists())
+            self.assertEqual(propio_usuario.read_text("utf-8"), "conservar")
+
     def test_dependencia_ausente_deja_revision_y_estado(self):
         with TemporaryDirectory() as directorio, patch.object(ejecutar, "SALIDA", Path(directorio)):
             with patch.object(ejecutar, "preflight", side_effect=ValueError("Falta el programa jq")):
@@ -203,7 +281,8 @@ class PruebasEjecucion(unittest.TestCase):
 
     def test_procedencia_rechaza_revision_ci_distinta_al_checkout(self):
         with (patch.object(ejecutar, "revision", return_value="a" * 40),
-              patch.dict(os.environ, {"RUTA_ESTADISTICA_REVISION": "b" * 40}), patch.object(ejecutar, "texto") as docker):
+              patch.object(os, "environ", dict(os.environ, RUTA_ESTADISTICA_REVISION="b" * 40)),
+              patch.object(ejecutar, "texto") as docker):
             with self.assertRaisesRegex(ValueError, "no coincide con el checkout"):
                 ejecutar.procedencia_actual()
             docker.assert_not_called()

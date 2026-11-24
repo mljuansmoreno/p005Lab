@@ -11,6 +11,12 @@ sys.path.insert(0, str(RAIZ / "guiones/ci"))
 from comprobar_excepciones import comprobar
 
 class ExcepcionesSecretos(unittest.TestCase):
+    def test_identidad_de_excepcion(self):
+        documento = copy.deepcopy(self.documento)
+        documento["matches"][0]["plugin"] = "otro-plugin-publico"
+        with self.assertRaises(ValueError):
+            self.validar(documento)
+
     def setUp(self):
         self.temporal = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporal.cleanup)

@@ -1,6 +1,7 @@
 """Reportes JUnit de las pruebas sintéticas, sin copiar salida ni trazas crudas."""
 
 from pathlib import Path
+from math import isfinite
 from time import monotonic
 import unittest
 import xml.etree.ElementTree as ET
@@ -16,6 +17,8 @@ class Reporte:
         self.inicio -= float(self.raiz.get("time", "0"))
 
     def caso(self, nombre, clase, segundos, etiqueta=None, mensaje=None):
+        if not isfinite(segundos) or segundos < 0:
+            raise ValueError("Duración de caso inválida")
         caso = ET.SubElement(self.raiz, "testcase", {
             "name": nombre, "classname": clase, "time": f"{segundos:.6f}",
         })
@@ -80,14 +83,19 @@ class ResultadoWeb(unittest.TestResult):
         super().addSubTest(test, subtest, err)
         if err:
             etiqueta = "failure" if issubclass(err[0], test.failureException) else "error"
-            self.registrar(subtest, etiqueta, err[0].__name__)
+            self.registrar(test, etiqueta, err[0].__name__)
 
 
 def probar_web(ruta):
     suite = unittest.defaultTestLoader.discover("pruebas", pattern="test_aplicacion_web.py")
     reporte = Reporte("web")
     resultado = ResultadoWeb(reporte)
-    suite.run(resultado)
+    try:
+        suite.run(resultado)
+    except (Exception, KeyboardInterrupt) as error:
+        reporte.caso("interrupcion_suite", "unittest", 0, "error", type(error).__name__)
+        reporte.guardar(ruta)
+        raise
     reporte.guardar(ruta)
     print(f"Web: {resultado.testsRun} ejecutadas, {resultado.exitos} correctas")
     return resultado.wasSuccessful() and resultado.exitos > 0
