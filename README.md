@@ -181,6 +181,13 @@ Para consultar JUnit y cobertura, descargue `qa-python`, `qa-windows` o `qa-dock
 
 Desde la raíz del clon, ejecute `python guiones/ci/probar_python.py --suite rapida` para revisar el contrato documental sin levantar servicios. Para coordinación y web, ejecute `python guiones/ci/probar_python.py`. El motivo de cada omisión figura en la salida de la suite. [Ejecución y dependencias](documentacion/qa/ejecucion_y_mantenimiento.md).
 
+Para verificar los identificadores QA-001 a QA-250, use un clon con historial completo y acceso al remoto. El auditor comprueba la ascendencia y los objetos publicados y escribe `historial.md` e `historial.json` en `salidas/qa/auditoria/`. [Trazabilidad por caso](documentacion/qa/trazabilidad_casos.md).
+
+```console
+git fetch origin main
+python guiones/ci/auditar_serie_qa.py --hasta 3f44fb2ce694839927a200283d983469eed8651d --completo
+```
+
 ## Aplicación de escritorio
 
 ### Inicio de desarrollo
