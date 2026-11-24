@@ -17,4 +17,6 @@
 
 La API arranca en [ServidorLocal](../codigo/RutaEstadistica.ServidorLocal/Program.cs); stdio en [ServidorMcp](../codigo/RutaEstadistica.ServidorMcp/Program.cs). Los nombres concretos sirven para puntos de interrupción en [depuración](depuracion.md).
 
+La API gestiona los trabajos en [GestorTrabajosMotor.cs](../codigo/RutaEstadistica.Aplicacion/GestorTrabajosMotor.cs). Las pruebas HTTP del servidor se encuentran en [test_trabajos_http.py](../pruebas/api/test_trabajos_http.py).
+
 Pruebas: [consola .NET](../pruebas/RutaEstadistica.PruebasUnitarias/Program.cs) y [verificación R](../motor_r/rutaanalitica/tests/verificar.R). No se confunda la existencia de estos archivos con una ejecución: los resultados están en [estado](estado_entrega.md).
