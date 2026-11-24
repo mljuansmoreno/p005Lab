@@ -344,6 +344,7 @@ El piloto automático alojado [#11101](documentacion/evidencias-jenkins/build-11
 | Build | Resultado registrado |
 | --- | --- |
 | [Alojado #11901](https://github.com/mljuansmoreno/p005Lab/actions/runs/45112403626), `2e49ce8` | `SUCCESS` en el cierre de los 155 commits. El check conserva la revisión del push y la ejecución del job. |
+| [Alojado de `03edc5a`](https://github.com/mljuansmoreno/p005Lab/actions/runs/45318939185) | Jenkins completó su pipeline en Linux. La verificación nativa de Windows se ejecutó en otro workflow. |
 | **Local #9**, `911f2cb`, disparo por cambio SCM | `SUCCESS`. Seis pruebas web y trece de integración, cálculo real, recuperación del motor, suite de R 4.5.2, escaneo de las dos imágenes y limpieza. |
 | **Local #13**, `bfde9fd`, disparo manual | `SUCCESS`. Seis pruebas web y trece de integración; el manifiesto conserva el cálculo, la recuperación, R, ambos escaneos y el desmontaje. |
 | **Autopruebas locales #3 y #4** | `FAILURE` esperado en la aserción de cálculo. Se archivó el desmontaje y en #4 JUnit registró explícitamente `limpieza` como correcta. |
