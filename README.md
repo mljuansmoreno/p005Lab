@@ -19,6 +19,8 @@ El 23 de noviembre de 2026 (Bogotá), Docker Linux y credenciales aprobaron en `
 
 El verificador encontró dos enlaces a `ruta-estadistica-articulo.pdf` en `documentacion/estado_entrega.md` y `documentacion/evidencias_compose.md`. El PDF se había retirado del repositorio. Para reproducir la comprobación desde la raíz, ejecute `./guiones/verificar_documentacion.ps1` con PowerShell. [Registro de Windows](https://github.com/mljuansmoreno/p005Lab/actions/runs/45318939053).
 
+En el cierre QA-250 (`3f44fb2`), ambos workflows aprobaron. Para comparar resultados entre revisiones, abra el trabajo de la misma plataforma y compruebe su SHA. [Windows y Docker de QA-250](https://github.com/mljuansmoreno/p005Lab/actions/runs/45233851177) · [Jenkins de QA-250](https://github.com/mljuansmoreno/p005Lab/actions/runs/45233850871).
+
 ### Qué se puede hacer desde el repositorio
 
 - **Probar el cálculo de extremo a extremo** con los datos sintéticos de la demo y un navegador. La demo web tiene un formulario de ejemplo fijo. El escritorio es la interfaz para importar y analizar datos propios.
