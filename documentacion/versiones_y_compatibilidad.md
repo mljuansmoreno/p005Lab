@@ -14,9 +14,9 @@ Fuentes consultadas el **27 de octubre de 2026**, zona America/Bogota. Los archi
 | SQLitePCLRaw.bundle_e_sqlite3 | 3.0.5 | Actualización explícita; resolución nativa SQLite en lockfile. No asumir ausencia de vulnerabilidades por versión. |
 | ModelContextProtocol | 2.3.0 | [SDK oficial](https://github.com/modelcontextprotocol/csharp-sdk); revisar negociación real. |
 | Microsoft.Extensions.Hosting | 10.0.14 | Host stdio, versiones fijadas centralmente. |
-| Docker R base | rocker/r-ver:4.5.2 | Sin digest verificado: no liberable. |
+| Docker R base | rocker/r-ver:4.5.2 | La receta fija la base por SHA-256. [Inventario de bases](../contenedores/bases.lock.json) · [Dockerfile](../contenedores/Dockerfile). |
 
-No se afirma compatibilidad ARM64. Las bibliotecas de R Windows y Linux se construyen por separado. La imagen Linux está sin validar y requiere fijar bibliotecas de sistema, hashes de descarga y digest de bases. Un lockfile de R no fija OS/BLAS/fuentes.
+El motor se construye para Linux amd64. Windows y Linux usan bibliotecas R compiladas por separado. La suite de contenedores ejercita el despliegue y el cálculo con las imágenes construidas. [Resultados por plataforma](qa/cobertura_y_limites.md).
 
 MCP latest resuelve a [2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28). La revisión soportada por un cliente antiguo no se deduce de latest: probar `initialize` y registrar negociación. La [página de versionado](https://csharp.sdk.modelcontextprotocol.io/versioning.html) redirige; no se atribuye compatibilidad a clientes no ejecutados.
 
@@ -24,4 +24,4 @@ Decisión XLSX: parser de XML restringido propio en .NET, no readxl; se consult�
 
 Adquisición: [instalación](instalacion_desarrollo.md). Inventario/licencias: [dependencias](licencias_y_dependencias.md). Estado real: [entrega](estado_entrega.md).
 
-Entorno observado de esta sesión: Windows 10.0.26300 x64, SDK aislado y R global presente. No equivale a máquina limpia. CPU/RAM y tiempos de referencia no se midieron; no se publican requisitos de memoria o rendimiento inferidos.
+Entorno observado de esta sesión: Windows 10.0.26300 x64, SDK aislado y R global presente. No equivale a máquina limpia. QA-250 registró después latencia y picos de memoria para cargas concretas en Windows. [Condiciones de medición](qa/cobertura_y_limites.md).
