@@ -197,6 +197,7 @@ Las cifras siguientes proceden de la revisión `1e7d92f`. Los resultados remotos
 | Linux · coordinación Python | 103 descubiertas, 102 aprobadas y una omitida. |
 | Linux · web y resiliencia | 33 pruebas web y 9 de resiliencia aprobadas. |
 | Windows · API HTTP con R | 44 pruebas aprobadas. Para repetirlas con el servidor y R preparados, ejecute `python guiones/ci/probar_junit.py pruebas/api salidas/qa/reportes/api.xml`. |
+| Docker Linux · configuración y despliegue | 24 pruebas aprobadas sobre la topología y las imágenes del build. |
 
 ## Aplicación de escritorio
 
