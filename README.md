@@ -430,6 +430,8 @@ En Windows también quedaron registrados [los controles HTTP del servicio](docum
 - La revisión del historial y de archivos publicables, incluidos comprimidos, usa Gitleaks. Las [excepciones históricas de Jenkins](documentacion/secretos-historial-jenkins.md) se validan por huella individual y corresponden a versiones públicas de plugins. Los informes publicados conservan el estado del control y omiten los valores sensibles.
 - La [corrida del 23 de noviembre](https://github.com/mljuansmoreno/p005Lab/actions/runs/45198362075) verificó Windows, Docker Linux y secretos sobre `2e49ce8`. Los 75 JSON publicados para esa fecha quedaron en `correcto`, con cero coincidencias altas o críticas en ambas imágenes. El perfil exige una base de avisos de hasta 48 horas y conserva la huella del inventario CycloneDX, el identificador de imagen y la ejecución en los controles de escaneo.
 
+El informe QA registra 1.387 componentes inventariados en la aplicación y 8.828 en el motor. Grype informó cero coincidencias altas y críticas con la base del 23 de noviembre de 2026 a las 06:28:32 UTC. El inventario y el resultado se deben cotejar con las imágenes del build que se evalúa. [Alcance del escaneo](documentacion/qa/riesgos_abiertos.md).
+
 ## Evolución de la entrega
 
 | Etapa | Cambios incorporados |
