@@ -73,6 +73,8 @@ Los siete criterios suman 135 puntos posibles. El cierre de Jenkins corresponde 
 
 ## Integración con GitHub
 
+**Puntaje de la rúbrica:** 15 puntos.
+
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
 | Repositorio y rama | Leer la URL remota y refs/heads/main en la traza de sondeo. | El controlador permanente consultó GitHub mediante git ls-remote y reconoció el SHA del #29 como ya construido. | [trabajo-main.xml](https://github.com/mljuansmoreno/p005Lab/blob/64903be883027dd1600d7f7a6c026f5d5079b988/jenkins/trabajo-main.xml) · [poll-scm.txt](https://github.com/mljuansmoreno/p005Lab/blob/2fe8f589d467a400189aeaa965b328fe01c94dd4/documentacion/evidencias-jenkins/poll-scm.txt) |
