@@ -21,4 +21,4 @@ flowchart LR
 
 Solo `rutaanalitica::analizar` calcula estadísticas. El código .NET analiza formatos, normaliza valores y coordina persistencia. Los gráficos son PNG de R, no dependen de un navegador.
 
-Configuración: recursos inmutables junto al ejecutable, datos en perfil de usuario, secreto Docker fuera del repositorio. Fallos se expresan mediante códigos españoles. Reproduzca el flujo con [recorrido](recorrido_completo.md); pruebas en [calidad](pruebas_y_calidad.md). No se han medido aún límites de memoria por proceso Windows.
+Configuración: recursos inmutables junto al ejecutable, datos en perfil de usuario, secreto Docker fuera del repositorio. Fallos se expresan mediante códigos españoles. Reproduzca el flujo con [recorrido](recorrido_completo.md); pruebas en [calidad](pruebas_y_calidad.md). QA-250 midió en Windows el pico residente del servidor y de su árbol de procesos con dos tamaños de entrada. [Mediciones y límites](qa/cobertura_y_limites.md).
