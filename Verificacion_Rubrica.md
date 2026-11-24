@@ -92,6 +92,7 @@ Los siete criterios suman 135 puntos posibles. El cierre de Jenkins corresponde 
 
 - [Compose](docker-compose.yml) define `aplicacion` y `motor` desde el mismo checkout. Consulte sus [Dockerfiles de aplicación](aplicacion/Dockerfile) y [motor](contenedores/Dockerfile) y el [comando de construcción](guiones/ci/ejecutar.py).
 - La [salida completa de compilación](documentacion/evidencias-jenkins/build-11001/01-compilacion.txt) y los [IDs OCI y modo sin caché](documentacion/evidencias-jenkins/build-11001/ejecucion.json) pertenecen a `ruta-estadistica-main` alojado #11001 en `295325f`, `SUCCESS` por disparo manual. El [origen de Actions](documentacion/evidencias-jenkins/build-11001/origen-actions.json) registra el parámetro solicitado.
+- Los escaneos archivados cotejan el ID y el inventario de [aplicación](documentacion/evidencias-jenkins/build-11001/seguridad-aplicacion.json) y [motor](documentacion/evidencias-jenkins/build-11001/seguridad-motor.json) del mismo build.
 
 | Aspecto | Procedimiento | Resultado y alcance | Implementación y evidencia |
 | --- | --- | --- | --- |
