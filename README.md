@@ -116,7 +116,7 @@ docker compose ps
 
 `aplicacion` y `motor` deben aparecer saludables. Solo `aplicacion` debe tener un puerto publicado en el host. La primera construcción puede tardar más que un arranque posterior; el plazo de espera se aplica al arranque de los servicios.
 
-**4.** Abra [http://127.0.0.1:8080](http://127.0.0.1:8080) y pulse **Calcular ejemplo**. El formulario debe mostrar **6 filas** con media **25/6**, aproximadamente **4,16666666666667**. Use el puerto que configuró si cambió el predeterminado. El ejemplo web es fijo y difiere del ejemplo del escritorio.
+**4.** Abra [http://127.0.0.1:8080](http://127.0.0.1:8080) y pulse **Calcular ejemplo**. El formulario debe mostrar **6 filas** con media **25/6**, aproximadamente **4,16666666666667**. Use el puerto que configuró si cambió el predeterminado. La regresión QA-149 reproduce el envío del formulario en Chromium y comprueba esa misma media con R real. [Defecto y reparación](documentacion/qa/defectos_y_regresiones.md).
 
 **5.** Compruebe las sondas y repita el cálculo automáticamente. Use `curl` en Bash o `curl.exe` en PowerShell, y ajuste el puerto de las URLs si lo cambió.
 
