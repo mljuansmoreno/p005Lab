@@ -14,7 +14,9 @@ Proyecto de Integración Continua del Politécnico Grancolombiano, por Juan Seba
 
 Los resultados de esta guía corresponden a las revisiones, fechas y ejecuciones indicadas. Los pasos de reproducción explican qué esperar al ejecutarlos en otro equipo. Para ver los cambios consolidados, consulte la [evolución de la entrega](#evolución-de-la-entrega).
 
-## Estado de la revisión `03edc5a`
+## Estado de CI por revisión
+
+En `9517492`, Docker Linux y el control de credenciales aprobaron, Windows falló y Jenkins alojado aprobó. [Windows y Docker](https://github.com/mljuansmoreno/p005Lab/actions/runs/45327752796) · [Jenkins](https://github.com/mljuansmoreno/p005Lab/actions/runs/45327752851).
 
 El 23 de noviembre de 2026 (Bogotá), Docker Linux y credenciales aprobaron en `main`. El trabajo Windows llegó a 148 comprobaciones correctas del arnés .NET y falló después, en la validación documental. Jenkins alojado terminó con éxito sobre el mismo SHA. [Verificación Windows y Docker](https://github.com/mljuansmoreno/p005Lab/actions/runs/45318939053) · [Jenkins](https://github.com/mljuansmoreno/p005Lab/actions/runs/45318939185).
 
@@ -276,7 +278,7 @@ Abra la aplicación nativa, seleccione **Docker** en Configuración y calcule. E
 
 **Usar MCP.** Abra el escritorio, autorice el proyecto en Configuración y lance el servidor stdio desde un cliente de confianza con la [configuración MCP del repositorio](documentacion/mcp.md). Revocar el acceso o cerrar la aplicación elimina las concesiones de sesión. El ensayo por stdio verificó la revisión del protocolo, las nueve herramientas y el acceso sin concesión. El ensayo con un cliente externo sigue pendiente. [Cliente de prueba](guiones/probar_mcp.py).
 
-**Alcance de la entrega.** La publicación y el arranque de WinUI tienen evidencia. Quedan cuatro procedimientos manuales en Windows: navegación por teclado, contraste y escala, lector de pantalla e instalación y primera ejecución de MSIX. Cada procedimiento indica qué observar y registrar. [Protocolos de escritorio](documentacion/qa/verificacion_manual_escritorio.md). Las pruebas Docker de la demo tampoco acreditan por sí solas la paridad completa del escritorio entre motores. El MSIX de desarrollo documentado se creó sin firma; no acredita instalación limpia, actualización, WACK ni aprobación de Microsoft Store. No incluye exportación directa de resultados a PDF, regresión múltiple ni cuestionarios de respuesta múltiple. [Estado](documentacion/estado_entrega.md) · [Continuidad](documentacion/continuidad.md) · [Limitaciones](documentacion/limitaciones_y_pendientes.md) · [Empaquetado](documentacion/empaquetado_y_publicacion.md).
+**Alcance de la entrega.** La publicación y el arranque de WinUI tienen evidencia. Quedan cuatro procedimientos manuales en Windows: navegación por teclado, contraste y escala, lector de pantalla e instalación y primera ejecución de MSIX. Cada procedimiento indica qué observar y registrar. [Protocolos de escritorio](documentacion/qa/verificacion_manual_escritorio.md). Las pruebas Docker de la demo tampoco acreditan por sí solas la paridad completa del escritorio entre motores. El MSIX de desarrollo documentado se creó sin firma; no acredita instalación limpia, actualización, WACK ni aprobación de Microsoft Store. No incluye exportación directa de resultados a PDF, regresión múltiple ni cuestionarios de respuesta múltiple. [Estado](documentacion/estado_entrega.md) · [Continuidad](documentacion/continuidad.md) · [Limitaciones](documentacion/qa/riesgos_abiertos.md) · [Empaquetado](documentacion/empaquetado_y_publicacion.md).
 
 ## Integración continua con Jenkins
 
