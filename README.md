@@ -26,7 +26,7 @@ En el cierre QA-250 (`3f44fb2`), ambos workflows aprobaron. Para comparar result
 - **Probar el cálculo de extremo a extremo** con los datos sintéticos de la demo y un navegador. La demo web tiene un formulario de ejemplo fijo. El escritorio es la interfaz para importar y analizar datos propios.
 - **Trabajar con datos en Windows** con proyectos, métodos estadísticos, interpretación y exportaciones reproducibles. Puede usar el motor R local o el motor opcional en Docker.
 - **Desarrollar o evaluar la entrega** desde un clon público. Consulte los [contratos de la API](documentacion/contratos_y_api.md), la [guía de pruebas](documentacion/pruebas_y_calidad.md) y el [anexo de CI](documentacion/evidencias-jenkins/README.md) para distinguir los pasos reproducibles de los resultados ya observados.
-- **Revisar la serie de 250 casos QA** en el [informe de auditoría](documentacion/qa/informe_final.md), con cobertura, regresiones, limitaciones e instrucciones para recuperar los SHA publicados.
+- **Revisar los 250 cambios numerados de QA** (pruebas, mediciones, procedimientos e informes, más dos correcciones adicionales de integración) en el [informe de auditoría](documentacion/qa/informe_final.md), con cobertura, regresiones, limitaciones e instrucciones para recuperar los SHA publicados.
 
 Antes de reproducir una evidencia, ejecute `git rev-parse HEAD` y compárelo con el SHA de la ficha. El contenido de `main` sigue evolucionando.
 
