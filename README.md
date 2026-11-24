@@ -163,6 +163,7 @@ Para una demostración pública use el CSV sintético del repositorio. Si usa el
 
 | Ejecución | Resultado observado |
 | --- | --- |
+| [Docker Linux de `03edc5a`](https://github.com/mljuansmoreno/p005Lab/actions/runs/45318939053) | El trabajo de Docker terminó con éxito. El fallo de la ejecución global corresponde al trabajo Windows. |
 | [GitHub Actions 42566314429](https://github.com/mljuansmoreno/p005Lab/actions/runs/42566314429) | Docker Linux pasó. Windows quedó sin ejecutar las pruebas nativas porque la descarga de R devolvió HTTP 504. |
 | [GitHub Actions 42755729490](https://github.com/mljuansmoreno/p005Lab/actions/runs/42755729490), rama del PR #1 `4c173dc` | Pasaron Windows con siete rutas HTTP usando R real y Docker Linux con seis filas y media de 25/6. |
 | [GitHub Actions 42844551193](https://github.com/mljuansmoreno/p005Lab/actions/runs/42844551193), rama `abc71d6`, fusión de prueba `deb14c0` | Pasaron Windows y Docker Linux. El anexo registra la construcción de ambas imágenes, los dos servicios sanos, el puerto web en loopback, la red y el cálculo. |
