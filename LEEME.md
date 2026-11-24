@@ -33,7 +33,7 @@ MCP: [consentimiento y lanzador](documentacion/mcp.md). La aplicación debe esta
 
 `codigo`: escritorio y capas .NET; `motor_r`: cálculos; `pruebas`: comprobaciones sintéticas; `contratos`: esquemas; `contenedores`: motor Linux; `empaquetado`: manifiesto MSIX; `guiones`: preparación, compilación y verificación.
 
-[Manual](documentacion/manual_usuario.md) · [Desarrollo](documentacion/instalacion_desarrollo.md) · [Mapa del código](documentacion/mapa_codigo.md) · [Depuración](documentacion/depuracion.md) · [Limitaciones](documentacion/limitaciones_y_pendientes.md).
+[Manual](documentacion/manual_usuario.md) · [Desarrollo](documentacion/instalacion_desarrollo.md) · [Mapa del código](documentacion/mapa_codigo.md) · [Depuración](documentacion/depuracion.md) · [Limitaciones](documentacion/qa/riesgos_abiertos.md).
 
 No se incluyen capturas de una interfaz que no haya sido ejecutada. Las capturas verificadas, cuando existan, se conservan en `salidas/informes`.
 
